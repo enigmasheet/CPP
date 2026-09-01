@@ -1,0 +1,20 @@
+[
+  {
+    "name": "C++ Programming",
+    "slug": "cpp",
+    "description": "Master C++ from basics to advanced concepts with interactive quizzes, games, and hands-on coding practice.",
+    "icon": "Code2",
+    "topics": [
+      { "name": "Basics", "slug": "basics" },
+      { "name": "Control Flow", "slug": "control-flow" },
+      { "name": "Functions", "slug": "functions" },
+      { "name": "OOP", "slug": "oop" },
+      { "name": "Pointers", "slug": "pointers" },
+      { "name": "References", "slug": "references" },
+      { "name": "STL", "slug": "stl" },
+      { "name": "Memory Management", "slug": "memory-management" },
+      { "name": "Templates", "slug": "templates" },
+      { "name": "Modern C++", "slug": "modern-cpp" }
+    ]
+  }
+]

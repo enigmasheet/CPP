@@ -1,0 +1,674 @@
+[
+  {
+    "topic": "Basics",
+    "question": "What is the size of an int on most 32-bit and 64-bit systems?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "2 bytes", "isCorrect": false },
+      { "text": "4 bytes", "isCorrect": true },
+      { "text": "8 bytes", "isCorrect": false },
+      { "text": "Depends on the compiler", "isCorrect": false }
+    ],
+    "explanation": "On most modern 32-bit and 64-bit systems, an int is 4 bytes (32 bits). This is defined by the compiler and platform.",
+    "difficulty": "easy",
+    "tags": ["basics", "data-types"]
+  },
+  {
+    "topic": "Basics",
+    "question": "Which of the following is used to print output in C++?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "printf()", "isCorrect": false },
+      { "text": "cout", "isCorrect": true },
+      { "text": "System.out.println()", "isCorrect": false },
+      { "text": "print()", "isCorrect": false }
+    ],
+    "explanation": "cout is the standard output stream in C++ used with the insertion operator (<<). printf() is from C language.",
+    "difficulty": "easy",
+    "tags": ["basics", "io"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the correct way to declare a variable in C++?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "int x = 10;", "isCorrect": true },
+      { "text": "x int = 10;", "isCorrect": false },
+      { "text": "variable int x = 10;", "isCorrect": false },
+      { "text": "declare int x = 10;", "isCorrect": false }
+    ],
+    "explanation": "In C++, variables are declared as: type name = value; The type comes first, followed by the variable name.",
+    "difficulty": "easy",
+    "tags": ["basics", "variables"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What does the following code output?\n#include <iostream>\nusing namespace std;\nint main() {\n    cout << 2 + 3 * 4;\n    return 0;\n}",
+    "codeSnippet": "cout << 2 + 3 * 4;",
+    "options": [
+      { "text": "20", "isCorrect": false },
+      { "text": "14", "isCorrect": true },
+      { "text": "24", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "Due to operator precedence, multiplication happens before addition: 3 * 4 = 12, then 2 + 12 = 14.",
+    "difficulty": "easy",
+    "tags": ["basics", "operators"]
+  },
+  {
+    "topic": "Basics",
+    "question": "Which header file is needed for input/output operations in C++?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "<stdio.h>", "isCorrect": false },
+      { "text": "<iostream>", "isCorrect": true },
+      { "text": "<input.h>", "isCorrect": false },
+      { "text": "<io.h>", "isCorrect": false }
+    ],
+    "explanation": "<iostream> is the standard header for input/output streams in C++. <stdio.h> is the C-style header.",
+    "difficulty": "easy",
+    "tags": ["basics", "headers"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the value of sizeof(char) in C++?",
+    "codeSnippet": "sizeof(char)",
+    "options": [
+      { "text": "Always 1", "isCorrect": true },
+      { "text": "Always 2", "isCorrect": false },
+      { "text": "Depends on compiler", "isCorrect": false },
+      { "text": "Depends on platform", "isCorrect": false }
+    ],
+    "explanation": "The C++ standard guarantees that sizeof(char) is always 1. This is the only size guarantee in the standard.",
+    "difficulty": "medium",
+    "tags": ["basics", "data-types"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is a literal in C++?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "A variable that cannot be changed", "isCorrect": false },
+      { "text": "A constant value written directly in code", "isCorrect": true },
+      { "text": "A type of loop", "isCorrect": false },
+      { "text": "A function parameter", "isCorrect": false }
+    ],
+    "explanation": "A literal is a fixed value written directly in the source code, like 42, 3.14, 'A', or \"Hello\".",
+    "difficulty": "easy",
+    "tags": ["basics", "literals"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What will this code output?\nint x = 5;\nif (x > 3) {\n    cout << \"Big\";\n} else if (x > 1) {\n    cout << \"Small\";\n} else {\n    cout << \"Tiny\";\n}",
+    "codeSnippet": "if (x > 3) cout << \"Big\";",
+    "options": [
+      { "text": "Big", "isCorrect": true },
+      { "text": "Small", "isCorrect": false },
+      { "text": "Tiny", "isCorrect": false },
+      { "text": "BigSmall", "isCorrect": false }
+    ],
+    "explanation": "x = 5, which is > 3, so 'Big' is printed. The else if and else blocks are skipped.",
+    "difficulty": "easy",
+    "tags": ["control-flow", "if-else"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "How many times will 'Hello' be printed?\nfor (int i = 0; i < 5; i++) {\n    cout << \"Hello\" << endl;\n}",
+    "codeSnippet": "for (int i = 0; i < 5; i++)",
+    "options": [
+      { "text": "4 times", "isCorrect": false },
+      { "text": "5 times", "isCorrect": true },
+      { "text": "6 times", "isCorrect": false },
+      { "text": "Infinite times", "isCorrect": false }
+    ],
+    "explanation": "The loop runs for i = 0, 1, 2, 3, 4 (5 iterations total). When i = 5, the condition i < 5 is false.",
+    "difficulty": "easy",
+    "tags": ["control-flow", "loops"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What does the 'break' statement do in a loop?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "Skips the current iteration", "isCorrect": false },
+      { "text": "Terminates the loop completely", "isCorrect": true },
+      { "text": "Restarts the loop", "isCorrect": false },
+      { "text": "Goes to the next iteration", "isCorrect": false }
+    ],
+    "explanation": "break terminates the loop entirely and control moves to the statement after the loop. 'continue' skips to the next iteration.",
+    "difficulty": "easy",
+    "tags": ["control-flow", "break"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What is the output of this switch statement?\nint x = 2;\nswitch(x) {\n    case 1: cout << \"One\"; break;\n    case 2: cout << \"Two\";\n    case 3: cout << \"Three\"; break;\n    default: cout << \"Other\";\n}",
+    "codeSnippet": "switch(x) { case 2: cout << \"Two\"; }",
+    "options": [
+      { "text": "Two", "isCorrect": false },
+      { "text": "TwoThree", "isCorrect": true },
+      { "text": "Three", "isCorrect": false },
+      { "text": "Other", "isCorrect": false }
+    ],
+    "explanation": "Without a break after case 2, execution 'falls through' to case 3, printing both 'Two' and 'Three'.",
+    "difficulty": "medium",
+    "tags": ["control-flow", "switch"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is function overloading in C++?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "Having multiple functions with the same name but different parameters", "isCorrect": true },
+      { "text": "Calling a function too many times", "isCorrect": false },
+      { "text": "A function that calls itself", "isCorrect": false },
+      { "text": "A function with no return type", "isCorrect": false }
+    ],
+    "explanation": "Function overloading allows multiple functions with the same name but different parameter lists (number or types of parameters).",
+    "difficulty": "easy",
+    "tags": ["functions", "overloading"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What will this code output?\nint add(int a, int b) { return a + b; }\nint add(int a, int b, int c) { return a + b + c; }\nint main() { cout << add(2, 3) << \" \" << add(2, 3, 4); }",
+    "codeSnippet": "add(2, 3) and add(2, 3, 4)",
+    "options": [
+      { "text": "5 9", "isCorrect": true },
+      { "text": "Error: ambiguous call", "isCorrect": false },
+      { "text": "9 5", "isCorrect": false },
+      { "text": "5 5", "isCorrect": false }
+    ],
+    "explanation": "The compiler selects the correct overload based on the number of arguments: add(2,3) calls the 2-param version (5), add(2,3,4) calls the 3-param version (9).",
+    "difficulty": "medium",
+    "tags": ["functions", "overloading"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is recursion?",
+    "codeSnippet": "int factorial(int n) {\n    if (n <= 1) return 1;\n    return n * factorial(n - 1);\n}",
+    "options": [
+      { "text": "A function that calls itself", "isCorrect": true },
+      { "text": "A loop that never ends", "isCorrect": false },
+      { "text": "A function with no parameters", "isCorrect": false },
+      { "text": "A function that returns void", "isCorrect": false }
+    ],
+    "explanation": "Recursion is when a function calls itself. Every recursive function needs a base case to stop the recursion.",
+    "difficulty": "easy",
+    "tags": ["functions", "recursion"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is a default argument in C++?",
+    "codeSnippet": "void greet(string name, string greeting = \"Hello\") {\n    cout << greeting << \" \" << name;\n}",
+    "options": [
+      { "text": "An argument that is always required", "isCorrect": false },
+      { "text": "An argument with a predefined value if not provided", "isCorrect": true },
+      { "text": "An argument that cannot be changed", "isCorrect": false },
+      { "text": "An argument passed by reference", "isCorrect": false }
+    ],
+    "explanation": "Default arguments provide a fallback value when the caller doesn't supply that argument. greet(\"John\") prints \"Hello John\".",
+    "difficulty": "easy",
+    "tags": ["functions", "default-args"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is encapsulation in OOP?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "Hiding internal details and providing public interfaces", "isCorrect": true },
+      { "text": "Creating multiple classes", "isCorrect": false },
+      { "text": "Using loops inside classes", "isCorrect": false },
+      { "text": "Inheriting from multiple classes", "isCorrect": false }
+    ],
+    "explanation": "Encapsulation bundles data and methods that operate on that data within a class, restricting direct access to some components.",
+    "difficulty": "easy",
+    "tags": ["oop", "encapsulation"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is the output of this code?\nclass Base {\npublic:\n    virtual void show() { cout << \"Base \"; }\n};\nclass Derived : public Base {\npublic:\n    void show() override { cout << \"Derived \"; }\n};\nint main() {\n    Base* ptr = new Derived();\n    ptr->show();\n    delete ptr;\n}",
+    "codeSnippet": "Base* ptr = new Derived(); ptr->show();",
+    "options": [
+      { "text": "Base", "isCorrect": false },
+      { "text": "Derived", "isCorrect": true },
+      { "text": "Base Derived", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "Due to virtual function (polymorphism), the Derived class's show() is called even though the pointer type is Base*.",
+    "difficulty": "medium",
+    "tags": ["oop", "polymorphism"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is a constructor?",
+    "codeSnippet": "class Dog {\npublic:\n    Dog() { cout << \"Woof!\"; }\n};",
+    "options": [
+      { "text": "A special function called when an object is created", "isCorrect": true },
+      { "text": "A function that destroys objects", "isCorrect": false },
+      { "text": "A function that returns values", "isCorrect": false },
+      { "text": "A static function", "isCorrect": false }
+    ],
+    "explanation": "A constructor is a special member function that is automatically called when an object is instantiated. It initializes the object.",
+    "difficulty": "easy",
+    "tags": ["oop", "constructors"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is inheritance in C++?",
+    "codeSnippet": "class Animal { };\nclass Dog : public Animal { };",
+    "options": [
+      { "text": "A class acquiring properties of another class", "isCorrect": true },
+      { "text": "Creating multiple objects", "isCorrect": false },
+      { "text": "Using functions inside classes", "isCorrect": false },
+      { "text": "A type of loop", "isCorrect": false }
+    ],
+    "explanation": "Inheritance allows a class (Dog) to acquire properties and behaviors of another class (Animal), promoting code reuse.",
+    "difficulty": "easy",
+    "tags": ["oop", "inheritance"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is a pure virtual function?",
+    "codeSnippet": "class Shape {\npublic:\n    virtual void draw() = 0;\n};",
+    "options": [
+      { "text": "A function with no implementation in the base class", "isCorrect": true },
+      { "text": "A function that is always inline", "isCorrect": false },
+      { "text": "A function that cannot be overridden", "isCorrect": false },
+      { "text": "A function with default implementation", "isCorrect": false }
+    ],
+    "explanation": "A pure virtual function (= 0) has no implementation in the base class. Classes with pure virtual functions become abstract classes.",
+    "difficulty": "medium",
+    "tags": ["oop", "abstract"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What does a pointer store?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "The value of a variable", "isCorrect": false },
+      { "text": "The memory address of a variable", "isCorrect": true },
+      { "text": "The name of a variable", "isCorrect": false },
+      { "text": "The type of a variable", "isCorrect": false }
+    ],
+    "explanation": "A pointer stores the memory address of another variable. Use & to get the address and * to dereference.",
+    "difficulty": "easy",
+    "tags": ["pointers", "basics"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What will this code output?\nint x = 10;\nint* ptr = &x;\ncout << *ptr;",
+    "codeSnippet": "int* ptr = &x; cout << *ptr;",
+    "options": [
+      { "text": "10", "isCorrect": true },
+      { "text": "Memory address of x", "isCorrect": false },
+      { "text": "0", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "*ptr dereferences the pointer, giving the value stored at the address it points to, which is 10.",
+    "difficulty": "easy",
+    "tags": ["pointers", "dereferencing"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What is a dangling pointer?",
+    "codeSnippet": "int* ptr = new int(5);\ndelete ptr;\n// ptr is now dangling",
+    "options": [
+      { "text": "A pointer that points to freed memory", "isCorrect": true },
+      { "text": "A pointer initialized to nullptr", "isCorrect": false },
+      { "text": "A pointer that points to a valid variable", "isCorrect": false },
+      { "text": "A pointer used in a loop", "isCorrect": false }
+    ],
+    "explanation": "A dangling pointer points to memory that has been freed or is no longer valid. Accessing it causes undefined behavior.",
+    "difficulty": "medium",
+    "tags": ["pointers", "memory"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What is the output?\nint arr[] = {10, 20, 30};\nint* ptr = arr;\ncout << *(ptr + 2);",
+    "codeSnippet": "*(ptr + 2)",
+    "options": [
+      { "text": "10", "isCorrect": false },
+      { "text": "20", "isCorrect": false },
+      { "text": "30", "isCorrect": true },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "ptr points to arr[0]. ptr + 2 points to arr[2], which is 30. This is pointer arithmetic.",
+    "difficulty": "medium",
+    "tags": ["pointers", "arithmetic"]
+  },
+  {
+    "topic": "References",
+    "question": "What is a reference in C++?",
+    "codeSnippet": "int x = 10;\nint& ref = x;",
+    "options": [
+      { "text": "An alias for an existing variable", "isCorrect": true },
+      { "text": "A pointer that can be null", "isCorrect": false },
+      { "text": "A copy of a variable", "isCorrect": false },
+      { "text": "A constant variable", "isCorrect": false }
+    ],
+    "explanation": "A reference is an alias for an existing variable. Once initialized, it cannot be changed to refer to another variable.",
+    "difficulty": "easy",
+    "tags": ["references", "basics"]
+  },
+  {
+    "topic": "References",
+    "question": "What happens when you modify a reference?",
+    "codeSnippet": "int x = 10;\nint& ref = x;\nref = 20;\ncout << x;",
+    "options": [
+      { "text": "x becomes 20", "isCorrect": true },
+      { "text": "x remains 10", "isCorrect": false },
+      { "text": "Error: cannot modify reference", "isCorrect": false },
+      { "text": "ref becomes 20, x stays 10", "isCorrect": false }
+    ],
+    "explanation": "Since ref is an alias for x, modifying ref also modifies x. Both ref and x are 20 after the assignment.",
+    "difficulty": "easy",
+    "tags": ["references", "modification"]
+  },
+  {
+    "topic": "STL",
+    "question": "What is the time complexity of accessing an element in a vector by index?",
+    "codeSnippet": "vector<int> v = {1, 2, 3, 4, 5};\nint x = v[2];",
+    "options": [
+      { "text": "O(1) - Constant time", "isCorrect": true },
+      { "text": "O(n) - Linear time", "isCorrect": false },
+      { "text": "O(log n) - Logarithmic time", "isCorrect": false },
+      { "text": "O(n²) - Quadratic time", "isCorrect": false }
+    ],
+    "explanation": "Vectors provide O(1) random access by index because elements are stored in contiguous memory.",
+    "difficulty": "easy",
+    "tags": ["stl", "vector"]
+  },
+  {
+    "topic": "STL",
+    "question": "What is the difference between map and unordered_map?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "map is ordered, unordered_map is hash-based", "isCorrect": true },
+      { "text": "map is faster for lookup", "isCorrect": false },
+      { "text": "unordered_map stores unique keys, map doesn't", "isCorrect": false },
+      { "text": "There is no difference", "isCorrect": false }
+    ],
+    "explanation": "map stores elements in sorted order (red-black tree), while unordered_map uses a hash table for O(1) average lookup.",
+    "difficulty": "medium",
+    "tags": ["stl", "map"]
+  },
+  {
+    "topic": "STL",
+    "question": "What does vector.push_back() do?",
+    "codeSnippet": "vector<int> v;\nv.push_back(10);",
+    "options": [
+      { "text": "Adds an element to the end of the vector", "isCorrect": true },
+      { "text": "Removes the last element", "isCorrect": false },
+      { "text": "Adds an element to the beginning", "isCorrect": false },
+      { "text": "Sorts the vector", "isCorrect": false }
+    ],
+    "explanation": "push_back() adds an element to the end of the vector. If the vector is full, it automatically resizes.",
+    "difficulty": "easy",
+    "tags": ["stl", "vector"]
+  },
+  {
+    "topic": "STL",
+    "question": "What is an iterator in STL?",
+    "codeSnippet": "vector<int> v = {1, 2, 3};\nfor (auto it = v.begin(); it != v.end(); ++it) {\n    cout << *it << \" \";\n}",
+    "options": [
+      { "text": "An object that points to elements in a container", "isCorrect": true },
+      { "text": "A type of loop", "isCorrect": false },
+      { "text": "A function for sorting", "isCorrect": false },
+      { "text": "A container type", "isCorrect": false }
+    ],
+    "explanation": "Iterators are objects that traverse containers. begin() returns iterator to first element, end() returns iterator past last element.",
+    "difficulty": "easy",
+    "tags": ["stl", "iterators"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What does 'new' do in C++?",
+    "codeSnippet": "int* ptr = new int(10);",
+    "options": [
+      { "text": "Allocates memory on the heap", "isCorrect": true },
+      { "text": "Creates a new variable on the stack", "isCorrect": false },
+      { "text": "Deletes a variable", "isCorrect": false },
+      { "text": "Returns the size of a variable", "isCorrect": false }
+    ],
+    "explanation": "The 'new' operator allocates memory on the heap and returns a pointer to it. Always pair with 'delete'.",
+    "difficulty": "easy",
+    "tags": ["memory", "new-delete"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What happens if you forget to delete allocated memory?",
+    "codeSnippet": "int* ptr = new int[1000];\n// forgot to delete[] ptr",
+    "options": [
+      { "text": "Memory leak - memory remains allocated", "isCorrect": true },
+      { "text": "Program crashes immediately", "isCorrect": false },
+      { "text": "Memory is automatically freed", "isCorrect": false },
+      { "text": "Nothing happens", "isCorrect": false }
+    ],
+    "explanation": "A memory leak occurs when allocated memory is not freed. The memory remains allocated until the program terminates.",
+    "difficulty": "medium",
+    "tags": ["memory", "leaks"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is RAII in C++?",
+    "codeSnippet": null,
+    "options": [
+      { "text": "Resource Acquisition Is Initialization - manage resources via object lifetimes", "isCorrect": true },
+      { "text": "Run All Instructions In Assembly", "isCorrect": false },
+      { "text": "Random Access Input/Output", "isCorrect": false },
+      { "text": "Rapid Application Integration Interface", "isCorrect": false }
+    ],
+    "explanation": "RAII ties resource management to object lifetime. Resources are acquired in constructors and released in destructors.",
+    "difficulty": "medium",
+    "tags": ["memory", "raii"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is a template in C++?",
+    "codeSnippet": "template <typename T>\nT maximum(T a, T b) {\n    return (a > b) ? a : b;\n}",
+    "options": [
+      { "text": "A way to write generic, type-independent code", "isCorrect": true },
+      { "text": "A HTML template", "isCorrect": false },
+      { "text": "A function that returns void", "isCorrect": false },
+      { "text": "A class with no methods", "isCorrect": false }
+    ],
+    "explanation": "Templates allow writing code that works with any data type. The compiler generates specific versions at compile time.",
+    "difficulty": "easy",
+    "tags": ["templates", "basics"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What happens when you call maximum(5, 10)?",
+    "codeSnippet": "template <typename T>\nT maximum(T a, T b) {\n    return (a > b) ? a : b;\n}\n// called as maximum(5, 10)",
+    "options": [
+      { "text": "Compiler generates a version with int", "isCorrect": true },
+      { "text": "Runtime polymorphism is used", "isCorrect": false },
+      { "text": "It only works with strings", "isCorrect": false },
+      { "text": "Error: template cannot use int", "isCorrect": false }
+    ],
+    "explanation": "When called with int arguments, the compiler instantiates the template with T = int, generating maximum<int>.",
+    "difficulty": "medium",
+    "tags": ["templates", "instantiation"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What does 'auto' keyword do in C++?",
+    "codeSnippet": "auto x = 10;        // int\nauto y = 3.14;      // double\nauto z = \"Hello\";   // const char*",
+    "options": [
+      { "text": "Automatically deduces the variable type", "isCorrect": true },
+      { "text": "Makes the variable constant", "isCorrect": false },
+      { "text": "Creates a static variable", "isCorrect": false },
+      { "text": "Declares a pointer", "isCorrect": false }
+    ],
+    "explanation": "auto lets the compiler deduce the type from the initializer. It reduces verbosity while maintaining type safety.",
+    "difficulty": "easy",
+    "tags": ["modern-cpp", "auto"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is a lambda expression?",
+    "codeSnippet": "auto add = [](int a, int b) { return a + b; };\ncout << add(3, 4);",
+    "options": [
+      { "text": "An anonymous inline function", "isCorrect": true },
+      { "text": "A class constructor", "isCorrect": false },
+      { "text": "A type of pointer", "isCorrect": false },
+      { "text": "A loop construct", "isCorrect": false }
+    ],
+    "explanation": "Lambdas are anonymous functions defined with []. They can capture variables from the enclosing scope.",
+    "difficulty": "easy",
+    "tags": ["modern-cpp", "lambda"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is a smart pointer?",
+    "codeSnippet": "#include <memory>\nunique_ptr<int> ptr = make_unique<int>(10);",
+    "options": [
+      { "text": "A pointer that automatically manages memory", "isCorrect": true },
+      { "text": "A pointer that is faster than regular pointers", "isCorrect": false },
+      { "text": "A pointer that can only be used in classes", "isCorrect": false },
+      { "text": "A pointer to smart objects", "isCorrect": false }
+    ],
+    "explanation": "Smart pointers automatically manage memory. unique_ptr has exclusive ownership, shared_ptr allows shared ownership.",
+    "difficulty": "easy",
+    "tags": ["modern-cpp", "smart-pointers"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is move semantics?",
+    "codeSnippet": "string a = \"Hello\";\nstring b = std::move(a);\n// a is now in valid-but-unspecified state",
+    "options": [
+      { "text": "Transfers resources instead of copying them", "isCorrect": true },
+      { "text": "Moves variables to different memory locations", "isCorrect": false },
+      { "text": "Deletes the original variable", "isCorrect": false },
+      { "text": "Creates a deep copy", "isCorrect": false }
+    ],
+    "explanation": "Move semantics transfers ownership of resources from one object to another, avoiding expensive deep copies.",
+    "difficulty": "hard",
+    "tags": ["modern-cpp", "move"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the output?\nchar c = 'A';\ncout << (int)c;",
+    "codeSnippet": "(int)'A'",
+    "options": [
+      { "text": "A", "isCorrect": false },
+      { "text": "65", "isCorrect": true },
+      { "text": "97", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "Casting char 'A' to int gives its ASCII value, which is 65.",
+    "difficulty": "easy",
+    "tags": ["basics", "casting"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What is an infinite loop?",
+    "codeSnippet": "while (true) {\n    cout << \"Running\";\n}",
+    "options": [
+      { "text": "A loop that never terminates", "isCorrect": true },
+      { "text": "A loop that runs once", "isCorrect": false },
+      { "text": "A loop with no body", "isCorrect": false },
+      { "text": "A for loop", "isCorrect": false }
+    ],
+    "explanation": "while(true) creates an infinite loop because the condition is always true. Use break to exit.",
+    "difficulty": "easy",
+    "tags": ["control-flow", "loops"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is the output?\nclass Base {\npublic:\n    ~Base() { cout << \"~Base \"; }\n};\nclass Derived : public Base {\npublic:\n    ~Derived() { cout << \"~Derived \"; }\n};\nint main() {\n    Base* p = new Derived();\n    delete p;\n}",
+    "codeSnippet": "Base* p = new Derived(); delete p;",
+    "options": [
+      { "text": "~Derived ~Base", "isCorrect": false },
+      { "text": "~Base", "isCorrect": true },
+      { "text": "~Derived", "isCorrect": false },
+      { "text": "Memory leak", "isCorrect": false }
+    ],
+    "explanation": "Without a virtual destructor, only ~Base is called. The Derived destructor is not called, causing a potential memory leak.",
+    "difficulty": "hard",
+    "tags": ["oop", "destructor"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What is a null pointer?",
+    "codeSnippet": "int* ptr = nullptr;",
+    "options": [
+      { "text": "A pointer that points to nothing (no valid memory)", "isCorrect": true },
+      { "text": "A pointer pointing to address 0", "isCorrect": false },
+      { "text": "A deleted pointer", "isCorrect": false },
+      { "text": "A pointer to a null character", "isCorrect": false }
+    ],
+    "explanation": "nullptr represents a pointer that points to no object. Always initialize pointers to nullptr if not immediately assigned.",
+    "difficulty": "easy",
+    "tags": ["pointers", "nullptr"]
+  },
+  {
+    "topic": "STL",
+    "question": "What does map.find() return if the key is not found?",
+    "codeSnippet": "map<int, string> m;\nauto it = m.find(999);\nif (it == m.end()) cout << \"Not found\";",
+    "options": [
+      { "text": "m.end() iterator", "isCorrect": true },
+      { "text": "nullptr", "isCorrect": false },
+      { "text": "0", "isCorrect": false },
+      { "text": "Throws an exception", "isCorrect": false }
+    ],
+    "explanation": "map.find() returns end() iterator when the key is not found. Always check against end() before using the iterator.",
+    "difficulty": "medium",
+    "tags": ["stl", "map"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is the output?\nint x = 5;\nint* ptr = &x;\ncout << sizeof(ptr);",
+    "codeSnippet": "sizeof(ptr)",
+    "options": [
+      { "text": "4 or 8 (depends on 32-bit or 64-bit system)", "isCorrect": true },
+      { "text": "4 (always)", "isCorrect": false },
+      { "text": "8 (always)", "isCorrect": false },
+      { "text": "Size of the pointed value", "isCorrect": false }
+    ],
+    "explanation": "sizeof(ptr) gives the size of the pointer itself, not the value it points to. 4 bytes on 32-bit, 8 bytes on 64-bit systems.",
+    "difficulty": "medium",
+    "tags": ["memory", "sizeof"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is template specialization?",
+    "codeSnippet": "template <typename T>\nvoid print(T val) { cout << val; }\n\ntemplate <>\nvoid print<bool>(bool val) { cout << (val ? \"true\" : \"false\"); }",
+    "options": [
+      { "text": "Providing a specific implementation for a particular type", "isCorrect": true },
+      { "text": "Using templates in classes only", "isCorrect": false },
+      { "text": "Creating multiple template parameters", "isCorrect": false },
+      { "text": "Overloading a template function", "isCorrect": false }
+    ],
+    "explanation": "Template specialization allows providing a custom implementation for a specific type while keeping the generic version for others.",
+    "difficulty": "hard",
+    "tags": ["templates", "specialization"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is the output?\nauto lamb = [](int x) -> int { return x * 2; };\ncout << lamb(5);",
+    "codeSnippet": "[](int x) -> int { return x * 2; }",
+    "options": [
+      { "text": "5", "isCorrect": false },
+      { "text": "10", "isCorrect": true },
+      { "text": "Error", "isCorrect": false },
+      { "text": "25", "isCorrect": false }
+    ],
+    "explanation": "The lambda takes an int and returns int. 5 * 2 = 10. The -> int specifies the return type explicitly.",
+    "difficulty": "easy",
+    "tags": ["modern-cpp", "lambda"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is pass by reference?",
+    "codeSnippet": "void increment(int& x) {\n    x++;\n}\nint main() {\n    int a = 5;\n    increment(a);\n    cout << a;\n}",
+    "options": [
+      { "text": "The function modifies the original variable", "isCorrect": true },
+      { "text": "A copy of the variable is passed", "isCorrect": false },
+      { "text": "The function cannot modify the variable", "isCorrect": false },
+      { "text": "It only works with pointers", "isCorrect": false }
+    ],
+    "explanation": "Pass by reference (&) allows the function to directly modify the original variable. a becomes 6 after increment(a).",
+    "difficulty": "easy",
+    "tags": ["functions", "pass-by-ref"]
+  }
+]
