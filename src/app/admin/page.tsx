@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -38,8 +38,15 @@ import {
   CheckCircle,
   CircleDot,
   Loader2,
+  BookOpen,
+  FlaskConical,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
+
+const TeacherNotes = lazy(() => import("@/components/admin/TeacherNotes"));
+const CppKnowledge = lazy(() => import("@/components/admin/CppKnowledge"));
 
 interface MCQ {
   _id: string;
@@ -67,11 +74,18 @@ const GAME_TYPES = [
   { id: "syntax-scramble", name: "Syntax Scramble" },
 ];
 
+const TABS = [
+  { id: "sessions", label: "Sessions", icon: FlaskConical },
+  { id: "notes", label: "Teacher Notes", icon: BookOpen },
+  { id: "knowledge", label: "Hidden Knowledge", icon: Lock },
+] as const;
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("sessions");
 
   useEffect(() => {
     fetch("/api/admin/verify")
@@ -137,11 +151,46 @@ export default function AdminPage() {
 
   return (
     <AppShell>
-      <PageHeader title="Teacher Dashboard" description="Manage sessions and view results">
+      <PageHeader title="Teacher Dashboard" description="Manage sessions, notes, and teaching resources">
         <CreateSessionDialog />
       </PageHeader>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <SessionsList />
+
+      {/* Tab navigation */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex gap-1 border-b border-border mb-6">
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Tab content */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
+        {activeTab === "sessions" && <SessionsList />}
+        {activeTab === "notes" && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <TeacherNotes />
+          </Suspense>
+        )}
+        {activeTab === "knowledge" && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <CppKnowledge />
+          </Suspense>
+        )}
       </div>
     </AppShell>
   );

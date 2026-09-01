@@ -2,22 +2,35 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, BookOpen, FlaskConical, LogIn, Shield } from "lucide-react";
 
-const navLinks = [
+const baseLinks = [
   { href: "/subjects/cpp", label: "Learn", icon: BookOpen },
   { href: "/subjects/cpp/mcq", label: "Quizzes", icon: FlaskConical },
   { href: "/join", label: "Join Session", icon: LogIn },
-  { href: "/admin", label: "Teacher", icon: Shield },
 ];
+
+const teacherLink = { href: "/admin", label: "Teacher", icon: Shield };
 
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [isTeacher, setIsTeacher] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/verify")
+      .then((r) => r.json())
+      .then((data) => {
+        setIsTeacher(data.authenticated);
+      })
+      .catch(() => {});
+  }, []);
+
+  const navLinks = isTeacher ? [...baseLinks, teacherLink] : baseLinks;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
