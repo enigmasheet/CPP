@@ -3,9 +3,9 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "C++ Master | Interactive Learning Platform",
+  title: "LMS | Interactive Learning Platform",
   description:
-    "Master C++ with interactive quizzes, games, code playground, and gamified learning",
+    "Interactive quizzes, games, code playground, and gamified learning for bachelor students",
 };
 
 export default function RootLayout({

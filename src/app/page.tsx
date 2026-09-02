@@ -13,10 +13,10 @@ import {
 } from "lucide-react";
 import { SUBJECTS, getTopics, getTotalQuestions } from "@/config/subjects";
 
-const subjectSlug = "cpp";
-const subject = SUBJECTS[subjectSlug];
-const topics = getTopics(subjectSlug);
-const totalQuestions = getTotalQuestions(subjectSlug);
+const firstSlug = Object.keys(SUBJECTS)[0];
+const subject = SUBJECTS[firstSlug];
+const topics = getTopics(firstSlug);
+const totalQuestions = getTotalQuestions(firstSlug);
 
 export default function Home() {
   return (
@@ -28,7 +28,7 @@ export default function Home() {
             <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
               Master{" "}
               <span className="bg-linear-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                C++
+                {subject.name.replace(" Programming", "")}
               </span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -36,7 +36,7 @@ export default function Home() {
               bachelor students
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href={`/subjects/${subjectSlug}`} className={buttonVariants({ size: "lg" })}>
+              <Link href={`/subjects/${firstSlug}`} className={buttonVariants({ size: "lg" })}>
                 Start Learning
               </Link>
               <Link href="/join" className={buttonVariants({ size: "lg", variant: "outline" })}>
@@ -54,37 +54,37 @@ export default function Home() {
             icon={<FlaskConical className="w-8 h-8" />}
             title="MCQ Quizzes"
             description={`${totalQuestions}+ questions across ${topics.length} topics with instant feedback and explanations`}
-            href={`/subjects/${subjectSlug}/mcq`}
+            href={`/subjects/${firstSlug}/mcq`}
           />
           <FeatureCard
             icon={<BookOpen className="w-8 h-8" />}
             title="Study Materials"
-            description={`Structured content covering ${subject.name} fundamentals to advanced concepts`}
-            href={`/subjects/${subjectSlug}`}
+            description={`Structured content covering ${subject.name.replace(" Programming", "")} fundamentals to advanced concepts`}
+            href={`/subjects/${firstSlug}`}
           />
           <FeatureCard
             icon={<Code2 className="w-8 h-8" />}
             title="Code Examples"
             description="Syntax-highlighted code snippets with line-by-line explanations"
-            href={`/subjects/${subjectSlug}`}
+            href={`/subjects/${firstSlug}`}
           />
           <FeatureCard
             icon={<Brain className="w-8 h-8" />}
-            title="C++ Fundamentals"
-            description="From basics to modern C++ - covers all essential topics"
-            href={`/subjects/${subjectSlug}`}
+            title={`${subject.name.replace(" Programming", "")} Fundamentals`}
+            description="From basics to modern concepts - covers all essential topics"
+            href={`/subjects/${firstSlug}`}
           />
           <FeatureCard
             icon={<Target className="w-8 h-8" />}
             title="Self-Assessment"
             description="Test your knowledge with topic-specific quizzes"
-            href={`/subjects/${subjectSlug}/mcq`}
+            href={`/subjects/${firstSlug}/mcq`}
           />
           <FeatureCard
             icon={<Layers className="w-8 h-8" />}
             title={`${topics.length} Topics`}
-            description="Basics, Control Flow, Functions, OOP, Pointers, STL, and more"
-            href={`/subjects/${subjectSlug}`}
+            description={topics.map((t) => t.name).join(", ")}
+            href={`/subjects/${firstSlug}`}
           />
         </div>
       </section>
@@ -95,7 +95,7 @@ export default function Home() {
           {topics.map((topic) => (
             <Link
               key={topic.slug}
-              href={`/subjects/${subjectSlug}/mcq/${topic.slug}`}
+              href={`/subjects/${firstSlug}/mcq/${topic.slug}`}
               className="group p-4 bg-card rounded-lg border border-border text-center transition-all hover:border-primary/50 hover:shadow-lg"
             >
               <span className="font-medium group-hover:text-primary transition-colors">

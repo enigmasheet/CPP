@@ -3,14 +3,20 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Code2, Play } from "lucide-react";
+import { Code2, Play } from "lucide-react";
 import { getSubject, getTopics } from "@/config/subjects";
+import { notFound } from "next/navigation";
 
-const SUBJECT_SLUG = "cpp";
-const subject = getSubject(SUBJECT_SLUG)!;
-const topics = getTopics(SUBJECT_SLUG);
+export default async function SubjectPage({
+  params,
+}: {
+  params: Promise<{ subject: string }>;
+}) {
+  const { subject: slug } = await params;
+  const subject = getSubject(slug);
+  if (!subject) return notFound();
+  const topics = getTopics(slug);
 
-export default function SubjectPage() {
   return (
     <AppShell>
       <div className="border-b border-border bg-muted/30">
@@ -18,13 +24,9 @@ export default function SubjectPage() {
           <h1 className="text-3xl font-bold tracking-tight">{subject.name}</h1>
           <p className="mt-2 text-muted-foreground">{subject.description}</p>
           <div className="flex gap-2 mt-4">
-            <Link href={`/subjects/${SUBJECT_SLUG}/mcq`} className={buttonVariants({ size: "sm" })}>
+            <Link href={`/subjects/${slug}/mcq`} className={buttonVariants({ size: "sm" })}>
               <Play className="w-4 h-4 mr-2" />
               All Quizzes
-            </Link>
-            <Link href={`/subjects/${SUBJECT_SLUG}/resources`} className={buttonVariants({ size: "sm", variant: "outline" })}>
-              <BookOpen className="w-4 h-4 mr-2" />
-              Resources
             </Link>
           </div>
         </div>
@@ -33,7 +35,7 @@ export default function SubjectPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {topics.map((topic) => (
-            <Link key={topic.slug} href={`/subjects/${SUBJECT_SLUG}/mcq/${topic.slug}`}>
+            <Link key={topic.slug} href={`/subjects/${slug}/mcq/${topic.slug}`}>
               <Card className="h-full transition-all hover:border-primary/50 hover:shadow-lg cursor-pointer">
                 <CardHeader>
                   <div className="flex items-start justify-between">

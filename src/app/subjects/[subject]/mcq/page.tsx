@@ -5,12 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { getSubject, getTopics } from "@/config/subjects";
+import { notFound } from "next/navigation";
 
-const SUBJECT_SLUG = "cpp";
-const subject = getSubject(SUBJECT_SLUG)!;
-const topics = getTopics(SUBJECT_SLUG);
+export default async function MCQTopicsPage({
+  params,
+}: {
+  params: Promise<{ subject: string }>;
+}) {
+  const { subject: slug } = await params;
+  const subject = getSubject(slug);
+  if (!subject) return notFound();
+  const topics = getTopics(slug);
 
-export default function MCQTopicsPage() {
   return (
     <AppShell>
       <PageHeader
@@ -20,7 +26,7 @@ export default function MCQTopicsPage() {
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid sm:grid-cols-2 gap-4">
           {topics.map((topic) => (
-            <Link key={topic.slug} href={`/subjects/${SUBJECT_SLUG}/mcq/${topic.slug}`}>
+            <Link key={topic.slug} href={`/subjects/${slug}/mcq/${topic.slug}`}>
               <Card className="h-full transition-all hover:border-primary/50 hover:shadow-lg cursor-pointer">
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -37,7 +43,7 @@ export default function MCQTopicsPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <Link href={`/subjects/${SUBJECT_SLUG}`} className={buttonVariants({ variant: "ghost" })}>
+          <Link href={`/subjects/${slug}`} className={buttonVariants({ variant: "ghost" })}>
             Back to {subject.name} Overview
           </Link>
         </div>

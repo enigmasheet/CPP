@@ -6,7 +6,7 @@ import QuizAttempt from "@/models/QuizAttempt";
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    const { sessionId, topic, answers, timeTaken } = await request.json();
+    const { sessionId, subject, topic, answers, timeTaken } = await request.json();
 
     if (!sessionId || !answers || !Array.isArray(answers)) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     const attempt = await QuizAttempt.create({
       sessionId,
-      subject: "cpp",
+      subject: subject || "unknown",
       topic: topic || "general",
       questions: questionResults,
       score,

@@ -25,7 +25,7 @@ export default function SessionsList() {
     fetch("/api/sessions")
       .then((r) => r.json())
       .then((data) => {
-        setSessions(data);
+        setSessions(Array.isArray(data) ? data : []);
         setLoading(false);
       });
   }, []);

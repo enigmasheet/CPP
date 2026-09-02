@@ -53,7 +53,7 @@ export default function QuizPage() {
     })
       .then((r) => r.json())
       .then((data) => {
-        setQuestions(data.questions);
+        setQuestions(data.questions ?? []);
         setQuizStarted(true);
       });
   }, [topic]);
