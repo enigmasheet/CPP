@@ -14,7 +14,8 @@
       { "name": "STL", "slug": "stl" },
       { "name": "Memory Management", "slug": "memory-management" },
       { "name": "Templates", "slug": "templates" },
-      { "name": "Modern C++", "slug": "modern-cpp" }
+      { "name": "Modern C++", "slug": "modern-cpp" },
+      { "name": "Best Practices", "slug": "best-practices" }
     ]
   }
 ]

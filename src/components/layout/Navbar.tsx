@@ -2,17 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, BookOpen, FlaskConical, LogIn, Shield } from "lucide-react";
-
-const baseLinks = [
-  { href: "/subjects/cpp", label: "Learn", icon: BookOpen },
-  { href: "/subjects/cpp/mcq", label: "Quizzes", icon: FlaskConical },
-  { href: "/join", label: "Join Session", icon: LogIn },
-];
 
 const teacherLink = { href: "/admin", label: "Teacher", icon: Shield };
 
@@ -29,6 +23,15 @@ export default function Navbar() {
       })
       .catch(() => {});
   }, []);
+
+  const baseLinks = useMemo(
+    () => [
+      { href: "/subjects/cpp", label: "Learn", icon: BookOpen },
+      { href: "/subjects/cpp/mcq", label: "Quizzes", icon: FlaskConical },
+      { href: "/join", label: "Join Session", icon: LogIn },
+    ],
+    []
+  );
 
   const navLinks = isTeacher ? [...baseLinks, teacherLink] : baseLinks;
 

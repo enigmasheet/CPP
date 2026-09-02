@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import Session from "@/models/Session";
 import SessionResult from "@/models/SessionResult";
 import MCQ from "@/models/MCQ";
+import { sessionSubmitSchema } from "@/lib/validations";
 
 export async function POST(
   request: NextRequest,
@@ -17,12 +18,27 @@ export async function POST(
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const { studentCode, answers } = await request.json();
+    const body = await request.json();
+    const parsed = sessionSubmitSchema.safeParse(body);
 
-    if (!studentCode || !answers || !Array.isArray(answers)) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "studentCode and answers are required" },
+        { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
         { status: 400 }
+      );
+    }
+
+    const { studentCode, answers } = parsed.data;
+
+    const existing = await SessionResult.findOne({
+      sessionId: session._id,
+      studentCode,
+    });
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "You have already submitted answers for this session" },
+        { status: 409 }
       );
     }
 
@@ -34,7 +50,7 @@ export async function POST(
       if (answer.contentType === "mcq") {
         const mcq = await MCQ.findById(answer.contentId).lean();
         if (mcq) {
-          const isCorrect = mcq.options[answer.selected]?.isCorrect === true;
+          const isCorrect = mcq.options[answer.selected ?? 0]?.isCorrect === true;
           if (isCorrect) totalScore++;
           totalPossible++;
           gradedAnswers.push({

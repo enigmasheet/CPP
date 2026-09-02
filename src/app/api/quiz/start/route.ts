@@ -15,14 +15,19 @@ export async function POST(request: NextRequest) {
     const allMcqs = await MCQ.find(filter).lean();
     const selected = shuffleArray(allMcqs).slice(0, Math.min(limit, allMcqs.length));
 
-    const questions = selected.map((q: IMCQDoc & { _id: { toString(): string } }) => ({
-      id: q._id.toString(),
-      question: q.question,
-      codeSnippet: q.codeSnippet,
-      options: q.options.map((o) => o.text),
-      difficulty: q.difficulty,
-      topic: q.topic,
-    }));
+    const questions = selected.map((q: IMCQDoc & { _id: { toString(): string } }) => {
+      const correctIdx = q.options.findIndex((o) => o.isCorrect);
+      return {
+        id: q._id.toString(),
+        question: q.question,
+        codeSnippet: q.codeSnippet,
+        options: q.options.map((o) => o.text),
+        difficulty: q.difficulty,
+        topic: q.topic,
+        correctAnswer: correctIdx,
+        explanation: q.explanation,
+      };
+    });
 
     return NextResponse.json({ questions, total: questions.length });
   } catch {

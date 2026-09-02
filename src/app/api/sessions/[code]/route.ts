@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 import Session from "@/models/Session";
+import { updateSessionSchema } from "@/lib/validations";
 
 export async function GET(
   request: NextRequest,
@@ -44,10 +45,18 @@ export async function PATCH(
     await connectDB();
     const { code } = await params;
     const body = await request.json();
+    const parsed = updateSessionSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
 
     const session = await Session.findOneAndUpdate(
       { code: code.toUpperCase() },
-      { $set: body },
+      { $set: parsed.data },
       { new: true }
     );
 

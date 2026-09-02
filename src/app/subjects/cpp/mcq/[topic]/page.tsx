@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 interface Question {
   id: string;
@@ -24,6 +25,7 @@ interface Question {
 
 export default function QuizPage() {
   const params = useParams();
+  const subject = params.subject as string;
   const topic = params.topic as string;
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -43,6 +45,7 @@ export default function QuizPage() {
   }, [quizStarted]);
 
   useEffect(() => {
+    if (!topic) return;
     fetch("/api/quiz/start", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -86,12 +89,7 @@ export default function QuizPage() {
   if (questions.length === 0) {
     return (
       <AppShell>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-muted-foreground mt-4">Loading questions...</p>
-          </div>
-        </div>
+        <LoadingSpinner />
       </AppShell>
     );
   }
@@ -112,7 +110,7 @@ export default function QuizPage() {
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Button onClick={() => window.location.reload()}>Try Again</Button>
-                <Link href="/subjects/cpp/mcq" className={buttonVariants({ variant: "outline" })}>Other Topics</Link>
+                <Link href={`/subjects/${subject}/mcq`} className={buttonVariants({ variant: "outline" })}>Other Topics</Link>
               </div>
             </CardContent>
           </Card>
@@ -127,7 +125,7 @@ export default function QuizPage() {
     <AppShell>
       <div className="mx-auto max-w-2xl px-4 py-8">
         <div className="flex items-center justify-between mb-4">
-          <Link href="/subjects/cpp/mcq" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+          <Link href={`/subjects/${subject}/mcq`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Link>

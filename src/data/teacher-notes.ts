@@ -2,12 +2,16 @@ export interface NoteSection {
   id: number;
   title: string;
   content: string;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  estimatedMinutes: number;
 }
 
 export const teacherNotes: NoteSection[] = [
   {
     id: 1,
     title: "Course Introduction",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `## Learning Objectives
 
 By the end of this course, students should be able to:
@@ -33,6 +37,8 @@ By the end of this course, students should be able to:
   {
     id: 2,
     title: "What is Programming?",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `## Definition
 
 **Programming is the process of writing instructions that tell a computer how to perform a task.**
@@ -69,6 +75,8 @@ int main()
   {
     id: 3,
     title: "What is C++?",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `C++ is a **general-purpose, compiled programming language** that supports procedural, object-oriented, and generic programming.
 
 ## Why Learn C++?
@@ -86,6 +94,8 @@ int main()
   {
     id: 4,
     title: "Compiler",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `A computer does not directly understand normal C++ source code. The source code is processed by a **compiler**.
 
 \`\`\`text
@@ -114,6 +124,8 @@ The resulting program that the computer can execute.`,
   {
     id: 5,
     title: "Installing C++",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `Students need:
 
 1. C++ compiler
@@ -133,6 +145,8 @@ The resulting program that the computer can execute.`,
   {
     id: 6,
     title: "First C++ Program",
+    difficulty: "beginner",
+    estimatedMinutes: 15,
     content: `\`\`\`cpp
 #include <iostream>
 
@@ -163,6 +177,8 @@ Indicates that the program finished successfully.`,
   {
     id: 7,
     title: "Printing Output",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `## Basic Output
 
 \`\`\`cpp
@@ -214,6 +230,8 @@ Output: \`Age: 20\``,
   {
     id: 8,
     title: "Comments",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `Comments are ignored by the compiler.
 
 ## Single-line Comment
@@ -244,6 +262,8 @@ double total = price * quantity;
   {
     id: 9,
     title: "Variables",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `## Definition
 
 A variable is a named location used to store data.
@@ -283,6 +303,8 @@ int age = 20;
   {
     id: 10,
     title: "Data Types",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `## Important Beginner Data Types
 
 | Type | Example | Purpose |
@@ -309,6 +331,8 @@ For strings, include \`#include <string>\`.`,
   {
     id: 11,
     title: "Character vs String",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `## Important Beginner Concept
 
 Character: \`'A'\` (single quotes)
@@ -331,6 +355,8 @@ std::string s = "A"; // String
   {
     id: 12,
     title: "Constants",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `Sometimes a value should not change.
 
 \`\`\`cpp
@@ -355,6 +381,8 @@ double calculateTax(double amount)
   {
     id: 13,
     title: "Input",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `Use \`std::cin\`.
 
 \`\`\`cpp
@@ -379,6 +407,8 @@ Students can enter: \`10 20\``,
   {
     id: 14,
     title: "Example - Student Information",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `\`\`\`cpp
 #include <iostream>
 #include <string>
@@ -406,6 +436,8 @@ int main()
   {
     id: 15,
     title: "Arithmetic Operators",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `| Operator | Meaning |
 |----------|---------|
 | \`+\` | Addition |
@@ -430,6 +462,8 @@ std::cout << a % b;  // 1
   {
     id: 16,
     title: "Integer Division",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `## Very Important!
 
 \`\`\`cpp
@@ -453,6 +487,8 @@ Result: \`3.3333\`
   {
     id: 17,
     title: "Assignment Operators",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `\`\`\`text
 =
 +=
@@ -476,6 +512,8 @@ x %= 4;  // x is now 2
   {
     id: 18,
     title: "Increment and Decrement",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `\`\`\`cpp
 x++;
 \`\`\`
@@ -503,6 +541,8 @@ int c = ++a;  // c = 7, a = 7 (prefix: increment then use)
   {
     id: 19,
     title: "Relational Operators",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `Used to compare values.
 
 \`\`\`text
@@ -527,6 +567,8 @@ std::cout << (age < 18);   // 0 (false)
   {
     id: 20,
     title: "= vs ==",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `## Very Important!
 
 \`\`\`cpp
@@ -557,6 +599,8 @@ if (x == 10)  // CORRECT: This checks equality
   {
     id: 21,
     title: "Conditional Statements",
+    difficulty: "beginner",
+    estimatedMinutes: 20,
     content: `## if
 
 \`\`\`cpp
@@ -603,6 +647,8 @@ else
   {
     id: 22,
     title: "Logical Operators",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `## AND (\`&&\`)
 
 Both conditions must be true.
@@ -639,6 +685,8 @@ if (!isFinished)
   {
     id: 23,
     title: "switch",
+    difficulty: "beginner",
+    estimatedMinutes: 15,
     content: `Useful when comparing one value against multiple fixed choices.
 
 \`\`\`cpp
@@ -669,6 +717,8 @@ switch (choice)
   {
     id: 24,
     title: "Loops",
+    difficulty: "beginner",
+    estimatedMinutes: 15,
     content: `## Why Loops?
 
 Suppose we need to print:
@@ -705,6 +755,8 @@ for (int i = 1; i <= 5; i++)
   {
     id: 25,
     title: "for Loop",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `## Syntax
 
 \`\`\`cpp
@@ -726,6 +778,8 @@ for (int i = 1; i <= 10; i++)
   {
     id: 26,
     title: "How a for Loop Executes",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `For:
 
 \`\`\`cpp
@@ -765,6 +819,8 @@ stop
   {
     id: 27,
     title: "while Loop",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `\`\`\`cpp
 int i = 1;
 
@@ -794,6 +850,8 @@ while (number < 0)
   {
     id: 28,
     title: "do-while",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `\`\`\`cpp
 int i = 1;
 
@@ -828,6 +886,8 @@ while (choice != 3);
   {
     id: 29,
     title: "break and continue",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `## break
 
 Stops the loop.
@@ -863,6 +923,8 @@ Output: 1 2 4 5`,
   {
     id: 30,
     title: "Functions",
+    difficulty: "intermediate",
+    estimatedMinutes: 20,
     content: `## Why Functions?
 
 Functions help:
@@ -887,6 +949,8 @@ Call: \`greet();\``,
   {
     id: 31,
     title: "Function Parameters",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `\`\`\`cpp
 void greet(std::string name)
 {
@@ -910,6 +974,8 @@ Call: \`add(10, 20);\``,
   {
     id: 32,
     title: "Return Values",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `\`\`\`cpp
 int add(int a, int b)
 {
@@ -945,6 +1011,8 @@ if (isEven(4))
   {
     id: 33,
     title: "Function Structure",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `Teach students to identify:
 
 \`\`\`cpp
@@ -982,6 +1050,8 @@ int add(int a, int b)
   {
     id: 34,
     title: "Arrays",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
     content: `An array stores multiple values of the same type.
 
 \`\`\`cpp
@@ -1009,6 +1079,8 @@ int arr[5] = {};  // {0, 0, 0, 0, 0}
   {
     id: 35,
     title: "Array Indexing",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `C++ arrays start at **index 0**.
 
 \`\`\`text
@@ -1029,6 +1101,8 @@ std::cout << marks[2];  // 90
   {
     id: 36,
     title: "Arrays + Loops",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
     content: `\`\`\`cpp
 int marks[5] = {80, 70, 90, 60, 85};
 
@@ -1060,6 +1134,8 @@ std::cout << "Maximum: " << max;
   {
     id: 37,
     title: "Strings",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `\`\`\`cpp
 std::string name = "Abhay";
 \`\`\`
@@ -1090,6 +1166,8 @@ std::cout << name[4];  // o
   {
     id: 38,
     title: "getline()",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `## Difference
 
 \`\`\`cpp
@@ -1120,6 +1198,8 @@ std::cout << "Hello, " << fullName;
   {
     id: 39,
     title: "Pointers",
+    difficulty: "intermediate",
+    estimatedMinutes: 25,
     content: `Introduce pointers only after students understand variables.
 
 A pointer stores an **address**.
@@ -1148,6 +1228,8 @@ p  -> address stored in pointer
   {
     id: 40,
     title: "Pointer Example",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
     content: `\`\`\`cpp
 int x = 10;
 int* p = &x;
@@ -1174,6 +1256,8 @@ std::cout << x;  // 20
   {
     id: 41,
     title: "References",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
     content: `\`\`\`cpp
 int x = 10;
 int& ref = x;
@@ -1198,6 +1282,8 @@ std::cout << x;  // 20
   {
     id: 42,
     title: "Structures",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `Structures allow us to group related data.
 
 \`\`\`cpp
@@ -1237,6 +1323,8 @@ Student students[3] = {
   {
     id: 43,
     title: "Introduction to OOP",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
     content: `> Object-Oriented Programming is a way of designing programs around objects that contain data and behavior.
 
 ## Important Concepts
@@ -1267,6 +1355,8 @@ Object -> Actual house built from blueprint
   {
     id: 44,
     title: "Classes",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
     content: `A class is a blueprint for objects.
 
 \`\`\`cpp
@@ -1297,6 +1387,8 @@ s1.age = 20;
   {
     id: 45,
     title: "Class vs Object",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `Use a real-world analogy.
 
 \`\`\`text
@@ -1325,6 +1417,8 @@ student3 (Hari, 19)
   {
     id: 46,
     title: "Constructors",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
     content: `A constructor is called when an object is created.
 
 ## Default Constructor
@@ -1372,6 +1466,8 @@ Student(std::string n, int a) : name(n), age(a) {}
   {
     id: 47,
     title: "Encapsulation",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
     content: `Encapsulation means controlling access to an object's data and behavior.
 
 \`\`\`cpp
@@ -1409,6 +1505,8 @@ public  -> controlled interface
   {
     id: 48,
     title: "Inheritance",
+    difficulty: "advanced",
+    estimatedMinutes: 20,
     content: `Inheritance allows one class to derive from another.
 
 \`\`\`text
@@ -1452,6 +1550,8 @@ s.rollNumber = 101;  // Own member
   {
     id: 49,
     title: "Polymorphism",
+    difficulty: "advanced",
+    estimatedMinutes: 25,
     content: `Polymorphism means: **One interface can have different implementations.**
 
 ## Function Overloading
@@ -1491,6 +1591,8 @@ a->sound();  // Output: Bark
   {
     id: 50,
     title: "Exception Handling",
+    difficulty: "advanced",
+    estimatedMinutes: 15,
     content: `Programs can encounter exceptional situations.
 
 \`\`\`cpp
@@ -1529,6 +1631,8 @@ throw std::runtime_error("Something went wrong");
   {
     id: 51,
     title: "File Handling",
+    difficulty: "advanced",
+    estimatedMinutes: 15,
     content: `## Writing to File
 
 \`\`\`cpp
@@ -1568,6 +1672,8 @@ if (file.is_open())
   {
     id: 52,
     title: "STL",
+    difficulty: "advanced",
+    estimatedMinutes: 25,
     content: `Introduce the **Standard Template Library** after students understand the basics.
 
 ## Important Containers
@@ -1594,6 +1700,8 @@ reverse()
   {
     id: 53,
     title: "vector",
+    difficulty: "advanced",
+    estimatedMinutes: 15,
     content: `A vector is a dynamic sequence container.
 
 \`\`\`cpp
@@ -1637,6 +1745,8 @@ std::vector<std::vector<int>> matrix = {
   {
     id: 54,
     title: "Problem-Solving Practice",
+    difficulty: "intermediate",
+    estimatedMinutes: 30,
     content: `Students should solve problems continuously.
 
 ## Beginner Problems
@@ -1670,6 +1780,8 @@ Check whether a number is palindrome.
   {
     id: 55,
     title: "Array Problems",
+    difficulty: "intermediate",
+    estimatedMinutes: 20,
     content: `Students should solve:
 
 1. Find maximum
@@ -1701,6 +1813,8 @@ std::cout << "Maximum: " << max;
   {
     id: 56,
     title: "Mini Project Ideas",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
     content: `After fundamentals, give students small projects.
 
 ## Project 1 - Student Grade System
@@ -1731,6 +1845,8 @@ Operations: Add, Display, Search, Update, Delete
   {
     id: 57,
     title: "First-Class Teaching Plan",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `## First 90 Minutes
 
 ### Part 1 - Introduction (10 minutes)
@@ -1776,6 +1892,8 @@ Program: __________
   {
     id: 58,
     title: "Recommended Teaching Pattern",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
     content: `For every new concept, use:
 
 \`\`\`text
@@ -1816,6 +1934,8 @@ The syntax now has a **reason**.`,
   {
     id: 59,
     title: "What Students Should NOT Do",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `Avoid making beginners memorize:
 
 \`\`\`text
@@ -1851,6 +1971,8 @@ This develops **programming thinking**, not just syntax knowledge.`,
   {
     id: 60,
     title: "Core Topics Checklist",
+    difficulty: "beginner",
+    estimatedMinutes: 5,
     content: `By the end of the introductory portion, students should know:
 
 - Programming fundamentals
