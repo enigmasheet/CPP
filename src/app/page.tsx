@@ -3,16 +3,15 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  FlaskConical,
-  Code2,
+  BookOpen,
   LogIn,
+  Code2,
 } from "lucide-react";
-import { SUBJECTS, getTopics, getTotalQuestions } from "@/config/subjects";
+import { SUBJECTS, getTopics } from "@/config/subjects";
 
 const firstSlug = Object.keys(SUBJECTS)[0];
 const subject = SUBJECTS[firstSlug];
 const topics = getTopics(firstSlug);
-const totalQuestions = getTotalQuestions(firstSlug);
 
 export default function Home() {
   return (
@@ -23,15 +22,16 @@ export default function Home() {
           <div className="text-center">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
               <span className="bg-linear-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                {subject.name}
+                TeachMate
               </span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Interactive quizzes and hands-on coding practice designed for
-              bachelor students
+              Interactive learning platform for bachelor students.
+              Learn at your own pace, practice through teacher-led sessions.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href={`/subjects/${firstSlug}`} className={buttonVariants({ size: "lg" })}>
+              <Link href={`/subjects/${firstSlug}/learn`} className={buttonVariants({ size: "lg" })}>
+                <BookOpen className="w-4 h-4 mr-2" />
                 Start Learning
               </Link>
               <Link href="/join" className={buttonVariants({ size: "lg", variant: "outline" })}>
@@ -46,10 +46,10 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-20">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <FeatureCard
-            icon={<FlaskConical className="w-8 h-8" />}
-            title="MCQ Quizzes"
-            description={`${totalQuestions}+ questions across ${topics.length} topics with instant feedback and explanations`}
-            href={`/subjects/${firstSlug}/mcq`}
+            icon={<BookOpen className="w-8 h-8" />}
+            title="Study Materials"
+            description={`Structured curriculum covering ${subject.name.replace(" Programming", "")} fundamentals to advanced concepts`}
+            href={`/subjects/${firstSlug}/learn`}
           />
           {topics.slice(0, 5).map((topic) => (
             <FeatureCard
@@ -57,7 +57,7 @@ export default function Home() {
               icon={<Code2 className="w-8 h-8" />}
               title={topic.name}
               description={topic.description}
-              href={`/subjects/${firstSlug}/mcq/${topic.slug}`}
+              href={`/subjects/${firstSlug}/learn/${topic.slug}`}
             />
           ))}
         </div>
@@ -69,7 +69,7 @@ export default function Home() {
           {topics.map((topic) => (
             <Link
               key={topic.slug}
-              href={`/subjects/${firstSlug}/mcq/${topic.slug}`}
+              href={`/subjects/${firstSlug}/learn/${topic.slug}`}
               className="group p-4 bg-card rounded-lg border border-border text-center transition-all hover:border-primary/50 hover:shadow-lg"
             >
               <span className="font-medium group-hover:text-primary transition-colors">

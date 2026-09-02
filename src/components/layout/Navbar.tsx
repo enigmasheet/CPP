@@ -20,7 +20,6 @@ import {
   Shield,
   ChevronDown,
   GraduationCap,
-  Play,
 } from "lucide-react";
 
 const subjects = Object.values(SUBJECTS);
@@ -51,24 +50,14 @@ export default function Navbar() {
           {subjects.length === 1 ? (
             <>
               <Link
-                href={`/subjects/${subjects[0].slug}`}
+                href={`/subjects/${subjects[0].slug}/learn`}
                 className={buttonVariants({
-                  variant: pathname.startsWith(`/subjects/${subjects[0].slug}`) && !pathname.includes("/mcq") ? "secondary" : "ghost",
+                  variant: pathname.includes("/learn") ? "secondary" : "ghost",
                   size: "sm",
                 })}
               >
                 <BookOpen className="w-4 h-4 mr-2" />
                 Learn
-              </Link>
-              <Link
-                href={`/subjects/${subjects[0].slug}/mcq`}
-                className={buttonVariants({
-                  variant: pathname.includes("/mcq") ? "secondary" : "ghost",
-                  size: "sm",
-                })}
-              >
-                <FlaskConical className="w-4 h-4 mr-2" />
-                Quizzes
               </Link>
             </>
           ) : (
@@ -86,18 +75,12 @@ export default function Navbar() {
               <DropdownMenuContent align="start" className="w-56">
                 {subjects.map((subject) => (
                   <DropdownMenuItem key={subject.slug}>
-                    <Link href={`/subjects/${subject.slug}`} className="flex items-center gap-2 w-full">
+                    <Link href={`/subjects/${subject.slug}/learn`} className="flex items-center gap-2 w-full">
                       <BookOpen className="w-4 h-4" />
                       <span>{subject.name}</span>
                     </Link>
                   </DropdownMenuItem>
                 ))}
-                <DropdownMenuItem>
-                  <Link href="/join" className="flex items-center gap-2 w-full">
-                    <Play className="w-4 h-4" />
-                    <span>Take a Quiz</span>
-                  </Link>
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -134,28 +117,17 @@ export default function Navbar() {
           <SheetContent side="right" className="w-72">
             <nav className="flex flex-col gap-2 mt-8">
               {subjects.map((subject) => (
-                <div key={subject.slug}>
-                  <Link
-                    href={`/subjects/${subject.slug}`}
-                    className={buttonVariants({
-                      variant: pathname.startsWith(`/subjects/${subject.slug}`) && !pathname.includes("/mcq") ? "secondary" : "ghost",
-                    })}
-                    onClick={() => setOpen(false)}
-                  >
-                    <BookOpen className="w-4 h-4 mr-3" />
-                    {subject.name}
-                  </Link>
-                  <Link
-                    href={`/subjects/${subject.slug}/mcq`}
-                    className={buttonVariants({
-                      variant: pathname.includes(`/subjects/${subject.slug}/mcq`) ? "secondary" : "ghost",
-                    })}
-                    onClick={() => setOpen(false)}
-                  >
-                    <FlaskConical className="w-4 h-4 mr-3" />
-                    {subject.name} Quizzes
-                  </Link>
-                </div>
+                <Link
+                  key={subject.slug}
+                  href={`/subjects/${subject.slug}/learn`}
+                  className={buttonVariants({
+                    variant: pathname.includes(`/subjects/${subject.slug}/learn`) ? "secondary" : "ghost",
+                  })}
+                  onClick={() => setOpen(false)}
+                >
+                  <BookOpen className="w-4 h-4 mr-3" />
+                  Learn {subject.name}
+                </Link>
               ))}
               <Link
                 href="/join"

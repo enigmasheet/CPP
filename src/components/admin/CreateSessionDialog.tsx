@@ -12,21 +12,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Plus, Link2, CheckCircle, CircleDot, Loader2 } from "lucide-react";
+  Plus,
+  Link2,
+  CheckCircle,
+  CircleDot,
+  Loader2,
+  Lock,
+  Puzzle,
+  FlaskConical,
+} from "lucide-react";
 import Link from "next/link";
 
 interface MCQ {
@@ -37,21 +31,23 @@ interface MCQ {
 }
 
 const GAME_TYPES = [
-  { id: "output-predictor", name: "Output Predictor" },
-  { id: "bug-hunter", name: "Bug Hunter" },
-  { id: "code-golf", name: "Code Golf" },
-  { id: "speed-code", name: "Speed Code" },
-  { id: "memory-match", name: "Memory Match" },
-  { id: "syntax-scramble", name: "Syntax Scramble" },
+  { id: "output-predictor", name: "Output Predictor", description: "Predict C++ program output", implemented: false },
+  { id: "bug-hunter", name: "Bug Hunter", description: "Find bugs in code snippets", implemented: false },
+  { id: "code-golf", name: "Code Golf", description: "Solve problems with fewest characters", implemented: false },
+  { id: "speed-code", name: "Speed Code", description: "Race against time to code", implemented: false },
+  { id: "memory-match", name: "Memory Match", description: "Match concepts with definitions", implemented: false },
+  { id: "syntax-scramble", name: "Syntax Scramble", description: "Arrange code in correct order", implemented: false },
 ];
 
 export default function CreateSessionDialog() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
+  const [section, setSection] = useState("");
   const [mcqs, setMcqs] = useState<MCQ[]>([]);
   const [selectedMcqs, setSelectedMcqs] = useState<string[]>([]);
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
   const [topicFilter, setTopicFilter] = useState("all");
+  const [contentType, setContentType] = useState<"quiz" | "game" | "mixed">("quiz");
   const [creating, setCreating] = useState(false);
   const [createdCode, setCreatedCode] = useState<string | null>(null);
 
@@ -66,8 +62,10 @@ export default function CreateSessionDialog() {
     if (isOpen && mcqs.length === 0) loadMcqs();
     if (!isOpen) {
       setTitle("");
+      setSection("");
       setSelectedMcqs([]);
       setSelectedGames([]);
+      setContentType("quiz");
       setCreatedCode(null);
     }
   };
@@ -89,25 +87,23 @@ export default function CreateSessionDialog() {
 
     setCreating(true);
     const items = [
-      ...selectedMcqs.map((id) => ({ contentType: "mcq", contentId: id })),
+      ...selectedMcqs.map((id) => ({ contentType: "mcq" as const, contentId: id })),
       ...selectedGames.map((id) => ({
-        contentType: "game",
+        contentType: "game" as const,
         contentId: id,
         gameType: id,
       })),
     ];
 
-    const determinedType =
-      selectedMcqs.length > 0 && selectedGames.length > 0
-        ? "mixed"
-        : selectedGames.length > 0
-        ? "game"
-        : "quiz";
-
     const res = await fetch("/api/sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, type: determinedType, items }),
+      body: JSON.stringify({
+        title,
+        type: contentType,
+        items,
+        section: section || undefined,
+      }),
     });
 
     if (res.ok) {
@@ -124,13 +120,15 @@ export default function CreateSessionDialog() {
 
   const topics = [...new Set(mcqs.map((m) => m.topic))];
 
+  const selectedCount = selectedMcqs.length + selectedGames.length;
+
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90">
         <Plus className="w-4 h-4 mr-2" />
         New Session
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {createdCode ? "Session Created" : "Create New Session"}
@@ -143,9 +141,7 @@ export default function CreateSessionDialog() {
             <div className="text-4xl font-mono font-bold tracking-widest">
               {createdCode}
             </div>
-            <p className="text-sm text-muted-foreground">
-              or share link:
-            </p>
+            <p className="text-sm text-muted-foreground">or share link:</p>
             <code className="text-sm bg-muted px-3 py-1 rounded">
               {typeof window !== "undefined" ? window.location.origin : ""}/s/{createdCode}
             </code>
@@ -168,112 +164,174 @@ export default function CreateSessionDialog() {
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Session Title</label>
-              <Input
-                placeholder="e.g. Week 3 - OOP Quiz"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Select MCQs</label>
-              <Select value={topicFilter} onValueChange={(v) => setTopicFilter(v || "all")}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filter by topic" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Topics</SelectItem>
-                  {topics.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <div className="max-h-48 overflow-y-auto border border-border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12"></TableHead>
-                      <TableHead>Topic</TableHead>
-                      <TableHead>Question</TableHead>
-                      <TableHead>Difficulty</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredMcqs.map((mcq) => (
-                      <TableRow
-                        key={mcq._id}
-                        className="cursor-pointer"
-                        onClick={() => toggleMcq(mcq._id)}
-                      >
-                        <TableCell>
-                          {selectedMcqs.includes(mcq._id) ? (
-                            <CheckCircle className="w-4 h-4 text-primary" />
-                          ) : (
-                            <CircleDot className="w-4 h-4 text-muted-foreground" />
-                          )}
-                        </TableCell>
-                        <TableCell className="text-xs">{mcq.topic}</TableCell>
-                        <TableCell className="text-xs max-w-50 truncate">
-                          {mcq.question}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-xs">
-                            {mcq.difficulty}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+          <div className="space-y-5">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium">Session Title *</label>
+                <Input
+                  placeholder="e.g. Week 3 - OOP Quiz"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
               </div>
-              <p className="text-xs text-muted-foreground">
-                {selectedMcqs.length} MCQs selected
-              </p>
+              <div>
+                <label className="text-sm font-medium">Class Section</label>
+                <Input
+                  placeholder="e.g. CS101 - Section A"
+                  value={section}
+                  onChange={(e) => setSection(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Select Games</label>
-              <div className="grid grid-cols-2 gap-2">
-                {GAME_TYPES.map((game) => (
-                  <Button
-                    key={game.id}
-                    variant={
-                      selectedGames.includes(game.id) ? "default" : "outline"
-                    }
-                    size="sm"
-                    onClick={() => toggleGame(game.id)}
-                    className="justify-start"
+            <div>
+              <label className="text-sm font-medium mb-2 block">Content Type</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: "quiz" as const, label: "MCQ Quiz", icon: FlaskConical },
+                  { id: "game" as const, label: "Games", icon: Puzzle },
+                  { id: "mixed" as const, label: "Both", icon: Puzzle },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => setContentType(opt.id)}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors text-sm ${
+                      contentType === opt.id
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border hover:border-primary/30 text-muted-foreground"
+                    }`}
                   >
-                    {selectedGames.includes(game.id) ? (
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                    ) : (
-                      <CircleDot className="w-4 h-4 mr-2" />
-                    )}
-                    {game.name}
-                  </Button>
+                    <opt.icon className="w-5 h-5" />
+                    <span className="font-medium">{opt.label}</span>
+                  </button>
                 ))}
               </div>
             </div>
 
+            {(contentType === "quiz" || contentType === "mixed") && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Select MCQs</label>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedMcqs.length} selected
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => setTopicFilter("all")}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                      topicFilter === "all"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    All ({mcqs.length})
+                  </button>
+                  {topics.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setTopicFilter(t)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                        topicFilter === t
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {t} ({mcqs.filter((m) => m.topic === t).length})
+                    </button>
+                  ))}
+                </div>
+
+                <div className="max-h-52 overflow-y-auto border border-border rounded-lg divide-y divide-border">
+                  {filteredMcqs.map((mcq) => (
+                    <button
+                      key={mcq._id}
+                      onClick={() => toggleMcq(mcq._id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
+                        selectedMcqs.includes(mcq._id)
+                          ? "bg-primary/5"
+                          : "hover:bg-muted/50"
+                      }`}
+                    >
+                      {selectedMcqs.includes(mcq._id) ? (
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                      ) : (
+                        <CircleDot className="w-4 h-4 text-muted-foreground shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs truncate">{mcq.question}</p>
+                      </div>
+                      <div className="flex gap-1.5 shrink-0">
+                        <Badge variant="outline" className="text-[10px]">{mcq.topic}</Badge>
+                        <Badge variant="outline" className="text-[10px]">{mcq.difficulty}</Badge>
+                      </div>
+                    </button>
+                  ))}
+                  {filteredMcqs.length === 0 && (
+                    <p className="text-center text-sm text-muted-foreground py-4">
+                      No MCQs found for this topic.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {(contentType === "game" || contentType === "mixed") && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Select Games</label>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedGames.length} selected
+                  </span>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {GAME_TYPES.map((game) => (
+                    <button
+                      key={game.id}
+                      onClick={() => game.implemented && toggleGame(game.id)}
+                      disabled={!game.implemented}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors text-left ${
+                        !game.implemented
+                          ? "border-border opacity-60 cursor-not-allowed"
+                          : selectedGames.includes(game.id)
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/30"
+                      }`}
+                    >
+                      <div className="shrink-0">
+                        {game.implemented ? (
+                          selectedGames.includes(game.id) ? (
+                            <CheckCircle className="w-5 h-5 text-primary" />
+                          ) : (
+                            <CircleDot className="w-5 h-5 text-muted-foreground" />
+                          )
+                        ) : (
+                          <Lock className="w-5 h-5 text-muted-foreground" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium">{game.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{game.description}</p>
+                      </div>
+                      {!game.implemented && (
+                        <Badge variant="secondary" className="text-[10px] shrink-0">Soon</Badge>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <Button
               onClick={handleCreate}
-              disabled={
-                !title ||
-                (selectedMcqs.length === 0 && selectedGames.length === 0) ||
-                creating
-              }
+              disabled={!title || selectedCount === 0 || creating}
               className="w-full"
             >
               {creating ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               ) : null}
-              Create Session
+              Create Session ({selectedCount} items)
             </Button>
           </div>
         )}

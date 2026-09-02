@@ -46,6 +46,7 @@ export const createSessionSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   type: z.enum(["quiz", "game", "mixed"]),
   items: z.array(sessionItemSchema).min(1, "At least 1 item required"),
+  section: z.string().max(100).optional(),
   maxAttempts: z.number().int().positive().optional(),
 });
 

@@ -6,16 +6,20 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Shield, Loader2, BookOpen, FlaskConical, Lock } from "lucide-react";
+import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck } from "lucide-react";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import CreateSessionDialog from "@/components/admin/CreateSessionDialog";
 import SessionsList from "@/components/admin/SessionsList";
 
 const TeacherNotes = lazy(() => import("@/components/admin/TeacherNotes"));
 const CppKnowledge = lazy(() => import("@/components/admin/CppKnowledge"));
+const AuditLogTab = lazy(() => import("@/components/admin/AuditLog"));
+const TeachingPlanTab = lazy(() => import("@/components/admin/TeachingPlan"));
 
 const TABS = [
   { id: "sessions", label: "Sessions", icon: FlaskConical },
+  { id: "audit", label: "Audit Log", icon: ClipboardList },
+  { id: "plans", label: "Teaching Plan", icon: CalendarCheck },
   { id: "notes", label: "Teacher Notes", icon: BookOpen },
   { id: "knowledge", label: "Hidden Knowledge", icon: Lock },
 ] as const;
@@ -119,6 +123,16 @@ export default function AdminPage() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
         {activeTab === "sessions" && <SessionsList />}
+        {activeTab === "audit" && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AuditLogTab />
+          </Suspense>
+        )}
+        {activeTab === "plans" && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <TeachingPlanTab />
+          </Suspense>
+        )}
         {activeTab === "notes" && (
           <Suspense fallback={<LoadingSpinner />}>
             <TeacherNotes />

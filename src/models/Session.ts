@@ -13,6 +13,7 @@ export interface ISessionDoc extends Document {
   items: ISessionItem[];
   isActive: boolean;
   createdBy: string;
+  section?: string;
   maxAttempts?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -42,12 +43,12 @@ const SessionSchema = new Schema<ISessionDoc>(
     items: { type: [SessionItemSchema], required: true, min: 1 },
     isActive: { type: Boolean, default: true },
     createdBy: { type: String, default: "teacher" },
+    section: { type: String },
     maxAttempts: { type: Number },
   },
   { timestamps: true }
 );
 
-SessionSchema.index({ code: 1 });
 SessionSchema.index({ isActive: 1 });
 SessionSchema.index({ createdAt: -1 });
 

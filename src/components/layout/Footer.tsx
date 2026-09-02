@@ -1,9 +1,7 @@
-import { SUBJECTS, getTotalQuestions } from "@/config/subjects";
+import Link from "next/link";
+import { SUBJECTS } from "@/config/subjects";
 
-const totalQuestions = Object.keys(SUBJECTS).reduce(
-  (sum, slug) => sum + getTotalQuestions(slug),
-  0
-);
+const subjectCount = Object.keys(SUBJECTS).length;
 
 export default function Footer() {
   return (
@@ -14,8 +12,17 @@ export default function Footer() {
             TeachMate - Interactive learning platform for bachelor students
           </p>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span>{totalQuestions}+ MCQs</span>
-            <span>{Object.keys(SUBJECTS).length} Subject{Object.keys(SUBJECTS).length > 1 ? "s" : ""}</span>
+            <Link href="/" className="hover:text-foreground transition-colors">
+              Home
+            </Link>
+            <Link href={`/subjects/${Object.keys(SUBJECTS)[0]}/learn`} className="hover:text-foreground transition-colors">
+              Learn
+            </Link>
+            <Link href="/join" className="hover:text-foreground transition-colors">
+              Join Session
+            </Link>
+            <span className="text-muted-foreground/50">|</span>
+            <span>{subjectCount} Subject{subjectCount > 1 ? "s" : ""}</span>
           </div>
         </div>
       </div>

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
     const body = await request.json();
-    const { title, type, items, maxAttempts } = body;
+    const { title, type, items, section, maxAttempts } = body;
 
     if (!title || !type || !items || items.length === 0) {
       return NextResponse.json(
@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
       title,
       type,
       items,
+      section,
       maxAttempts,
     });
 
