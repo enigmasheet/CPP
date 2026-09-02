@@ -3,12 +3,8 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BookOpen,
   FlaskConical,
-  Brain,
-  Target,
   Code2,
-  Layers,
   LogIn,
 } from "lucide-react";
 import { SUBJECTS, getTopics, getTotalQuestions } from "@/config/subjects";
@@ -55,36 +51,15 @@ export default function Home() {
             description={`${totalQuestions}+ questions across ${topics.length} topics with instant feedback and explanations`}
             href={`/subjects/${firstSlug}/mcq`}
           />
-          <FeatureCard
-            icon={<BookOpen className="w-8 h-8" />}
-            title="Study Materials"
-            description={`Structured content covering ${subject.name.replace(" Programming", "")} fundamentals to advanced concepts`}
-            href={`/subjects/${firstSlug}`}
-          />
-          <FeatureCard
-            icon={<Code2 className="w-8 h-8" />}
-            title="Code Examples"
-            description="Syntax-highlighted code snippets with line-by-line explanations"
-            href={`/subjects/${firstSlug}`}
-          />
-          <FeatureCard
-            icon={<Brain className="w-8 h-8" />}
-            title={`${subject.name} Fundamentals`}
-            description="From basics to modern concepts - covers all essential topics"
-            href={`/subjects/${firstSlug}`}
-          />
-          <FeatureCard
-            icon={<Target className="w-8 h-8" />}
-            title="Self-Assessment"
-            description="Test your knowledge with topic-specific quizzes"
-            href={`/subjects/${firstSlug}/mcq`}
-          />
-          <FeatureCard
-            icon={<Layers className="w-8 h-8" />}
-            title={`${topics.length} Topics`}
-            description={topics.map((t) => t.name).join(", ")}
-            href={`/subjects/${firstSlug}`}
-          />
+          {topics.slice(0, 5).map((topic) => (
+            <FeatureCard
+              key={topic.slug}
+              icon={<Code2 className="w-8 h-8" />}
+              title={topic.name}
+              description={topic.description}
+              href={`/subjects/${firstSlug}/mcq/${topic.slug}`}
+            />
+          ))}
         </div>
       </section>
 

@@ -58,7 +58,7 @@ export default function CreateSessionDialog() {
   const loadMcqs = async () => {
     const res = await fetch("/api/mcq?limit=100");
     const data = await res.json();
-    setMcqs(data);
+    setMcqs(Array.isArray(data) ? data : []);
   };
 
   const handleOpen = (isOpen: boolean) => {
