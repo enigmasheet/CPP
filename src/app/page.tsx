@@ -26,9 +26,8 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 relative">
           <div className="text-center">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-              Master{" "}
               <span className="bg-linear-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                {subject.name.replace(" Programming", "")}
+                {subject.name}
               </span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -70,7 +69,7 @@ export default function Home() {
           />
           <FeatureCard
             icon={<Brain className="w-8 h-8" />}
-            title={`${subject.name.replace(" Programming", "")} Fundamentals`}
+            title={`${subject.name} Fundamentals`}
             description="From basics to modern concepts - covers all essential topics"
             href={`/subjects/${firstSlug}`}
           />

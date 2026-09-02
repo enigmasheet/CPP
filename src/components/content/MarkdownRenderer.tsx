@@ -80,6 +80,30 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
               </blockquote>
             );
           },
+          table({ children }) {
+            return (
+              <div className="overflow-x-auto my-4">
+                <table className="min-w-full border-collapse border border-border text-sm">
+                  {children}
+                </table>
+              </div>
+            );
+          },
+          thead({ children }) {
+            return <thead className="bg-muted">{children}</thead>;
+          },
+          tbody({ children }) {
+            return <tbody>{children}</tbody>;
+          },
+          tr({ children }) {
+            return <tr className="border-b border-border">{children}</tr>;
+          },
+          th({ children }) {
+            return <th className="border border-border px-4 py-2 text-left font-medium">{children}</th>;
+          },
+          td({ children }) {
+            return <td className="border border-border px-4 py-2">{children}</td>;
+          },
         }}
       >
         {content}

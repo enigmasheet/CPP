@@ -44,7 +44,7 @@ export default function Navbar() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg">
           <FlaskConical className="w-5 h-5" />
-          <span>LMS</span>
+          <span>TeachMate</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">

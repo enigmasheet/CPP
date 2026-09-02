@@ -3,9 +3,9 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "LMS | Interactive Learning Platform",
+  title: "TeachMate | Interactive Learning Platform",
   description:
-    "Interactive quizzes, games, code playground, and gamified learning for bachelor students",
+    "Interactive quizzes and study tools for bachelor students",
 };
 
 export default function RootLayout({

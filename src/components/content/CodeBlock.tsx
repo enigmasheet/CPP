@@ -1,4 +1,6 @@
-import { highlightCode } from "@/lib/shiki";
+"use client";
+
+import { useState, useEffect } from "react";
 
 interface CodeBlockProps {
   code: string;
@@ -6,12 +8,33 @@ interface CodeBlockProps {
   showLineNumbers?: boolean;
 }
 
-export default async function CodeBlock({
+export default function CodeBlock({
   code,
   language = "cpp",
   showLineNumbers = false,
 }: CodeBlockProps) {
-  const html = await highlightCode(code, language);
+  const [html, setHtml] = useState("");
+
+  useEffect(() => {
+    import("@/lib/shiki").then(({ highlightCode }) => {
+      highlightCode(code, language).then(setHtml);
+    });
+  }, [code, language]);
+
+  if (!html) {
+    return (
+      <div className="relative rounded-lg overflow-hidden border border-border">
+        <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b border-border">
+          <span className="text-xs font-mono text-muted-foreground uppercase">
+            {language}
+          </span>
+        </div>
+        <pre className="p-4 text-sm font-mono overflow-x-auto">
+          <code>{code}</code>
+        </pre>
+      </div>
+    );
+  }
 
   return (
     <div className="relative rounded-lg overflow-hidden border border-border">

@@ -126,11 +126,9 @@ export default function CreateSessionDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogTrigger>
-        <Button size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          New Session
-        </Button>
+      <DialogTrigger className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90">
+        <Plus className="w-4 h-4 mr-2" />
+        New Session
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
