@@ -110,6 +110,8 @@ export default function StudentSessionPage({
           const saved = localStorage.getItem(`session_${code}`);
           if (saved) {
             setStudentCode(saved);
+            const savedName = localStorage.getItem(`session_${code}_name`);
+            if (savedName) setName(savedName);
             setJoined(true);
           }
         }
@@ -190,6 +192,9 @@ export default function StudentSessionPage({
     }
     setStudentCode(data.studentCode);
     localStorage.setItem(`session_${code}`, data.studentCode);
+    if (name.trim()) {
+      localStorage.setItem(`session_${code}_name`, name.trim());
+    }
     setJoined(true);
   };
 
@@ -224,6 +229,7 @@ export default function StudentSessionPage({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         studentCode,
+        name: name.trim() || undefined,
         answers: finalAnswers,
       }),
     });
@@ -312,12 +318,16 @@ export default function StudentSessionPage({
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Input
-                placeholder="Your name (optional)"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleJoin()}
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Your Name</label>
+                <Input
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleJoin()}
+                />
+                <p className="text-xs text-muted-foreground">Your name will be shown in the teacher&apos;s dashboard</p>
+              </div>
               {joinError && (
                 <p className="text-sm text-destructive text-center">{joinError}</p>
               )}
@@ -436,9 +446,9 @@ export default function StudentSessionPage({
                     >
                       <div className="flex items-start gap-2 mb-2">
                         {wasCorrect ? (
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
+                          <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400 mt-0.5 shrink-0" />
                         ) : (
-                          <XCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+                          <XCircle className="w-5 h-5 text-red-500 dark:text-red-400 mt-0.5 shrink-0" />
                         )}
                         <div className="flex-1">
                           <p className="text-sm font-medium">
@@ -455,9 +465,9 @@ export default function StudentSessionPage({
                               return (
                                 <div
                                   key={oIdx}
-                                  className={`text-xs px-2 py-1 rounded ${
+                                   className={`text-xs px-2 py-1 rounded ${
                                     isStudentAnswer && !wasCorrect
-                                      ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                                      ? "bg-destructive/10 text-destructive"
                                       : "text-muted-foreground"
                                   }`}
                                 >

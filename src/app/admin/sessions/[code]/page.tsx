@@ -22,6 +22,8 @@ import {
   Users,
   BarChart3,
   Trophy,
+  BookOpen,
+  HelpCircle,
 } from "lucide-react";
 import Link from "next/link";
 import QRCode from "@/components/shared/QRCode";
@@ -31,6 +33,8 @@ interface SessionData {
   title: string;
   type: string;
   isActive: boolean;
+  section?: string;
+  items: { contentType: string; contentId: string; gameType?: string }[];
   createdAt: string;
 }
 
@@ -48,6 +52,19 @@ interface Stats {
   averagePercentage: number;
   highestPercentage: number;
   lowestPercentage: number;
+}
+
+const STUDENT_NAMES = [
+  "Student A", "Student B", "Student C", "Student D", "Student E",
+  "Student F", "Student G", "Student H", "Student I", "Student J",
+  "Student K", "Student L", "Student M", "Student N", "Student O",
+];
+
+function getStudentName(result: Result, index: number): string {
+  if (result.name && result.name.trim()) {
+    return result.name;
+  }
+  return STUDENT_NAMES[index % STUDENT_NAMES.length];
 }
 
 export default function SessionDetailPage({
@@ -145,10 +162,28 @@ export default function SessionDetailPage({
                 </div>
 
                 <div className="text-center text-sm text-muted-foreground">
-                  <p className="truncate">{session.title}</p>
-                  <p>
+                  <p className="truncate font-medium text-foreground">{session.title}</p>
+                  {session.section && (
+                    <p className="mt-1">
+                      <Badge variant="outline" className="text-xs">
+                        <BookOpen className="w-3 h-3 mr-1" />
+                        {session.section}
+                      </Badge>
+                    </p>
+                  )}
+                  <p className="mt-1">
                     {new Date(session.createdAt).toLocaleDateString()}
                   </p>
+                </div>
+
+                <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <HelpCircle className="w-3 h-3" />
+                    {session.items?.length || 0} items
+                  </span>
+                  <span>
+                    {session.items?.filter((i) => i.contentType === "mcq").length || 0} MCQs
+                  </span>
                 </div>
 
                 <div className="flex gap-2">
@@ -230,15 +265,18 @@ export default function SessionDetailPage({
                         <TableHead>Student</TableHead>
                         <TableHead>Score</TableHead>
                         <TableHead>Percentage</TableHead>
-                        <TableHead>Completed</TableHead>
+                        <TableHead className="hidden sm:table-cell">Completed</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {results.map((r, idx) => (
                         <TableRow key={r.studentCode}>
                           <TableCell>{idx + 1}</TableCell>
-                          <TableCell className="font-mono">
-                            {r.name || r.studentCode}
+                          <TableCell>
+                            <div>
+                              <span className="font-medium">{getStudentName(r, idx)}</span>
+                              <span className="block text-xs text-muted-foreground font-mono">{r.studentCode}</span>
+                            </div>
                           </TableCell>
                           <TableCell>
                             {r.totalScore}/{r.totalPossible}
@@ -256,7 +294,7 @@ export default function SessionDetailPage({
                               {r.percentage}%
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
+                          <TableCell className="text-sm text-muted-foreground hidden sm:table-cell">
                             {new Date(r.completedAt).toLocaleTimeString()}
                           </TableCell>
                         </TableRow>

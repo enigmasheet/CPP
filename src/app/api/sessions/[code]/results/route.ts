@@ -48,6 +48,8 @@ export async function GET(
         title: session.title,
         type: session.type,
         isActive: session.isActive,
+        section: session.section,
+        items: session.items,
         createdAt: session.createdAt,
       },
       results: results.map((r) => ({

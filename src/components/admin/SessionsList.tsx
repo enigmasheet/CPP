@@ -4,7 +4,15 @@ import { useState, useEffect } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, EyeOff, Link2, Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Eye, EyeOff, Link2, Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 interface Session {
@@ -20,6 +28,8 @@ interface Session {
 export default function SessionsList() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Session | null>(null);
 
   useEffect(() => {
     fetch("/api/sessions")
@@ -41,6 +51,16 @@ export default function SessionsList() {
     );
   };
 
+  const handleDelete = async (code: string) => {
+    setDeleting(code);
+    const res = await fetch(`/api/sessions/${code}`, { method: "DELETE" });
+    if (res.ok) {
+      setSessions((prev) => prev.filter((s) => s.code !== code));
+    }
+    setDeleting(null);
+    setDeleteTarget(null);
+  };
+
   if (loading) {
     return (
       <div className="text-center py-12">
@@ -58,32 +78,36 @@ export default function SessionsList() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {sessions.map((session) => (
         <Card key={session._id}>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="font-mono text-lg font-bold tracking-wider">
+          <CardContent className="py-4 px-4 sm:px-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <div className="font-mono text-base sm:text-lg font-bold tracking-wider shrink-0">
                   {session.code}
                 </div>
-                <div>
-                  <h3 className="font-medium">{session.title}</h3>
-                  <p className="text-sm text-muted-foreground">
+                <div className="min-w-0">
+                  <h3 className="font-medium truncate">{session.title}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     {session.items.length} items
-                    <span className="mx-2">-</span>
+                    <span className="mx-1.5">-</span>
                     {new Date(session.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={session.isActive ? "default" : "secondary"}>
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <Badge
+                  variant={session.isActive ? "default" : "secondary"}
+                  className="hidden sm:inline-flex"
+                >
                   {session.isActive ? "Active" : "Closed"}
                 </Badge>
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon-sm"
                   onClick={() => toggleActive(session.code, session.isActive)}
+                  title={session.isActive ? "Close session" : "Open session"}
                 >
                   {session.isActive ? (
                     <EyeOff className="w-4 h-4" />
@@ -93,10 +117,60 @@ export default function SessionsList() {
                 </Button>
                 <Link
                   href={`/admin/sessions/${session.code}`}
-                  className={buttonVariants({ variant: "ghost", size: "sm" })}
+                  className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                  title="View session"
                 >
                   <Link2 className="w-4 h-4" />
                 </Link>
+                <Dialog
+                  open={deleteTarget?.code === session.code}
+                  onOpenChange={(open) => !open && setDeleteTarget(null)}
+                >
+                  <DialogTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        title="Delete session"
+                      />
+                    }
+                    onClick={() => setDeleteTarget(session)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Delete Session</DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground">
+                      Are you sure you want to delete session{" "}
+                      <span className="font-mono font-bold">{session.code}</span> -{" "}
+                      <span className="font-medium">{session.title}</span>?
+                      This action cannot be undone.
+                    </p>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => setDeleteTarget(null)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleDelete(session.code)}
+                        disabled={deleting === session.code}
+                      >
+                        {deleting === session.code ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-2" />
+                        )}
+                        Delete
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </CardContent>

@@ -149,7 +149,7 @@ export default function CreateSessionDialog() {
         <Plus className="w-4 h-4 mr-2" />
         New Session
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {createdCode ? "Session Created" : "Create New Session"}
@@ -164,7 +164,7 @@ export default function CreateSessionDialog() {
               </div>
               <div className="space-y-2">
                 <p className="text-muted-foreground">Share this code with students:</p>
-                <div className="text-5xl font-mono font-bold tracking-[0.3em] text-foreground">
+                <div className="text-3xl sm:text-5xl font-mono font-bold tracking-[0.2em] sm:tracking-[0.3em] text-foreground">
                   {createdCode}
                 </div>
               </div>
@@ -232,7 +232,7 @@ export default function CreateSessionDialog() {
 
             <div className="space-y-3">
               <label className="text-sm font-medium">Content Type</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
                   { id: "quiz" as const, label: "MCQ Quiz", icon: FlaskConical, description: "Test knowledge with questions" },
                   { id: "game" as const, label: "Games", icon: Puzzle, description: "Interactive learning games" },
@@ -274,7 +274,7 @@ export default function CreateSessionDialog() {
                   />
                 </div>
 
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                   <button
                     onClick={() => setTopicFilter("all")}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
@@ -319,7 +319,7 @@ export default function CreateSessionDialog() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm truncate">{mcq.question}</p>
                       </div>
-                      <div className="flex gap-1.5 shrink-0">
+                      <div className="flex gap-1.5 shrink-0 hidden sm:flex">
                         <Badge variant="outline" className="text-[10px]">{mcq.topic}</Badge>
                         <Badge variant="outline" className="text-[10px]">{mcq.difficulty}</Badge>
                       </div>

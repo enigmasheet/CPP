@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Session from "@/models/Session";
 import SessionResult from "@/models/SessionResult";
+import AuditLog from "@/models/AuditLog";
 import MCQ from "@/models/MCQ";
 import { sessionSubmitSchema } from "@/lib/validations";
 
@@ -28,7 +29,7 @@ export async function POST(
       );
     }
 
-    const { studentCode, answers } = parsed.data;
+    const { studentCode, name, answers } = parsed.data;
 
     const existing = await SessionResult.findOne({
       sessionId: session._id,
@@ -77,11 +78,32 @@ export async function POST(
     const result = await SessionResult.create({
       sessionId: session._id,
       studentCode,
+      name: name || undefined,
       answers: gradedAnswers,
       totalScore,
       totalPossible,
       percentage,
     });
+
+    const allResults = await SessionResult.find({ sessionId: session._id })
+      .select("percentage")
+      .lean();
+
+    const scores = allResults.map((r: { percentage: number }) => r.percentage);
+    const avgScore = scores.length > 0 ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
+    const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
+    const lowestScore = scores.length > 0 ? Math.min(...scores) : 0;
+
+    await AuditLog.findOneAndUpdate(
+      { sessionCode: code.toUpperCase() },
+      {
+        studentCount: allResults.length,
+        averageScore: avgScore,
+        highestScore,
+        lowestScore,
+        status: "completed",
+      }
+    );
 
     return NextResponse.json({
       resultId: result._id,

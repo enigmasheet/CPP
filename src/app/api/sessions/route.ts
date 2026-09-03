@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 import Session from "@/models/Session";
+import AuditLog from "@/models/AuditLog";
+import MCQ from "@/models/MCQ";
 import { generateSessionCode } from "@/lib/session-code";
 
 export async function GET() {
@@ -54,6 +56,27 @@ export async function POST(request: NextRequest) {
       items,
       section,
       maxAttempts,
+    });
+
+    const mcqIds = items
+      .filter((item: { contentType: string }) => item.contentType === "mcq")
+      .map((item: { contentId: string }) => item.contentId);
+
+    let topicsCovered: string[] = [];
+    if (mcqIds.length > 0) {
+      const mcqs = await MCQ.find({ _id: { $in: mcqIds } }).select("topic").lean();
+      topicsCovered = [...new Set(mcqs.map((m: { topic: string }) => m.topic))];
+    }
+
+    await AuditLog.create({
+      date: new Date(),
+      sessionCode: code,
+      section: section || undefined,
+      topicsCovered,
+      mcqsUsed: mcqIds.length,
+      studentCount: 0,
+      status: "planned",
+      notes: `Auto-logged on session creation: ${title}`,
     });
 
     return NextResponse.json(session, { status: 201 });
