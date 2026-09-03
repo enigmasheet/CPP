@@ -2089,4 +2089,1085 @@ A student who memorizes syntax but cannot solve a simple problem has not really 
 
 A student who can take a problem, break it into smaller steps, choose the appropriate C++ concepts, implement them, test the program, find errors, and improve the solution is actually learning **computer programming**.`,
   },
+  {
+    id: 61,
+    title: "Dynamic Memory Allocation",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
+    topic: "memory-management",
+    content: `## Stack vs Heap
+
+\`\`\`cpp
+// Stack: automatic, fast, limited
+int x = 10;           // Stored on stack
+
+// Heap: manual, slower, large
+int* p = new int(10); // Stored on heap
+\`\`\`
+
+## When to Use Heap
+
+- Object lifetime must outlive the declaring scope
+- Object size is unknown at compile time
+- Large objects that would overflow the stack
+
+## new and delete
+
+\`\`\`cpp
+// Single object
+int* p = new int(42);
+delete p;
+
+// Array
+int* arr = new int[100];
+delete[] arr;  // Must use delete[] for arrays!
+\`\`\`
+
+## Common Mistake: Memory Leak
+
+\`\`\`cpp
+void leaky() {
+    int* p = new int(42);
+    if (p == nullptr) return;  // LEAK! delete never called
+    delete p;
+}
+\`\`\`
+
+## Teaching Tip
+
+> Draw memory diagrams showing stack and heap. Show how addresses work. Have students trace memory allocation/deallocation on paper before coding.`,
+  },
+  {
+    id: 62,
+    title: "Smart Pointers",
+    difficulty: "advanced",
+    estimatedMinutes: 20,
+    topic: "memory-management",
+    content: `## Three Types
+
+\`\`\`cpp
+#include <memory>
+
+// unique_ptr: exclusive ownership (preferred default)
+auto u = std::make_unique<int>(42);
+// auto u2 = u;  // ERROR: cannot copy
+
+// shared_ptr: shared ownership (reference counted)
+auto s1 = std::make_shared<int>(42);
+auto s2 = s1;  // Both own the object
+// use_count() tracks owners
+
+// weak_ptr: non-owning observer
+std::weak_ptr<int> w = s1;
+// Does not prevent destruction
+\`\`\`
+
+## When to Use Each
+
+| Smart Pointer | Use Case |
+|---------------|----------|
+| \`unique_ptr\` | Single owner, most common case |
+| \`shared_ptr\` | Multiple owners genuinely needed |
+| \`weak_ptr\` | Breaking circular references, caching |
+
+## Make Functions
+
+\`\`\`cpp
+auto p = std::make_unique<int>(42);    // Preferred
+auto p = std::unique_ptr<int>(new int(42));  // Also works
+
+auto s = std::make_shared<int>(42);    // Preferred
+auto s = std::shared_ptr<int>(new int(42));  // Also works
+\`\`\`
+
+## Teaching Tip
+
+> Start with unique_ptr. Only introduce shared_ptr when students encounter a genuine shared-ownership problem. Show the circular reference problem visually.`,
+  },
+  {
+    id: 63,
+    title: "RAII Pattern",
+    difficulty: "advanced",
+    estimatedMinutes: 15,
+    topic: "memory-management",
+    content: `## Resource Acquisition Is Initialization
+
+\`\`\`cpp
+// WITHOUT RAII (risky)
+void dangerous() {
+    FILE* f = fopen("data.txt", "r");
+    // ... what if exception occurs here?
+    fclose(f);  // May never be reached!
+}
+
+// WITH RAII (safe)
+class FileGuard {
+    FILE* file;
+public:
+    FileGuard(const char* name) : file(fopen(name, "r")) {}  // Acquire
+    ~FileGuard() { if (file) fclose(file); }                  // Release
+};
+\`\`\`
+
+## RAII in Standard Library
+
+\`\`\`cpp
+// File handling
+std::ifstream file("data.txt");  // Acquired in constructor
+
+// Mutex locking
+std::lock_guard<std::mutex> lock(mtx);  // Locked in constructor
+
+// Memory management
+std::unique_ptr<int> p(new int(42));  // Allocated in constructor
+\`\`\`
+
+## The Golden Rule
+
+> Resources are acquired in constructors and released in destructors. When the object goes out of scope (even via exception), the destructor runs automatically.
+
+## Teaching Tip
+
+> Contrast RAII with manual resource management. Show exception scenarios where RAII saves the day. Use the lock_guard example to show how mutexes are automatically unlocked.`,
+  },
+  {
+    id: 64,
+    title: "Memory Leaks and Detection",
+    difficulty: "advanced",
+    estimatedMinutes: 10,
+    topic: "memory-management",
+    content: `## What is a Memory Leak?
+
+Memory allocated with \`new\` but never freed with \`delete\`.
+
+\`\`\`cpp
+void leak() {
+    int* p = new int[1000];
+    // forgot delete[] p
+}  // p is destroyed, but heap memory is still allocated!
+\`\`\`
+
+## Common Causes
+
+1. Early return before delete
+2. Exception thrown before cleanup
+3. Circular references with shared_ptr
+4. Losing the pointer (reassigning without deleting)
+
+## Detection Tools
+
+- **Valgrind** (Linux/Mac): \`valgrind --leak-check=full ./program\`
+- **Visual Studio Debugger**: Memory diagnostics
+- **AddressSanitizer**: \`-fsanitize=address\` compiler flag
+- **Dr. Memory**: Windows alternative
+
+## Prevention
+
+\`\`\`cpp
+// BAD: manual management
+int* p = new int(42);
+delete p;
+
+// GOOD: smart pointers
+auto p = std::make_unique<int>(42);
+// No delete needed!
+\`\`\`
+
+## Teaching Tip
+
+> Demonstrate a memory leak and how tools detect it. Then show how smart pointers prevent it entirely. Visual Studio's memory diagnostics are excellent for classroom demos.`,
+  },
+  {
+    id: 65,
+    title: "Common Memory Mistakes",
+    difficulty: "advanced",
+    estimatedMinutes: 10,
+    topic: "memory-management",
+    content: `## Top Mistakes
+
+### 1. Dangling Pointer
+
+\`\`\`cpp
+int* func() {
+    int x = 42;
+    return &x;  // BAD: returning address of local variable
+}
+\`\`\`
+
+### 2. Double Free
+
+\`\`\`cpp
+int* p = new int(42);
+delete p;
+delete p;  // Undefined behavior!
+\`\`\`
+
+### 3. Using After Delete
+
+\`\`\`cpp
+int* p = new int(42);
+delete p;
+*p = 10;  // Undefined behavior!
+\`\`\`
+
+### 4. Mismatched new/delete
+
+\`\`\`cpp
+int* p = new int[100];
+delete p;    // WRONG: should be delete[]
+\`\`\`
+
+### 5. Memory Leak on Exception
+
+\`\`\`cpp
+void process() {
+    int* p = new int[1000];
+    throw std::runtime_error("error");  // LEAK!
+    delete[] p;  // Never reached
+}
+\`\`\`
+
+## Solution: Modern C++
+
+Use smart pointers, RAII, and containers (vector, string) to avoid all these issues.
+
+## Teaching Tip
+
+> Show each mistake as a code example. Have students find the bugs. Then show the fix using smart pointers. This builds debugging instincts.`,
+  },
+  {
+    id: 66,
+    title: "Function Templates",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
+    topic: "templates",
+    content: `## Why Templates?
+
+Without templates, you'd need separate functions for each type:
+
+\`\`\`cpp
+int max(int a, int b) { return (a > b) ? a : b; }
+double max(double a, double b) { return (a > b) ? a : b; }
+string max(string a, string b) { return (a > b) ? a : b; }
+\`\`\`
+
+With templates:
+
+\`\`\`cpp
+template <typename T>
+T maximum(T a, T b) {
+    return (a > b) ? a : b;
+}
+\`\`\`
+
+## Template Instantiation
+
+\`\`\`cpp
+maximum(5, 10);      // Compiler generates maximum<int>
+maximum(3.14, 2.7);  // Compiler generates maximum<double>
+maximum("a", "b");   // Compiler generates maximum<const char*>
+\`\`\`
+
+## Multiple Parameters
+
+\`\`\`cpp
+template <typename T, typename U>
+void printPair(T first, U second) {
+    cout << first << ": " << second;
+}
+\`\`\`
+
+## Teaching Tip
+
+> Have students write a swap function template. Show how one template replaces multiple overloaded functions. Trace the compiler's template instantiation process.`,
+  },
+  {
+    id: 67,
+    title: "Class Templates",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
+    topic: "templates",
+    content: `## Generic Classes
+
+\`\`\`cpp
+template <typename T>
+class Stack {
+    std::vector<T> elements;
+public:
+    void push(T val) { elements.push_back(val); }
+    T pop() {
+        T val = elements.back();
+        elements.pop_back();
+        return val;
+    }
+    bool empty() const { return elements.empty(); }
+};
+\`\`\`
+
+## Usage
+
+\`\`\`cpp
+Stack<int> intStack;
+intStack.push(10);
+intStack.push(20);
+cout << intStack.pop();  // 20
+
+Stack<std::string> stringStack;
+stringStack.push("Hello");
+\`\`\`
+
+## Template with Non-Type Parameters
+
+\`\`\`cpp
+template <typename T, int Size>
+class FixedArray {
+    T data[Size];
+public:
+    T& operator[](int i) { return data[i]; }
+    int size() const { return Size; }
+};
+
+FixedArray<int, 10> arr;  // Array of 10 ints
+\`\`\`
+
+## Teaching Tip
+
+> Build a Stack class together. Start with int-only, then generalize with templates. Show how the same class works for different types.`,
+  },
+  {
+    id: 68,
+    title: "Template Specialization",
+    difficulty: "advanced",
+    estimatedMinutes: 15,
+    topic: "templates",
+    content: `## Full Specialization
+
+Provide a custom implementation for a specific type:
+
+\`\`\`cpp
+template <typename T>
+void print(T val) { cout << val; }
+
+// Specialization for bool
+template <>
+void print<bool>(bool val) {
+    cout << (val ? "true" : "false");
+}
+
+print(42);     // Prints: 42 (generic)
+print(true);   // Prints: true (specialized)
+\`\`\`
+
+## Partial Specialization
+
+Specialize some but not all parameters:
+
+\`\`\`cpp
+template <typename T, typename U>
+class Pair { T first; U second; };
+
+// When both types are the same
+template <typename T>
+class Pair<T, T> { T both; };
+\`\`\`
+
+## When to Use
+
+- Generic template doesn't work correctly for certain types
+- You need optimized behavior for specific types
+- Type-specific logic is required
+
+## Teaching Tip
+
+> Show the bool example - printing true/false instead of 1/0. Have students create a specialization for string that adds quotes.`,
+  },
+  {
+    id: 69,
+    title: "Variadic Templates",
+    difficulty: "advanced",
+    estimatedMinutes: 20,
+    topic: "templates",
+    content: `## Variable Number of Arguments
+
+\`\`\`cpp
+// Base case: single argument
+template <typename T>
+void print(T val) {
+    cout << val << endl;
+}
+
+// Recursive case: first + rest
+template <typename T, typename... Args>
+void print(T first, Args... rest) {
+    cout << first << " ";
+    print(rest...);  // Unpack remaining
+}
+\`\`\`
+
+## Usage
+
+\`\`\`cpp
+print(1, 2.5, "hello", 'c');
+// Output: 1 2.5 hello c
+\`\`\`
+
+## Parameter Packs
+
+\`\`\`cpp
+template <typename... Args>
+void func(Args... args) {
+    // sizeof...(Args) - number of types
+    // sizeof...(args) - number of values
+    cout << "Arguments: " << sizeof...(args) << endl;
+}
+\`\`\`
+
+## Real-World Use
+
+Variadic templates power: \`make_tuple\`, \`emplace_back\`, \`make_shared\`, \`printf\`-style formatting.
+
+## Teaching Tip
+
+> Trace the recursion visually: print(1,2.3,"hi") → print(1) → print(2.3) → print("hi"). Show how parameter packs expand. Use fold expressions (C++17) as a simpler alternative when possible.`,
+  },
+  {
+    id: 70,
+    title: "Concepts (C++20)",
+    difficulty: "advanced",
+    estimatedMinutes: 15,
+    topic: "templates",
+    content: `## What are Concepts?
+
+Concepts constrain template parameters to specific requirements:
+
+\`\`\`cpp
+#include <concepts>
+
+template <typename T>
+concept Numeric = std::integral<T> || std::floating_point<T>;
+
+template <Numeric T>
+T add(T a, T b) { return a + b; }
+
+// add(1, 2);       // OK: int satisfies Numeric
+// add(1.5, 2.5);   // OK: double satisfies Numeric
+// add("a", "b");   // Error: const char* doesn't satisfy Numeric
+\`\`\`
+
+## Built-in Concepts
+
+\`\`\`cpp
+std::integral<T>       // int, char, bool, etc.
+std::floating_point<T> // float, double, long double
+std::same_as<T, U>     // T and U are the same type
+std::derived_from<T, U>// T derives from U
+std::convertible_to<T, U>
+\`\`\`
+
+## Requires Clauses
+
+\`\`\`cpp
+template <typename T>
+    requires std::sortable<T>
+void sortContainer(T& container) { /* ... */ }
+
+// Or abbreviated:
+void sortContainer(std::sortable auto& container) { /* ... */ }
+\`\`\`
+
+## Benefits Over SFINAE
+
+- Clearer error messages
+- More readable code
+- Better than enable_if for most cases
+
+## Teaching Tip
+
+> Show before/after: SFINAE with enable_if vs concepts. The clarity improvement is dramatic. Start with simple constraints like Numeric and Printable.`,
+  },
+  {
+    id: 71,
+    title: "auto Keyword",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
+    topic: "modern-cpp",
+    content: `## Type Deduction
+
+\`\`\`cpp
+auto x = 42;           // int
+auto y = 3.14;         // double
+auto z = "Hello";      // const char*
+auto v = vector<int>{1, 2, 3};  // vector<int>
+\`\`\`
+
+## Benefits
+
+1. Reduces verbosity with complex types
+2. Prevents type mismatches
+3. Makes refactoring easier
+
+\`\`\`cpp
+// Without auto (verbose)
+vector<int>::iterator it = v.begin();
+
+// With auto (clean)
+auto it = v.begin();
+\`\`\`
+
+## When NOT to Use auto
+
+\`\`\`cpp
+// Bad: unclear type
+auto x = 42;  // Is this int? long? unsigned?
+
+// Good: explicit when needed
+int x = 42;
+\`\`\`
+
+## Rules
+
+- Must have an initializer
+- Cannot be used for function parameters
+- Cannot be used for class members (without init)
+- Deduces type once, then it's fixed
+
+## Teaching Tip
+
+> Show side-by-side comparisons of code with and without auto. Emphasize that auto doesn't make things dynamic - it's just shorthand.`,
+  },
+  {
+    id: 72,
+    title: "Range-based for Loop",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
+    topic: "modern-cpp",
+    content: `## Syntax
+
+\`\`\`cpp
+vector<int> v = {1, 2, 3, 4, 5};
+
+// By value (copy)
+for (int x : v) {
+    cout << x << " ";
+}
+
+// By reference (no copy, can modify)
+for (auto& x : v) {
+    x *= 2;  // Modifies original
+}
+
+// By const reference (no copy, read-only)
+for (const auto& x : v) {
+    cout << x << " ";  // Efficient for large objects
+}
+\`\`\`
+
+## Works With
+
+\`\`\`cpp
+// Arrays
+int arr[] = {1, 2, 3};
+for (int x : arr) { /* ... */ }
+
+// Initializer lists
+for (int x : {1, 2, 3}) { /* ... */ }
+
+// Maps
+map<string, int> m = {{"a", 1}};
+for (const auto& [key, value] : m) {
+    cout << key << ": " << value;
+}
+\`\`\`
+
+## vs Index-based
+
+\`\`\`cpp
+// Old style (error-prone)
+for (int i = 0; i < v.size(); i++) {
+    cout << v[i];
+}
+
+// Modern (clean, safe)
+for (const auto& x : v) {
+    cout << x;
+}
+\`\`\`
+
+## Teaching Tip
+
+> Replace all traditional for loops with range-based where possible. Show students the cleaner syntax and how it prevents off-by-one errors.`,
+  },
+  {
+    id: 73,
+    title: "Lambda Expressions",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
+    topic: "modern-cpp",
+    content: `## Basic Lambda
+
+\`\`\`cpp
+auto greet = []() { cout << "Hello!"; };
+greet();  // Prints: Hello!
+\`\`\`
+
+## With Parameters
+
+\`\`\`cpp
+auto add = [](int a, int b) { return a + b; };
+add(3, 4);  // Returns 7
+\`\`\`
+
+## Capture Clauses
+
+\`\`\`cpp
+int factor = 10;
+
+// By value (copy)
+auto byVal = [factor](int x) { return x * factor; };
+
+// By reference (sees changes)
+auto byRef = [&factor](int x) { factor++; return x * factor; };
+
+// Capture all by value
+auto allVal = [=](int x) { return x * factor; };
+
+// Capture all by reference
+auto allRef = [&](int x) { factor++; return x * factor; };
+\`\`\`
+
+## With STL Algorithms
+
+\`\`\`cpp
+vector<int> v = {1, 2, 3, 4, 5};
+
+// Count elements > 2
+int count = std::count_if(v.begin(), v.end(),
+    [](int n) { return n > 2; });  // count = 3
+
+// Sort in descending order
+std::sort(v.begin(), v.end(),
+    [](int a, int b) { return a > b; });
+\`\`\`
+
+## Mutable Lambdas
+
+\`\`\`cpp
+int count = 0;
+auto inc = [count]() mutable { count++; };
+inc();  // count is now 1 (only in the copy!)
+\`\`\`
+
+## Teaching Tip
+
+> Start with simple lambdas in sort and count_if. Then introduce captures. Show the difference between [=] and [&] with a visual diagram.`,
+  },
+  {
+    id: 74,
+    title: "Move Semantics",
+    difficulty: "advanced",
+    estimatedMinutes: 20,
+    topic: "modern-cpp",
+    content: `## The Problem: Unnecessary Copies
+
+\`\`\`cpp
+std::vector<int> createLargeVector() {
+    std::vector<int> v(1000000);
+    // ... fill v ...
+    return v;  // Copy? That's expensive!
+}
+\`\`\`
+
+## The Solution: Move Semantics
+
+\`\`\`cpp
+// Move constructor
+std::vector(std::vector&& other) noexcept
+    : data(other.data), size(other.size), capacity(other.capacity) {
+    other.data = nullptr;
+    other.size = 0;
+    other.capacity = 0;
+}
+\`\`\`
+
+## std::move
+
+\`\`\`cpp
+std::string s1 = "Hello";
+std::string s2 = std::move(s1);  // s1 is moved, not copied
+// s1 is now in valid-but-unspecified state
+// s2 owns "Hello"
+\`\`\`
+
+## Move vs Copy
+
+\`\`\`cpp
+std::vector<int> v1 = {1, 2, 3};
+
+// Copy: both v1 and v2 have {1, 2, 3}
+std::vector<int> v2 = v1;
+
+// Move: v1 is empty, v2 has {1, 2, 3}
+std::vector<int> v3 = std::move(v1);
+\`\`\`
+
+## When to Use
+
+- Transferring ownership
+- Returning from functions (compiler does NRVO)
+- After \`std::move\`, don't read the source value
+
+## Teaching Tip
+
+> Use string examples first (visible state change). Then show vector (heap allocation). Demonstrate the performance difference with a large vector copy vs move.`,
+  },
+  {
+    id: 75,
+    title: "Structured Bindings",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
+    topic: "modern-cpp",
+    content: `## Decomposing Aggregates
+
+\`\`\`cpp
+// With tuple
+auto [x, y, z] = std::make_tuple(1, 2.5, "hello");
+// x=1, y=2.5, z="hello"
+
+// With pair
+pair<string, int> p = {"Alice", 42};
+auto [name, age] = p;
+// name="Alice", age=42
+
+// With array
+int arr[] = {10, 20, 30};
+auto [a, b, c] = arr;
+// a=10, b=20, c=30
+\`\`\`
+
+## With Structs
+
+\`\`\`cpp
+struct Point { double x, y, z; };
+Point p{1.0, 2.0, 3.0};
+auto [x, y, z] = p;
+// x=1.0, y=2.0, z=3.0
+\`\`\`
+
+## With Maps
+
+\`\`\`cpp
+map<string, int> m = {{"a", 1}, {"b", 2}};
+for (const auto& [key, value] : m) {
+    cout << key << ": " << value;
+}
+\`\`\`
+
+## vs Traditional
+
+\`\`\`cpp
+// Old way
+auto p = make_pair("Alice", 42);
+string name = p.first;
+int age = p.second;
+
+// New way
+auto [name, age] = make_pair("Alice", 42);
+\`\`\`
+
+## Teaching Tip
+
+> Start with pair and tuple examples. Then show map iteration - that's where structured bindings really shine. Compare old .first/.second with new syntax.`,
+  },
+  {
+    id: 76,
+    title: "Naming Conventions",
+    difficulty: "beginner",
+    estimatedMinutes: 10,
+    topic: "best-practices",
+    content: `## Recommended Conventions
+
+| Element | Convention | Example |
+|---------|-----------|---------|
+| Classes/Structs | PascalCase | \`BankAccount\` |
+| Functions | camelCase | \`getBalance()\` |
+| Variables | camelCase | \`accountBalance\` |
+| Constants | UPPER_SNAKE | \`MAX_SIZE\` |
+| Member variables | camelCase | \`m_balance\` or \`balance_\` |
+| Enum types | PascalCase | \`Color\` |
+| Enum values | PascalCase | \`Color::Red\` |
+| Namespaces | lowercase | \`mylib\` |
+| Template params | PascalCase | \`typename T\` |
+| Macros | UPPER_SNAKE | \`MY_MACRO\` |
+
+## Examples
+
+\`\`\`cpp
+class StudentRecord {        // PascalCase
+    std::string studentName;  // camelCase
+    int examScore;            // camelCase
+    static const int MAX_GRADE = 100;  // UPPER_SNAKE
+public:
+    void calculateAverage();  // camelCase
+};
+
+enum class LogLevel {        // PascalCase
+    Debug,                    // PascalCase
+    Info,
+    Error
+};
+\`\`\`
+
+## Teaching Tip
+
+> Pick one convention and stick to it. Create a class project style guide. Have students review each other's naming. Bad names make code unreadable.`,
+  },
+  {
+    id: 77,
+    title: "Code Organization",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
+    topic: "best-practices",
+    content: `## File Structure
+
+\`\`\`text
+project/
+├── include/         # Public headers
+│   └── mylib/
+│       ├── Student.h
+│       └── Utils.h
+├── src/             # Implementation files
+│   ├── Student.cpp
+│   └── Utils.cpp
+├── tests/           # Test files
+│   └── test_student.cpp
+└── CMakeLists.txt   # Build configuration
+\`\`\`
+
+## Header Guards
+
+\`\`\`cpp
+#pragma once  // Modern, simple (preferred)
+
+// OR traditional include guards
+#ifndef STUDENT_H
+#define STUDENT_H
+// ... content ...
+#endif
+\`\`\`
+
+## Include Order
+
+\`\`\`cpp
+// 1. Corresponding header (Student.cpp includes Student.h)
+#include "Student.h"
+
+// 2. C system headers
+#include <cstdio>
+
+// 3. C++ standard library
+#include <string>
+#include <vector>
+
+// 4. Third-party libraries
+#include <fmt/format.h>
+
+// 5. Project headers
+#include "Utils.h"
+\`\`\`
+
+## Forward Declarations
+
+\`\`\`cpp
+// In header: forward declare instead of #include
+class Teacher;  // Forward declaration
+
+class Student {
+    Teacher* advisor;  // OK: pointer/reference
+    // Teacher t;      // ERROR: need full definition
+};
+\`\`\`
+
+## Teaching Tip
+
+> Organize a small project together. Show how header order catches missing includes early. Demonstrate forward declarations reducing compile time.`,
+  },
+  {
+    id: 78,
+    title: "Error Handling Patterns",
+    difficulty: "intermediate",
+    estimatedMinutes: 15,
+    topic: "best-practices",
+    content: `## Pattern 1: Exceptions for Exceptional Cases
+
+\`\`\`cpp
+double divide(int a, int b) {
+    if (b == 0) throw std::invalid_argument("Division by zero");
+    return static_cast<double>(a) / b;
+}
+\`\`\`
+
+## Pattern 2: Error Codes for Expected Failures
+
+\`\`\`cpp
+enum class ErrorCode { Success, FileNotFound, ParseError };
+
+ErrorCode loadConfig(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) return ErrorCode::FileNotFound;
+    // ... parse ...
+    return ErrorCode::Success;
+}
+\`\`\`
+
+## Pattern 3: std::expected (C++23)
+
+\`\`\`cpp
+std::expected<int, std::string> parse(const std::string& s) {
+    if (s.empty()) return std::unexpected("Empty input");
+    try { return std::stoi(s); }
+    catch (...) { return std::unexpected("Invalid number"); }
+}
+\`\`\`
+
+## Pattern 4: Assert for Programmer Errors
+
+\`\`\`cpp
+void process(int* p) {
+    assert(p != nullptr && "Null pointer in process!");
+    // ... use p ...
+}
+\`\`\`
+
+## When to Use What
+
+| Situation | Pattern |
+|-----------|---------|
+| Out of memory | Exception |
+| File not found | Error code / expected |
+| Invalid input | Error code / expected |
+| Null pointer | Assert (debug) / exception (release) |
+| Logic error | Assert |
+
+## Teaching Tip
+
+> Give students a function that can fail in multiple ways. Have them choose the appropriate error handling pattern for each case.`,
+  },
+  {
+    id: 79,
+    title: "Performance Tips",
+    difficulty: "advanced",
+    estimatedMinutes: 15,
+    topic: "best-practices",
+    content: `## 1. Reserve Vector Capacity
+
+\`\`\`cpp
+// BAD: multiple reallocations
+std::vector<int> v;
+for (int i = 0; i < 10000; i++) {
+    v.push_back(i);  // May reallocate many times
+}
+
+// GOOD: pre-allocate
+std::vector<int> v;
+v.reserve(10000);
+for (int i = 0; i < 10000; i++) {
+    v.push_back(i);  // No reallocation
+}
+\`\`\`
+
+## 2. Use const References
+
+\`\`\`cpp
+// BAD: copies large object
+void process(std::string s);
+
+// GOOD: no copy
+void process(const std::string& s);
+\`\`\`
+
+## 3. Use Move Semantics
+
+\`\`\`cpp
+// BAD: copies
+std::vector<int> dest = source;
+
+// GOOD: moves
+std::vector<int> dest = std::move(source);
+\`\`\`
+
+## 4. Use emplace_back
+
+\`\`\`cpp
+// BAD: creates temporary
+v.push_back(MyClass(arg1, arg2));
+
+// GOOD: constructs in-place
+v.emplace_back(arg1, arg2);
+\`\`\`
+
+## 5. Prefer Algorithms Over Loops
+
+\`\`\`cpp
+// Manual loop
+for (auto it = v.begin(); it != v.end(); ++it) {
+    if (*it == 42) { /* found */ }
+}
+
+// Standard algorithm (clearer, may be optimized)
+auto it = std::find(v.begin(), v.end(), 42);
+\`\`\`
+
+## Teaching Tip
+
+> Profile before and after each optimization. Show students the actual performance numbers. Emphasize: readability first, optimize only when measured.`,
+  },
+  {
+    id: 80,
+    title: "Code Review Checklist",
+    difficulty: "intermediate",
+    estimatedMinutes: 10,
+    topic: "best-practices",
+    teacherOnly: true,
+    content: `## Before Submitting Code
+
+### Memory Safety
+- [ ] No raw new/delete (use smart pointers)
+- [ ] No dangling pointers or references
+- [ ] No buffer overflows
+- [ ] No memory leaks (check all exit paths)
+
+### Error Handling
+- [ ] All error conditions handled
+- [ ] Exceptions used appropriately
+- [ ] No swallowed exceptions
+- [ ] Resource cleanup on error paths
+
+### Thread Safety
+- [ ] Shared data protected by mutex
+- [ ] No data races
+- [ ] Lock ordering consistent (avoid deadlock)
+- [ ] No blocking in critical sections
+
+### Performance
+- [ ] No unnecessary copies
+- [ ] const references for large parameters
+- [ ] Reserve() for known-size containers
+- [ ] Move semantics where appropriate
+
+### Readability
+- [ ] Clear, consistent naming
+- [ ] Functions do one thing
+- [ ] No magic numbers
+- [ ] Comments explain why, not what
+
+### Modern C++
+- [ ] Use auto where type is obvious
+- [ ] Range-based for loops
+- [ ] Structured bindings for tuples/pairs
+- [ ] No C-style casts
+
+## Teaching Tip
+
+> Use this checklist for student code reviews. Have students review each other's code using this list. This teaches them to think like professional developers.`,
+  },
 ];

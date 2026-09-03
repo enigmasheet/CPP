@@ -38,12 +38,10 @@ export async function connectDB(): Promise<typeof mongoose> {
 }
 
 type RouteContext = { params: Promise<Record<string, string>> };
-type RouteHandler = (
-  request: Request,
-  context?: RouteContext
-) => Promise<NextResponse>;
 
-export function withDB(handler: RouteHandler): RouteHandler {
+export function withDB<T extends Request = Request>(
+  handler: (request: T, context?: RouteContext) => Promise<NextResponse>
+): (request: T, context?: RouteContext) => Promise<NextResponse> {
   return async (request, context) => {
     try {
       await connectDB();

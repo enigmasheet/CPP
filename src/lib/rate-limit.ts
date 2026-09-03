@@ -1,3 +1,5 @@
+import { TIMER_INTERVAL_MS } from "./constants";
+
 interface RateLimitEntry {
   count: number;
   resetTime: number;
@@ -19,12 +21,12 @@ export function rateLimit(
   }
 
   if (entry.count >= maxRequests) {
-    const resetIn = Math.ceil((entry.resetTime - now) / 1000);
+    const resetIn = Math.ceil((entry.resetTime - now) / TIMER_INTERVAL_MS);
     return { allowed: false, remaining: 0, resetIn };
   }
 
   entry.count++;
-  return { allowed: true, remaining: maxRequests - entry.count, resetIn: Math.ceil((entry.resetTime - now) / 1000) };
+  return { allowed: true, remaining: maxRequests - entry.count, resetIn: Math.ceil((entry.resetTime - now) / TIMER_INTERVAL_MS) };
 }
 
 export function getClientIp(request: Request): string {

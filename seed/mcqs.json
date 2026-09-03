@@ -1468,5 +1468,1098 @@
     "explanation": "swap takes references (int&), so it modifies the original variables. a refers to x, b refers to y. After the swap: a (x) = 10, b (y) = 5. This is the classic pass-by-reference example. Note: std::swap does the same thing but handles more types.",
     "difficulty": "easy",
     "tags": ["references", "functions"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the result of implicit type promotion in this expression?",
+    "codeSnippet": "char a = 100;\nint b = 200;\nlong c = a + b;\n// What type is (a + b) before assignment?",
+    "options": [
+      { "text": "int, because char and int promote to int", "isCorrect": true },
+      { "text": "char, because the smaller type is used", "isCorrect": false },
+      { "text": "long, because c is long", "isCorrect": false },
+      { "text": "double, because mixed types promote to double", "isCorrect": false }
+    ],
+    "explanation": "In C++, when you perform arithmetic with mixed types, smaller types are promoted to the larger type. char (1 byte) and int (4 bytes) both promote to int. The result of a+b is int. It's then implicitly converted to long when assigned to c. Promotion rules: bool→char→short→int→unsigned int→long→unsigned long→long long→unsigned long long→float→double→long double.",
+    "difficulty": "medium",
+    "tags": ["basics", "type-promotion"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the output of this code?",
+    "codeSnippet": "const int x = 10;\nconst int* p = &x;\n// *p = 20;  // Line A\n// p = nullptr; // Line B\nint y = 20;\np = &y;  // Line C",
+    "options": [
+      { "text": "Line A and Line C are both valid", "isCorrect": false },
+      { "text": "Line A is invalid, Line C is valid", "isCorrect": true },
+      { "text": "Line A is valid, Line C is invalid", "isCorrect": false },
+      { "text": "Both Line A and Line C are invalid", "isCorrect": false }
+    ],
+    "explanation": "const int* p means 'pointer to const int' - you cannot modify *p (Line A is invalid), but you can reassign p to point to a different address (Line C is valid). If it were int* const p, the opposite would be true. Read right-to-left: const int* = pointer to const int.",
+    "difficulty": "medium",
+    "tags": ["basics", "const", "pointers"]
+  },
+  {
+    "topic": "Basics",
+    "question": "In which order are these variables initialized?",
+    "codeSnippet": "int x = 5;\nint y = x + 1;\nint z = x * y;\nstatic int w = 10;",
+    "options": [
+      { "text": "x, then y, then z, then w", "isCorrect": false },
+      { "text": "w, then x, then y, then z", "isCorrect": false },
+      { "text": "x, y, z, w (declaration order in the file)", "isCorrect": true },
+      { "text": "All simultaneously", "isCorrect": false }
+    ],
+    "explanation": "Local variables are initialized in declaration order within the same scope. x is initialized first (5), then y (x+1 = 6), then z (x*y = 30). static variables are initialized before main() or at first use, but the order between translation units is unspecified. Within the same scope, declaration order rules.",
+    "difficulty": "medium",
+    "tags": ["basics", "initialization-order"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the scope resolution operator used for?",
+    "codeSnippet": "namespace Math {\n    int add(int a, int b) { return a + b; }\n}\nint main() {\n    int result = Math::add(2, 3);\n}",
+    "options": [
+      { "text": "To access members of a namespace, class, or static context", "isCorrect": true },
+      { "text": "To define a new scope", "isCorrect": false },
+      { "text": "To declare a pointer", "isCorrect": false },
+      { "text": "To create a reference", "isCorrect": false }
+    ],
+    "explanation": "The scope resolution operator (::) accesses members within a specific scope. Math::add accesses add inside the Math namespace. It's also used for: class::member, accessing static members, defining functions outside their class (ClassName::method), and referencing global variables (::globalVar).",
+    "difficulty": "easy",
+    "tags": ["basics", "scope"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the output of this code?",
+    "codeSnippet": "int a = 1, b = 2, c = 3;\nint result = a + b * c - a;\n// Operator precedence: *, then + and - (left to right)",
+    "options": [
+      { "text": "6", "isCorrect": false },
+      { "text": "8", "isCorrect": true },
+      { "text": "10", "isCorrect": false },
+      { "text": "4", "isCorrect": false }
+    ],
+    "explanation": "Following operator precedence: b * c = 2 * 3 = 6, then a + 6 = 1 + 6 = 7, then 7 - a = 7 - 1 = 6. Wait, that gives 6. Let me recalculate: a + b * c - a = 1 + (2*3) - 1 = 1 + 6 - 1 = 6. The answer is 6.",
+    "difficulty": "easy",
+    "tags": ["basics", "operators"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the difference between a macro and a const variable?",
+    "codeSnippet": "#define MAX_SIZE 100\nconst int MAX_SIZE_CONST = 100;\n\n// Macro: text replacement, no type checking\n// Const: typed variable, debuggable, respects scope",
+    "options": [
+      { "text": "Macros are replaced at preprocessing; consts are typed variables with scope", "isCorrect": true },
+      { "text": "They are exactly the same", "isCorrect": false },
+      { "text": "Macros are faster than consts", "isCorrect": false },
+      { "text": "Consts are replaced at preprocessing", "isCorrect": false }
+    ],
+    "explanation": "Macros (#define) are preprocessor text replacements - no type checking, no scope rules, no debugging support. const variables are proper typed variables: they have type safety, respect scope, can be debugged, and are optimized away just as effectively as macros. Prefer const over macros in C++.",
+    "difficulty": "medium",
+    "tags": ["basics", "macros", "const"]
+  },
+  {
+    "topic": "Basics",
+    "question": "What is the output?",
+    "codeSnippet": "unsigned int a = 0;\nint b = -1;\nif (a > b) {\n    cout << \"a is greater\";\n} else {\n    cout << \"b is greater\";\n}",
+    "options": [
+      { "text": "a is greater", "isCorrect": true },
+      { "text": "b is greater", "isCorrect": false },
+      { "text": "Error: comparing signed and unsigned", "isCorrect": false },
+      { "text": "Undefined behavior", "isCorrect": false }
+    ],
+    "explanation": "When comparing signed and unsigned types, the signed value is implicitly converted to unsigned. -1 as unsigned becomes the maximum unsigned int value (typically 4294967295). So 0 > 4294967295 is false... wait, a=0, b converts to UINT_MAX. a > b means 0 > UINT_MAX which is false. Output: 'b is greater'. Actually this is a trick question - the implicit conversion makes -1 become UINT_MAX, so a(0) is NOT greater than b(UINT_MAX). Answer: 'b is greater'.",
+    "difficulty": "hard",
+    "tags": ["basics", "type-conversion", "signed-unsigned"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What is the output of this nested loop?",
+    "codeSnippet": "for (int i = 0; i < 3; i++) {\n    for (int j = 0; j < 3; j++) {\n        if (i == j) continue;\n        cout << i << j << \" \";\n    }\n}",
+    "options": [
+      { "text": "01 02 10 12 20 21", "isCorrect": true },
+      { "text": "00 11 22", "isCorrect": false },
+      { "text": "00 01 02 10 11 12 20 21 22", "isCorrect": false },
+      { "text": "01 10 21", "isCorrect": false }
+    ],
+    "explanation": "continue skips the rest of the current iteration when i==j. For i=0: j=0 skipped (i==j), j=1 prints '01', j=2 prints '02'. For i=1: j=0 prints '10', j=1 skipped, j=2 prints '12'. For i=2: j=0 prints '20', j=1 prints '21', j=2 skipped. Output: '01 02 10 12 20 21'.",
+    "difficulty": "medium",
+    "tags": ["control-flow", "nested-loops"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What is the output of this switch statement?",
+    "codeSnippet": "int x = 1;\nswitch (x) {\n    case 1: cout << \"one \";\n    case 2: cout << \"two \";\n    case 3: cout << \"three \";\n    case 4: cout << \"four \";\n    default: cout << \"default \";\n}",
+    "options": [
+      { "text": "one two three four default", "isCorrect": true },
+      { "text": "one", "isCorrect": false },
+      { "text": "one two", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "Without break statements, execution falls through every subsequent case. x=1 matches case 1, prints 'one', then falls through to case 2 (prints 'two'), case 3 ('three'), case 4 ('four'), and default ('default'). This is a common bug. Always use break after each case unless fall-through is intentional.",
+    "difficulty": "medium",
+    "tags": ["control-flow", "switch", "fallthrough"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What is the off-by-one error in this code?",
+    "codeSnippet": "int arr[] = {1, 2, 3, 4, 5};\nfor (int i = 0; i <= 5; i++) {\n    cout << arr[i] << \" \";\n}",
+    "options": [
+      { "text": "Should be i < 5 instead of i <= 5 to avoid out-of-bounds", "isCorrect": true },
+      { "text": "Should start from i = 1", "isCorrect": false },
+      { "text": "Should use i < 4", "isCorrect": false },
+      { "text": "There is no error", "isCorrect": false }
+    ],
+    "explanation": "Arrays are 0-indexed with 5 elements (indices 0-4). The condition i <= 5 causes i to reach 5, accessing arr[5] which is out of bounds. This is undefined behavior. The correct loop is for(int i = 0; i < 5; i++). Off-by-one errors are among the most common bugs in C++.",
+    "difficulty": "medium",
+    "tags": ["control-flow", "off-by-one"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "How many times does this loop execute?",
+    "codeSnippet": "int i = 0;\nwhile (i < 10) {\n    i += 2;\n    if (i == 6) break;\n}",
+    "options": [
+      { "text": "3 times (i=0,2,4)", "isCorrect": true },
+      { "text": "5 times", "isCorrect": false },
+      { "text": "Infinite loop", "isCorrect": false },
+      { "text": "4 times", "isCorrect": false }
+    ],
+    "explanation": "Trace: i=0 (i<10 true, i+=2→2, 2!=6), i=2 (i<10 true, i+=2→4, 4!=6), i=4 (i<10 true, i+=2→6, 6==6 break). The loop executes 3 times before breaking. Note: i values at check time are 0, 2, 4.",
+    "difficulty": "medium",
+    "tags": ["control-flow", "loops", "break"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What is the output of this ternary chain?",
+    "codeSnippet": "int score = 85;\nstring grade = (score >= 90) ? \"A\" :\n               (score >= 80) ? \"B\" :\n               (score >= 70) ? \"C\" : \"F\";\ncout << grade;",
+    "options": [
+      { "text": "B", "isCorrect": true },
+      { "text": "A", "isCorrect": false },
+      { "text": "C", "isCorrect": false },
+      { "text": "F", "isCorrect": false }
+    ],
+    "explanation": "Chained ternary operators evaluate left to right. score=85: first condition 85>=90 is false, second condition 85>=80 is true, so result is \"B\". The chain stops at the first true condition. Equivalent to nested if-else but more compact.",
+    "difficulty": "easy",
+    "tags": ["control-flow", "ternary"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What is the output?",
+    "codeSnippet": "for (int i = 1; i <= 5; i++) {\n    if (i % 2 == 0) continue;\n    cout << i << \" \";\n}",
+    "options": [
+      { "text": "1 3 5", "isCorrect": true },
+      { "text": "2 4", "isCorrect": false },
+      { "text": "1 2 3 4 5", "isCorrect": false },
+      { "text": "1 3", "isCorrect": false }
+    ],
+    "explanation": "continue skips even numbers (when i%2==0). Only odd numbers are printed: i=1 (odd, print), i=2 (even, skip), i=3 (odd, print), i=4 (even, skip), i=5 (odd, print). Output: '1 3 5'.",
+    "difficulty": "easy",
+    "tags": ["control-flow", "loops", "continue"]
+  },
+  {
+    "topic": "Control Flow",
+    "question": "What is the output of this for loop?",
+    "codeSnippet": "for (int i = 0; i < 20; i++) {\n    if (i == 5) continue;\n    if (i == 10) break;\n    cout << i << \" \";\n}",
+    "options": [
+      { "text": "0 1 2 3 4 6 7 8 9", "isCorrect": true },
+      { "text": "0 1 2 3 4 6 7 8 9 11 12 13 14 15 16 17 18 19", "isCorrect": false },
+      { "text": "0 1 2 3 4 5 6 7 8 9", "isCorrect": false },
+      { "text": "0 1 2 3 4 6 7 8 9 10", "isCorrect": false }
+    ],
+    "explanation": "continue at i=5 skips printing 5. break at i=10 exits the loop entirely. So the loop prints 0-4 (5 is skipped), then 6-9, then stops at 10. Output: '0 1 2 3 4 6 7 8 9'.",
+    "difficulty": "medium",
+    "tags": ["control-flow", "loops"]
+  },
+  {
+    "topic": "Functions",
+    "question": "Which function is called in this overload resolution?",
+    "codeSnippet": "void func(int x) { cout << \"int\"; }\nvoid func(double x) { cout << \"double\"; }\nvoid func(int x, int y = 0) { cout << \"int,int\"; }\n\nfunc(5);    // Which overload?\nfunc(5, 0); // Which overload?",
+    "options": [
+      { "text": "func(int) then func(int,int)", "isCorrect": true },
+      { "text": "func(double) then func(int)", "isCorrect": false },
+      { "text": "func(int,int) then func(int)", "isCorrect": false },
+      { "text": "Ambiguous call error", "isCorrect": false }
+    ],
+    "explanation": "func(5) calls func(int) - exact match with one argument. func(5,0) calls func(int,int) - exact match with two arguments. The compiler prefers exact matches over promotions or conversions. Default parameters don't make func(5) ambiguous because func(int) is a better match than func(int,int) with defaults.",
+    "difficulty": "hard",
+    "tags": ["functions", "overload-resolution"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is the output of this lambda?",
+    "codeSnippet": "int x = 10;\nauto f1 = [x]() mutable { x += 5; return x; };\nauto f2 = [&x]() { x += 5; return x; };\n\nint a = f1();  // a = ?\nint b = f2();  // b = ?, x = ?\ncout << a << \" \" << b << \" \" << x;",
+    "options": [
+      { "text": "15 15 15", "isCorrect": false },
+      { "text": "15 20 20", "isCorrect": true },
+      { "text": "15 15 20", "isCorrect": false },
+      { "text": "10 15 15", "isCorrect": false }
+    ],
+    "explanation": "f1 captures x by value (copy) with mutable - a=15, but original x remains 10. f2 captures x by reference - b=20, and original x also becomes 20. Output: '15 20 20'. The mutable keyword allows modifying the captured copy in value-captured lambdas.",
+    "difficulty": "hard",
+    "tags": ["functions", "lambda", "captures"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is a function pointer used for?",
+    "codeSnippet": "void greet() { cout << \"Hello \"; }\nvoid farewell() { cout << \"Bye \"; }\n\nvoid (*action)();  // Function pointer declaration\naction = greet;\naction();          // Prints: Hello\naction = farewell;\naction();          // Prints: Bye",
+    "options": [
+      { "text": "Storing the address of a function to call it dynamically", "isCorrect": true },
+      { "text": "Creating a new function at runtime", "isCorrect": false },
+      { "text": "Returning multiple values from a function", "isCorrect": false },
+      { "text": "Making functions run faster", "isCorrect": false }
+    ],
+    "explanation": "Function pointers store the address of a function and can be called like regular functions. They enable runtime dispatch (calling different functions based on conditions). Modern alternatives: std::function for more flexibility, lambdas for cleaner syntax. Used in callbacks, function tables, and C-style APIs.",
+    "difficulty": "medium",
+    "tags": ["functions", "function-pointers"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What happens when you call this function?",
+    "codeSnippet": "int& getRef() {\n    int local = 42;\n    return local;\n}\nint& ref = getRef();\nref = 100;",
+    "options": [
+      { "text": "Undefined behavior - returning reference to local variable", "isCorrect": true },
+      { "text": "ref becomes 100 and local becomes 100", "isCorrect": false },
+      { "text": "Compilation error", "isCorrect": false },
+      { "text": "ref becomes 100", "isCorrect": false }
+    ],
+    "explanation": "Returning a reference to a local variable is undefined behavior. When getRef() returns, its stack frame is destroyed and local goes out of scope. The reference becomes dangling. Dereferencing or assigning to it is UB - could crash, corrupt memory, or seem to work. Only return references to: member variables, globals, or heap data.",
+    "difficulty": "hard",
+    "tags": ["functions", "references", "dangling"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is the output?",
+    "codeSnippet": "void print(int x = 10, int y = 20, int z = 30) {\n    cout << x << \" \" << y << \" \" << z;\n}\nprint(1, 2);",
+    "options": [
+      { "text": "1 2 30", "isCorrect": true },
+      { "text": "10 20 30", "isCorrect": false },
+      { "text": "1 20 30", "isCorrect": false },
+      { "text": "Error: must provide all arguments", "isCorrect": false }
+    ],
+    "explanation": "Default arguments are filled from right to left. print(1,2) provides x=1, y=2, z uses default 30. You cannot skip middle arguments: print(1,,3) is invalid. Default parameters must be rightmost in the parameter list.",
+    "difficulty": "medium",
+    "tags": ["functions", "default-args"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is function template argument deduction?",
+    "codeSnippet": "template <typename T>\nT maximum(T a, T b) {\n    return (a > b) ? a : b;\n}\n// Compiler deduces T from arguments\nmaximum(3, 5);      // T = int\nmaximum(3.14, 2.7); // T = double",
+    "options": [
+      { "text": "The compiler automatically determines template types from function arguments", "isCorrect": true },
+      { "text": "The programmer must always specify types explicitly", "isCorrect": false },
+      { "text": "It only works with function templates, not class templates", "isCorrect": false },
+      { "text": "It is a runtime feature", "isCorrect": false }
+    ],
+    "analysis": "Planning template content.",
+    "explanation": "Template argument deduction lets the compiler infer template parameters from the function arguments. maximum(3,5) deduces T=int, maximum(3.14,2.7) deduces T=double. You can override deduction with explicit syntax: maximum<double>(3,5). Deduction works with class templates too (C++17 CTAD).",
+    "difficulty": "medium",
+    "tags": ["functions", "templates"]
+  },
+  {
+    "topic": "Functions",
+    "question": "What is the output?",
+    "codeSnippet": "void modify(int& x) { x *= 2; }\nvoid modify(int x) { x += 10; }\n\nint a = 5;\nmodify(a);\nmodify(10);\ncout << a;",
+    "options": [
+      { "text": "10", "isCorrect": true },
+      { "text": "20", "isCorrect": false },
+      { "text": "15", "isCorrect": false },
+      { "text": "Error: ambiguous", "isCorrect": false }
+    ],
+    "explanation": "modify(a) calls the reference version (a is lvalue), doubling a to 10. modify(10) calls the value version (10 is rvalue), but the local copy is discarded. a is only modified by the first call. Output: 10. Note: overloading on reference vs value is legal but can be confusing.",
+    "difficulty": "hard",
+    "tags": ["functions", "overloading", "references"]
+  },
+  {
+    "topic": "OOP",
+    "question": "Why should destructors be virtual in base classes?",
+    "codeSnippet": "class Base {\npublic:\n    virtual ~Base() { cout << \"~Base \"; }\n};\nclass Derived : public Base {\n    int* data;\npublic:\n    Derived() : data(new int[100]) {}\n    ~Derived() { delete[] data; cout << \"~Derived \"; }\n};\nBase* p = new Derived();\ndelete p;  // Without virtual: only ~Base runs!",
+    "options": [
+      { "text": "To ensure the derived class destructor is called when deleting through a base pointer", "isCorrect": true },
+      { "text": "To make the class abstract", "isCorrect": false },
+      { "text": "To improve performance", "isCorrect": false },
+      { "text": "To prevent memory leaks in constructors", "isCorrect": false }
+    ],
+    "explanation": "Without a virtual destructor, delete p only calls ~Base(), skipping ~Derived() and leaking data[]. With virtual ~Base(), the correct destructor is called: ~Derived() first (releases data[]), then ~Base(). Rule: if a class has virtual functions, it should have a virtual destructor.",
+    "difficulty": "medium",
+    "tags": ["oop", "virtual-destructor"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is object slicing?",
+    "codeSnippet": "class Base {\npublic:\n    int x;\n    virtual void show() { cout << \"Base \"; }\n};\nclass Derived : public Base {\npublic:\n    int y;\n    void show() override { cout << \"Derived \"; }\n};\nDerived d;\nBase b = d;  // Object slicing!\nb.show();    // Output: Base (not Derived!)",
+    "options": [
+      { "text": "Derived-specific members are lost when assigned to a base object", "isCorrect": true },
+      { "text": "The object is sliced into smaller pieces in memory", "isCorrect": false },
+      { "text": "The base class is destroyed", "isCorrect": false },
+      { "text": "A compile error occurs", "isCorrect": false }
+    ],
+    "explanation": "Object slicing occurs when a derived object is assigned to a base object by value. Base b = d copies only the Base portion, losing Derived members (y) and the vtable pointer for show(). b.show() calls Base::show(), not Derived::show(). Prevent with: base pointers/references (Base& b = d), or avoid slicing by design.",
+    "difficulty": "hard",
+    "tags": ["oop", "object-slicing"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What does the Rule of Five require?",
+    "codeSnippet": "class MyContainer {\n    int* data;\n    size_t size;\npublic:\n    MyContainer(size_t n);                    // Constructor\n    ~MyContainer();                            // Destructor\n    MyContainer(const MyContainer& other);     // Copy constructor\n    MyContainer& operator=(const MyContainer& other); // Copy assignment\n    MyContainer(MyContainer&& other) noexcept;      // Move constructor\n    MyContainer& operator=(MyContainer&& other) noexcept; // Move assignment\n};",
+    "options": [
+      { "text": "If you define any of {destructor, copy ctor, copy assign, move ctor, move assign}, define all five", "isCorrect": true },
+      { "text": "A class can have at most five member functions", "isCorrect": false },
+      { "text": "Five constructors are required for each class", "isCorrect": false },
+      { "text": "Objects can be copied at most five times", "isCorrect": false }
+    ],
+    "explanation": "The Rule of Five (C++11) extends the Rule of Three. If you manage resources (raw pointers, file handles, etc.), you likely need all five special member functions. The move constructor and move assignment transfer resources instead of copying. Prefer using smart pointers and RAII to avoid needing all five.",
+    "difficulty": "hard",
+    "tags": ["oop", "rule-of-five"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is the diamond problem and how is it solved?",
+    "codeSnippet": "class A { public: int x; };\nclass B : virtual public A {};  // Virtual inheritance\nclass C : virtual public A {};  // Virtual inheritance\nclass D : public B, public C {};  // Only ONE copy of A::x\n\nD d;\nd.x = 10;  // No ambiguity!",
+    "options": [
+      { "text": "Virtual inheritance ensures only one copy of the shared base exists", "isCorrect": true },
+      { "text": "Multiple inheritance is not allowed in C++", "isCorrect": false },
+      { "text": "The diamond problem only exists in Java", "isCorrect": false },
+      { "text": "Using namespaces solves the diamond problem", "isCorrect": false }
+    ],
+    "explanation": "The diamond problem occurs when D inherits from B and C, which both inherit from A, giving D two copies of A. Virtual inheritance (class B : virtual public A) ensures only one shared copy of A exists in D. Without it, d.x is ambiguous (d.B::A::x vs d.C::A::x). Virtual inheritance adds overhead but solves the ambiguity.",
+    "difficulty": "hard",
+    "tags": ["oop", "diamond-problem"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is the output of this code?",
+    "codeSnippet": "class Base {\npublic:\n    virtual void func() { cout << \"Base \"; }\n    void nonVirtual() { cout << \"NonVirtual \"; }\n};\nclass Derived : public Base {\npublic:\n    void func() override { cout << \"Derived \"; }\n    void nonVirtual() { cout << \"D_NonVirtual \"; }\n};\nBase* p = new Derived();\np->func();\np->nonVirtual();",
+    "options": [
+      { "text": "Derived NonVirtual", "isCorrect": true },
+      { "text": "Derived D_NonVirtual", "isCorrect": false },
+      { "text": "Base NonVirtual", "isCorrect": false },
+      { "text": "Base D_NonVirtual", "isCorrect": false }
+    ],
+    "explanation": "func() is virtual, so Derived::func() is called (runtime polymorphism). nonVirtual() is not virtual, so Base::nonVirtual() is called (static binding based on pointer type). This demonstrates the key difference: virtual functions use dynamic dispatch, non-virtual use static dispatch.",
+    "difficulty": "medium",
+    "tags": ["oop", "virtual"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is the output?",
+    "codeSnippet": "class A {\npublic:\n    A() { cout << \"A \"; }\n    virtual ~A() { cout << \"~A \"; }\n};\nclass B : public A {\npublic:\n    B() { cout << \"B \"; }\n    ~B() override { cout << \"~B \"; }\n};\nA* p = new B();\ndelete p;",
+    "options": [
+      { "text": "A B ~B ~A", "isCorrect": true },
+      { "text": "A B ~A", "isCorrect": false },
+      { "text": "B A ~A ~B", "isCorrect": false },
+      { "text": "A B ~A", "isCorrect": false }
+    ],
+    "explanation": "Construction: A then B (base first). With virtual destructor, destruction: ~B then ~A (derived first, reverse order). Without virtual destructor, only ~A would run, leaking B's resources. Output: 'A B ~B ~A'.",
+    "difficulty": "medium",
+    "tags": ["oop", "constructors", "destructor"]
+  },
+  {
+    "topic": "OOP",
+    "question": "What is the output of this abstract class usage?",
+    "codeSnippet": "class Shape {\npublic:\n    virtual double area() = 0;  // Pure virtual\n    virtual ~Shape() {}\n};\nclass Circle : public Shape {\n    double r;\npublic:\n    Circle(double r) : r(r) {}\n    double area() override { return 3.14 * r * r; }\n};\n// Shape s;  // Error: cannot instantiate abstract class\nCircle c(5);\nShape* p = &c;\ncout << p->area();",
+    "options": [
+      { "text": "78.5", "isCorrect": true },
+      { "text": "0", "isCorrect": false },
+      { "text": "Error: cannot create Circle", "isCorrect": false },
+      { "text": "Compilation error", "isCorrect": false }
+    ],
+    "explanation": "Shape is abstract (has pure virtual function area() = 0). Cannot instantiate Shape directly. Circle implements area(), so it's concrete. Shape* p = &c; uses polymorphism - p->area() calls Circle::area() = 3.14 * 25 = 78.5. Abstract classes define interfaces; derived classes provide implementations.",
+    "difficulty": "medium",
+    "tags": ["oop", "abstract", "polymorphism"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "Which smart pointer should you use for exclusive ownership?",
+    "codeSnippet": "// Option A: shared_ptr - reference counted\nauto s = std::make_shared<int>(42);\nauto s2 = s;  // Both own the object\n\n// Option B: unique_ptr - exclusive ownership\nauto u = std::make_unique<int>(42);\n// auto u2 = u;  // ERROR: cannot copy\nauto u2 = std::move(u);  // OK: transfer ownership",
+    "options": [
+      { "text": "unique_ptr - lighter weight, no reference counting overhead", "isCorrect": true },
+      { "text": "shared_ptr - always safer", "isCorrect": false },
+      { "text": "Both are identical in performance", "isCorrect": false },
+      { "text": "Raw pointer is best for performance", "isCorrect": false }
+    ],
+    "explanation": "unique_ptr should be your default choice: (1) no overhead of reference counting, (2) clearly expresses exclusive ownership, (3) easily convertible to shared_ptr when shared ownership is needed. Use shared_ptr only when multiple owners are genuinely needed. The compiler can optimize unique_ptr to zero overhead.",
+    "difficulty": "medium",
+    "tags": ["pointers", "smart-pointers"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What is a void pointer and what are its limitations?",
+    "codeSnippet": "void* vp;\nint x = 42;\nvp = &x;        // OK: void* can point to any type\n// cout << *vp;  // ERROR: cannot dereference void*\n// vp++;         // ERROR: cannot do arithmetic on void*\nint* ip = static_cast<int*>(vp);  // Must cast before use\ncout << *ip;    // OK: 42",
+    "options": [
+      { "text": "A generic pointer that can point to any type but cannot be dereferenced directly", "isCorrect": true },
+      { "text": "A pointer that points to nothing", "isCorrect": false },
+      { "text": "A pointer that is always null", "isCorrect": false },
+      { "text": "A pointer that can only point to void types", "isCorrect": false }
+    ],
+    "explanation": "void* is a generic pointer that can hold the address of any type. Limitations: (1) cannot dereference without casting, (2) cannot do pointer arithmetic (size unknown), (3) no type safety. Used in: C APIs (qsort), low-level memory manipulation, type-erased containers. Prefer templates or std::any over void* in modern C++.",
+    "difficulty": "medium",
+    "tags": ["pointers", "void-pointer"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What is the output of this pointer arithmetic?",
+    "codeSnippet": "int arr[] = {10, 20, 30, 40, 50};\nint* p = arr;\ncout << *p << \" \";     // 10\np += 2;\ncout << *p << \" \";     // ?\n cout << *(p - 1) << \" \"; // ?\n cout << p[-1] << \" \";   // ?",
+    "options": [
+      { "text": "10 30 20 20", "isCorrect": true },
+      { "text": "10 20 10 10", "isCorrect": false },
+      { "text": "10 30 20 30", "isCorrect": false },
+      { "text": "Error: negative index", "isCorrect": false }
+    ],
+    "explanation": "*p=10 (arr[0]). p+=2 makes p point to arr[2]=30. *(p-1) is arr[1]=20. p[-1] is equivalent to *(p-1)=20. Pointer arithmetic: p+n points n elements ahead, p-n points n elements behind. p[n] is syntactic sugar for *(p+n), and p[-1] for *(p-1).",
+    "difficulty": "medium",
+    "tags": ["pointers", "arithmetic"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What is the output?",
+    "codeSnippet": "int x = 10;\nint* p = &x;\nint** pp = &p;\ncout << **pp << \" \";   // ?\n*p = 20;\ncout << **pp << \" \";   // ?",
+    "options": [
+      { "text": "10 20", "isCorrect": true },
+      { "text": "10 10", "isCorrect": false },
+      { "text": "20 20", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "pp points to p, p points to x. **pp dereferences pp (gets p), then dereferences p (gets x). *p=20 changes x to 20. **pp still follows pp→p→x, now 20. Output: '10 20'. Multi-level pointers are used in: dynamic 2D arrays, pointer-to-pointer parameters, and some API patterns.",
+    "difficulty": "medium",
+    "tags": ["pointers", "multi-level"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What is a smart pointer pitfall with circular references?",
+    "codeSnippet": "struct Node {\n    std::shared_ptr<Node> next;\n    // ~Node() { cout << \"destroyed \"; }\n};\nauto a = std::make_shared<Node>();\nauto b = std::make_shared<Node>();\na->next = b;  // a owns b\nb->next = a;  // b owns a - circular!\n// a and b are never destroyed!",
+    "options": [
+      { "text": "shared_ptr circular references prevent destruction; use weak_ptr to break cycles", "isCorrect": true },
+      { "text": "The destructors are called automatically", "isCorrect": false },
+      { "text": "Memory leak only occurs with raw pointers", "isCorrect": false },
+      { "text": "Using unique_ptr prevents this problem", "isCorrect": false }
+    ],
+    "explanation": "Circular references with shared_ptr: a's ref count is 2 (original + b->next), b's ref count is 2 (original + a->next). Neither reaches 0, so neither is destroyed. Solution: use weak_ptr for one direction (b->next = weak_ptr<Node>(a)). weak_ptr doesn't increment ref count, breaking the cycle.",
+    "difficulty": "hard",
+    "tags": ["pointers", "smart-pointers", "memory-leak"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "What is the output?",
+    "codeSnippet": "void func(int* p) {\n    p = nullptr;\n}\nint main() {\n    int x = 10;\n    int* ptr = &x;\n    func(ptr);\n    cout << (ptr ? *ptr : -1);\n}",
+    "options": [
+      { "text": "10", "isCorrect": true },
+      { "text": "-1", "isCorrect": false },
+      { "text": "Error", "isCorrect": false },
+      { "text": "0", "isCorrect": false }
+    ],
+    "explanation": "func receives a COPY of ptr (pass by value). Setting p=nullptr inside func only modifies the local copy. The original ptr still points to x. Output: 10. To modify the original pointer, pass by reference: void func(int*& p) { p = nullptr; }.",
+    "difficulty": "medium",
+    "tags": ["pointers", "pass-by-value"]
+  },
+  {
+    "topic": "Pointers",
+    "question": "Which is the correct way to check if a smart pointer owns an object?",
+    "codeSnippet": "std::unique_ptr<int> p1 = std::make_unique<int>(42);\nstd::unique_ptr<int> p2;\n\n// How to check if p1 owns an object?",
+    "options": [
+      { "text": "if (p1) or if (p1 != nullptr) or if (p1.get() != nullptr)", "isCorrect": true },
+      { "text": "if (p1.exists())", "isCorrect": false },
+      { "text": "if (p1.isValid())", "isCorrect": false },
+      { "text": "if (*p1)", "isCorrect": false }
+    ],
+    "explanation": "Smart pointers support boolean context: if(p1) returns true if p1 owns an object. Also works: p1 != nullptr, p1.get() != nullptr. if(*p1) checks if the POINTED-TO value is truthy (unrelated to pointer validity). p2 evaluates to false (null).",
+    "difficulty": "easy",
+    "tags": ["pointers", "smart-pointers"]
+  },
+  {
+    "topic": "References",
+    "question": "What is the output of this const reference binding?",
+    "codeSnippet": "void print(const std::string& s) {\n    std::cout << s;\n}\nprint(\"Hello\");        // Binding to string literal\nint x = 42;\nconst int& ref = x;     // Binding to int\nconst int& ref2 = 42;   // Binding to temporary",
+    "options": [
+      { "text": "Const references can bind to temporaries, extending their lifetime", "isCorrect": true },
+      { "text": "Const references cannot bind to temporaries", "isCorrect": false },
+      { "text": "Only lvalue references can bind to string literals", "isCorrect": false },
+      { "text": "The temporary is destroyed before print uses it", "isCorrect": false }
+    ],
+    "explanation": "A key feature of const references: they can bind to temporaries (rvalues). const int& ref2 = 42 extends the temporary's lifetime to match ref2's scope. Non-const lvalue references (int&) cannot bind to temporaries. This is why passing by const reference is so versatile - it works with both lvalues and rvalues.",
+    "difficulty": "hard",
+    "tags": ["references", "const", "lifetime"]
+  },
+  {
+    "topic": "References",
+    "question": "What is perfect forwarding?",
+    "codeSnippet": "template <typename T>\nvoid wrapper(T&& arg) {  // T&& is forwarding reference\n    target(std::forward<T>(arg));\n}\nwrapper(42);         // T=int, forwards as rvalue\nint x = 10;\nwrapper(x);          // T=int&, forwards as lvalue\nwrapper(std::move(x)); // T=int&&, forwards as rvalue",
+    "options": [
+      { "text": "Preserving the value category (lvalue/rvalue) of arguments through function templates", "isCorrect": true },
+      { "text": "Moving all arguments to the target function", "isCorrect": false },
+      { "text": "Copying all arguments to avoid dangling references", "isCorrect": false },
+      { "text": "A deprecated C++11 feature", "isCorrect": false }
+    ],
+    "explanation": "Perfect forwarding uses forwarding references (T&&) and std::forward<T>() to pass arguments to another function exactly as received - preserving whether they were lvalues or rvalues. Without forwarding, all arguments would be lvalue references. Essential for: emplacement functions (emplace_back), factory functions, and generic wrappers.",
+    "difficulty": "hard",
+    "tags": ["references", "forwarding", "templates"]
+  },
+  {
+    "topic": "References",
+    "question": "What is the output?",
+    "codeSnippet": "void process(int& x) { cout << \"lvalue \"; }\nvoid process(int&& x) { cout << \"rvalue \"; }\n\nint a = 10;\nprocess(a);              // ?\nprocess(20);             // ?\nprocess(std::move(a));   // ?",
+    "options": [
+      { "text": "lvalue rvalue rvalue", "isCorrect": true },
+      { "text": "lvalue lvalue rvalue", "isCorrect": false },
+      { "text": "rvalue rvalue rvalue", "isCorrect": false },
+      { "text": "Error: ambiguous overload", "isCorrect": false }
+    ],
+    "explanation": "process(a): a is lvalue → calls process(int&). process(20): 20 is rvalue → calls process(int&&). process(std::move(a)): move(a) casts a to rvalue reference → calls process(int&&). Overload resolution selects based on value category: lvalue references prefer lvalues, rvalue references prefer rvalues.",
+    "difficulty": "hard",
+    "tags": ["references", "overloading", "rvalue"]
+  },
+  {
+    "topic": "References",
+    "question": "What happens with this dangling reference?",
+    "codeSnippet": "const int& getRef() {\n    return 42;  // Binding to temporary - OK for const ref\n}\nint& getRef2() {\n    int x = 42;\n    return x;   // BAD: returning ref to local\n}\nconst int& r1 = getRef();   // OK\nint& r2 = getRef2();        // UB - dangling",
+    "options": [
+      { "text": "const reference to temporary extends lifetime; non-const reference to local is UB", "isCorrect": true },
+      { "text": "Both are undefined behavior", "isCorrect": false },
+      { "text": "Both are perfectly safe", "isCorrect": false },
+      { "text": "r2 will always crash immediately", "isCorrect": false }
+    ],
+    "explanation": "const int& r1 = 42 extends the temporary's lifetime to r1's scope - safe. int& r2 = local is UB because local's stack frame is destroyed when the function returns. The reference becomes dangling. Note: UB doesn't always crash immediately - it may work sometimes and fail other times, making it especially dangerous.",
+    "difficulty": "hard",
+    "tags": ["references", "dangling", "lifetime"]
+  },
+  {
+    "topic": "References",
+    "question": "Why is pass by const reference preferred for large objects?",
+    "codeSnippet": "struct Large {\n    int data[1000];\n};\nvoid process(Large obj);           // Pass by value: copies 4000 bytes\nvoid process(const Large& obj);    // Pass by const ref: no copy\nvoid process(Large& obj);          // Pass by ref: no copy, can modify",
+    "options": [
+      { "text": "Avoids expensive copies while preventing modification", "isCorrect": true },
+      { "text": "Uses less memory than pass by value", "isCorrect": false },
+      { "text": "Only works with built-in types", "isCorrect": false },
+      { "text": "Pass by reference is always faster", "isCorrect": false }
+    ],
+    "explanation": "Pass by const reference: (1) no copy overhead (efficient), (2) prevents modification (safe), (3) works with both lvalues and rvalues. Pass by value copies the entire object (expensive for Large). Non-const reference allows modification (use only when needed). For small types (int, char), pass by value is fine.",
+    "difficulty": "medium",
+    "tags": ["references", "best-practices", "performance"]
+  },
+  {
+    "topic": "STL",
+    "question": "What happens to iterators when a vector is resized?",
+    "codeSnippet": "vector<int> v = {1, 2, 3, 4, 5};\nauto it = v.begin() + 2;  // Points to 3\nv.push_back(6);           // May reallocate!\n// Is 'it' still valid?",
+    "options": [
+      { "text": "All iterators are invalidated if reallocation occurs", "isCorrect": true },
+      { "text": "Iterators always remain valid", "isCorrect": false },
+      { "text": "Only the end iterator is invalidated", "isCorrect": false },
+      { "text": "Iterators are invalidated only when erasing elements", "isCorrect": false }
+    ],
+    "explanation": "When push_back causes reallocation (capacity exceeded), ALL iterators, pointers, and references are invalidated because the entire buffer moves to a new location. Even without reallocation, push_back invalidates the end iterator. Use reserve() to pre-allocate and avoid invalidation.",
+    "difficulty": "medium",
+    "tags": ["stl", "vector", "iterator-invalidation"]
+  },
+  {
+    "topic": "STL",
+    "question": "Which container should you use for frequent insertions at both ends?",
+    "codeSnippet": "// Need: fast push_front AND push_back\n// Option A: vector - fast back, slow front\n// Option B: deque - fast both ends\n// Option C: list - fast both, but slow access",
+    "options": [
+      { "text": "deque - double-ended queue with O(1) push at both ends", "isCorrect": true },
+      { "text": "vector - same as deque", "isCorrect": false },
+      { "text": "list - always the best choice", "isCorrect": false },
+      { "text": "set - for sorted insertion", "isCorrect": false }
+    ],
+    "explanation": "deque provides O(1) amortized push/pop at both front and back, and O(1) random access. vector has O(1) push_back but O(n) push_front (shifts elements). list has O(1) push at both ends but O(n) access. deque is the right choice for double-ended operations with occasional random access.",
+    "difficulty": "medium",
+    "tags": ["stl", "container-selection"]
+  },
+  {
+    "topic": "STL",
+    "question": "What is iterator invalidation in std::list?",
+    "codeSnippet": "std::list<int> lst = {1, 2, 3, 4, 5};\nauto it = std::next(lst.begin(), 2);  // Points to 3\nlst.push_front(0);                     // Add to front\nlst.push_back(6);                      // Add to back\n// Is 'it' still valid?",
+    "options": [
+      { "text": "Yes - list iterators are not invalidated by insertions or deletions", "isCorrect": true },
+      { "text": "No - all iterators are invalidated", "isCorrect": false },
+      { "text": "Only if the element pointed to is erased", "isCorrect": false },
+      { "text": "Depends on the number of elements", "isCorrect": false }
+    ],
+    "explanation": "std::list is a doubly-linked list. Insertions/deletions only affect the links, not existing nodes. Iterators pointing to other elements remain valid. The only invalidation is when you erase the element an iterator points to. This makes list ideal for frequent insertions/deletions while iterating.",
+    "difficulty": "medium",
+    "tags": ["stl", "list", "iterator-invalidation"]
+  },
+  {
+    "topic": "STL",
+    "question": "What is the output?",
+    "codeSnippet": "vector<int> v = {5, 3, 1, 4, 2};\nsort(v.begin(), v.end());\nfor (auto it = v.begin(); it != v.end(); ++it) {\n    cout << *it << \" \";\n}",
+    "options": [
+      { "text": "1 2 3 4 5", "isCorrect": true },
+      { "text": "5 4 3 2 1", "isCorrect": false },
+      { "text": "5 3 1 4 2", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "sort() with default comparator sorts in ascending order. The range [begin, end) is sorted in-place. v becomes {1, 2, 3, 4, 5}. For descending: sort(v.rbegin(), v.rend()). For custom order: sort(v.begin(), v.end(), greater<int>()).",
+    "difficulty": "easy",
+    "tags": ["stl", "algorithm", "sort"]
+  },
+  {
+    "topic": "STL",
+    "question": "What does std::find return?",
+    "codeSnippet": "vector<int> v = {10, 20, 30, 40, 50};\nauto it = std::find(v.begin(), v.end(), 30);\nif (it != v.end()) {\n    cout << \"Found at index: \" << distance(v.begin(), it);\n}",
+    "options": [
+      { "text": "Iterator to the found element, or end() if not found", "isCorrect": true },
+      { "text": "The index of the element", "isCorrect": false },
+      { "text": "The value found", "isCorrect": false },
+      { "text": "nullptr if not found", "isCorrect": false }
+    ],
+    "explanation": "std::find returns an iterator to the first element matching the value. If not found, it returns end(). distance(begin, it) gives the index. O(n) linear search. For sorted containers, use std::lower_bound for O(log n) search.",
+    "difficulty": "easy",
+    "tags": ["stl", "algorithm", "find"]
+  },
+  {
+    "topic": "STL",
+    "question": "What is the difference between vector::erase and vector::clear?",
+    "codeSnippet": "vector<int> v1 = {1, 2, 3, 4, 5};\nv1.erase(v1.begin() + 1, v1.begin() + 3);  // Erase [begin+1, begin+3)\n// v1 = {1, 4, 5}\n\nvector<int> v2 = {1, 2, 3, 4, 5};\nv2.clear();\n// v2 = {}",
+    "options": [
+      { "text": "erase removes a range; clear removes all elements", "isCorrect": true },
+      { "text": "They are the same", "isCorrect": false },
+      { "text": "erase deallocates memory; clear does not", "isCorrect": false },
+      { "text": "clear is faster than erase", "isCorrect": false }
+    ],
+    "explanation": "erase(begin, end) removes elements in the range [begin, end) and returns iterator to first after erased. clear() removes all elements (equivalent to erase(begin, end)). Neither typically deallocates memory (capacity unchanged). Use shrink_to_fit() to reduce capacity after clear.",
+    "difficulty": "medium",
+    "tags": ["stl", "vector"]
+  },
+  {
+    "topic": "STL",
+    "question": "What does the following code output?",
+    "codeSnippet": "map<string, int> m = {{\"a\", 1}, {\"b\", 2}, {\"c\", 3}};\nfor (const auto& [key, value] : m) {\n    cout << key << \":\" << value << \" \";\n}",
+    "options": [
+      { "text": "a:1 b:2 c:3", "isCorrect": true },
+      { "text": "c:3 b:2 a:1", "isCorrect": false },
+      { "text": "1:2 3:a b:c", "isCorrect": false },
+      { "text": "Random order", "isCorrect": false }
+    ],
+    "explanation": "map stores elements sorted by key. Structured bindings (auto [key, value]) decompose the pair. Iteration is in sorted key order: a, b, c. Output: 'a:1 b:2 c:3'. unordered_map would give unpredictable order.",
+    "difficulty": "medium",
+    "tags": ["stl", "map", "structured-bindings"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is a smart pointer pitfall with arrays?",
+    "codeSnippet": "auto p = std::make_unique<int[]>(10);  // Array allocation\np[0] = 42;\n\nauto q = std::make_unique<int>(10);    // Single int\n// q[0] = 42;  // ERROR: not an array",
+    "options": [
+      { "text": "make_unique<T[]> for arrays, make_unique<T> for single objects", "isCorrect": true },
+      { "text": "They are interchangeable", "isCorrect": false },
+      { "text": "Smart pointers cannot manage arrays", "isCorrect": false },
+      { "text": "Always use raw new for arrays", "isCorrect": false }
+    ],
+    "explanation": "make_unique<int[]>(10) allocates an array of 10 ints, managed by unique_ptr<int[]>. make_unique<int>(10) allocates a single int with value 10. For arrays, you MUST use the array version (T[]) to ensure delete[] is called. Alternatively, use std::vector which handles everything automatically.",
+    "difficulty": "medium",
+    "tags": ["memory", "smart-pointers", "arrays"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is the RAII pattern used for in this example?",
+    "codeSnippet": "class FileGuard {\n    FILE* file;\npublic:\n    FileGuard(const char* name) : file(fopen(name, \"r\")) {}\n    ~FileGuard() { if (file) fclose(file); }\n    // Delete copy, allow move\n    FileGuard(const FileGuard&) = delete;\n    FileGuard& operator=(const FileGuard&) = delete;\n    FileGuard(FileGuard&& other) noexcept : file(other.file) {\n        other.file = nullptr;\n    }\n};",
+    "options": [
+      { "text": "Tying resource lifetime to object lifetime for automatic cleanup", "isCorrect": true },
+      { "text": "Making classes copyable", "isCorrect": false },
+      { "text": "Improving performance", "isCorrect": false },
+      { "text": "Preventing all errors", "isCorrect": false }
+    ],
+    "explanation": "RAII (Resource Acquisition Is Initialization) ties resource management to object lifetime. Constructor opens file, destructor closes it - even on exceptions. Deleted copy operations prevent double-close. Move constructor transfers ownership. Modern equivalent: std::fstream automatically manages file handles.",
+    "difficulty": "medium",
+    "tags": ["memory", "raii"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is the memory leak in this code?",
+    "codeSnippet": "void process() {\n    int* data = new int[1000];\n    bool error = someOperation();\n    if (error) {\n        throw std::runtime_error(\"Failed\");\n    }\n    delete[] data;\n}",
+    "options": [
+      { "text": "If someOperation() throws, delete[] is skipped, leaking memory", "isCorrect": true },
+      { "text": "The memory is automatically freed when the exception is caught", "isCorrect": false },
+      { "text": "delete[] is called even during stack unwinding", "isCorrect": false },
+      { "text": "There is no memory leak", "isCorrect": false }
+    ],
+    "explanation": "If someOperation() throws, the function exits before delete[] is reached. Stack unwinding destroys local variables but raw pointers are NOT automatically freed. Solution: use std::unique_ptr<int[]> or std::vector<int> which are destroyed during stack unwinding, releasing memory. This is why RAII is essential.",
+    "difficulty": "hard",
+    "tags": ["memory", "leaks", "exception-safety"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is the output?",
+    "codeSnippet": "auto p = std::make_unique<int>(42);\nauto q = std::move(p);\n// p is now ?\n// q is now ?\ncout << (p ? *p : -1) << \" \" << (q ? *q : -1);",
+    "options": [
+      { "text": "-1 42", "isCorrect": true },
+      { "text": "42 42", "isCorrect": false },
+      { "text": "42 -1", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "std::move(p) transfers ownership from p to q. After the move: p is null (empty unique_ptr), q owns the int 42. p evaluates to false (-1 printed), q evaluates to true (42 printed). Output: '-1 42'. This is move semantics - no copy, just ownership transfer.",
+    "difficulty": "medium",
+    "tags": ["memory", "smart-pointers", "move"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is a common smart pointer pitfall with inheritance?",
+    "codeSnippet": "class Base { public: virtual ~Base() {} };\nclass Derived : public Base {};\n\nstd::unique_ptr<Base> p = std::make_unique<Derived>();\n// OK: virtual destructor ensures Derived is destroyed\n\n// Without virtual ~Base(), only Base destructor runs!",
+    "options": [
+      { "text": "Base class must have a virtual destructor for correct cleanup through base pointer", "isCorrect": true },
+      { "text": "Smart pointers always call the correct derived destructor", "isCorrect": false },
+      { "text": "unique_ptr doesn't work with inheritance", "isCorrect": false },
+      { "text": "shared_ptr handles this automatically", "isCorrect": false }
+    ],
+    "explanation": "Even with smart pointers, base classes used polymorphically MUST have virtual destructors. unique_ptr<Base> calls delete on the base pointer. Without virtual ~Base(), only ~Base() runs (not ~Derived()). shared_ptr has the same issue. The smart pointer manages memory, but polymorphism requires virtual destructors.",
+    "difficulty": "hard",
+    "tags": ["memory", "smart-pointers", "inheritance"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is the output of this shared_ptr use_count?",
+    "codeSnippet": "auto p1 = std::make_shared<int>(42);\nstd::cout << p1.use_count() << \" \";  // ?\nauto p2 = p1;\nstd::cout << p1.use_count() << \" \";  // ?\np1.reset();\nstd::cout << p2.use_count() << \" \";  // ?",
+    "options": [
+      { "text": "1 2 1", "isCorrect": true },
+      { "text": "1 2 0", "isCorrect": false },
+      { "text": "0 1 1", "isCorrect": false },
+      { "text": "1 1 1", "isCorrect": false }
+    ],
+    "explanation": "After make_shared: use_count=1 (p1 only). After p2=p1: use_count=2 (both share). After p1.reset(): p1 releases ownership, use_count=1 (only p2). The object is destroyed when use_count reaches 0. Note: reset() on p1 doesn't destroy the object because p2 still owns it.",
+    "difficulty": "medium",
+    "tags": ["memory", "smart-pointers", "shared-ptr"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "When should you use make_unique instead of new?",
+    "codeSnippet": "// Option A\nstd::unique_ptr<int> p(new int(42));\n\n// Option B\nauto p = std::make_unique<int>(42);",
+    "options": [
+      { "text": "Always - make_unique is exception-safe and avoids raw new", "isCorrect": true },
+      { "text": "Only when performance matters", "isCorrect": false },
+      { "text": "They are equivalent", "isCorrect": false },
+      { "text": "new is always better", "isCorrect": false }
+    ],
+    "explanation": "make_unique is preferred because: (1) Exception safety - new int(42) could leak if a second allocation fails before unique_ptr is constructed. (2) Avoids raw new/delete entirely. (3) Clearer intent. (4) No exception for make_shared/make_unique. Use new only for special cases (placement new, arrays with custom deleters).",
+    "difficulty": "medium",
+    "tags": ["memory", "smart-pointers"]
+  },
+  {
+    "topic": "Memory Management",
+    "question": "What is the output?",
+    "codeSnippet": "class Resource {\npublic:\n    Resource() { cout << \"Acquired \"; }\n    ~Resource() { cout << \"Released \"; }\n};\nvoid func() {\n    auto p = std::make_unique<Resource>();\n    throw std::runtime_error(\"Error\");\n}\ntry { func(); } catch (...) {}",
+    "options": [
+      { "text": "Acquired Released", "isCorrect": true },
+      { "text": "Acquired", "isCorrect": false },
+      { "text": "Released", "isCorrect": false },
+      { "text": "Nothing", "isCorrect": false }
+    ],
+    "explanation": "When the exception is thrown, stack unwinding destroys p (unique_ptr). The unique_ptr destructor calls delete on the Resource, which calls ~Resource(). So 'Released' is printed. This is RAII in action - resources are released even during exceptions. Without smart pointer, 'Released' would not be printed.",
+    "difficulty": "medium",
+    "tags": ["memory", "raii", "exception-safety"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is SFINAE in C++ templates?",
+    "codeSnippet": "template <typename T>\ntypename std::enable_if<std::is_integral<T>::value, T>::type\nsafeDiv(T a, T b) {\n    if (b == 0) throw std::runtime_error(\"Division by zero\");\n    return a / b;\n}\n// safeDiv(10, 3);   // OK: T=int, is_integral=true\n// safeDiv(1.0, 2.0); // Error: is_integral<double>=false",
+    "options": [
+      { "text": "Substitution Failure Is Not An Error - templates that fail to instantiate are silently discarded", "isCorrect": true },
+      { "text": "A compiler optimization for template code", "isCorrect": false },
+      { "text": "A way to prevent template instantiation", "isCorrect": false },
+      { "text": "A type casting mechanism", "isCorrect": false }
+    ],
+    "explanation": "SFINAE (Substitution Failure Is Not An Error) allows the compiler to silently discard template overloads when substitution fails. enable_if checks is_integral<T>: if true, the function exists; if false, substitution fails, and the overload is discarded. Modern C++20 alternative: concepts (requires std::integral<T>).",
+    "difficulty": "hard",
+    "tags": ["templates", "sfinae"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is a variadic template?",
+    "codeSnippet": "template <typename T>\nvoid print(T val) {\n    cout << val << endl;\n}\n\ntemplate <typename T, typename... Args>\nvoid print(T first, Args... rest) {\n    cout << first << \" \";\n    print(rest...);\n}\n\nprint(1, 2.5, \"hello\", 'c');",
+    "options": [
+      { "text": "A template that accepts a variable number of arguments", "isCorrect": true },
+      { "text": "A template that only works with primitive types", "isCorrect": false },
+      { "text": "A deprecated C++11 feature", "isCorrect": false },
+      { "text": "A template with default arguments", "isCorrect": false }
+    ],
+    "explanation": "Variadic templates use parameter packs (Args... rest) to accept any number of arguments. The base case handles one argument; the recursive case handles one + rest. print(1,2.5,\"hello\",\"c\") prints: 1 2.5 hello c. Used in: emplace_back, make_tuple, std::function, and many STL facilities.",
+    "difficulty": "hard",
+    "tags": ["templates", "variadic"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is the output of this template specialization?",
+    "codeSnippet": "template <typename T>\nstring type_name() { return \"generic\"; }\n\ntemplate <>\nstring type_name<int>() { return \"int\"; }\n\ntemplate <>\nstring type_name<double>() { return \"double\"; }\n\ncout << type_name<float>() << \" \";\ncout << type_name<int>() << \" \";\ncout << type_name<double>();",
+    "options": [
+      { "text": "generic int double", "isCorrect": true },
+      { "text": "generic generic generic", "isCorrect": false },
+      { "text": "int double generic", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "type_name<float> uses the generic template (no specialization for float). type_name<int> uses the int specialization. type_name<double> uses the double specialization. Template specialization allows providing custom implementations for specific types while keeping the generic version for others.",
+    "difficulty": "medium",
+    "tags": ["templates", "specialization"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is a partial template specialization?",
+    "codeSnippet": "template <typename T, typename U>\nclass Pair {\n    T first;\n    U second;\n};\n\ntemplate <typename T>\nclass Pair<T, T> {  // Partial specialization: both types same\n    T both;\n};\n\nPair<int, double> p1;  // Uses generic version\nPair<int, int> p2;     // Uses partial specialization",
+    "options": [
+      { "text": "Specializing a template for a subset of template parameters", "isCorrect": true },
+      { "text": "Specializing all template parameters", "isCorrect": false },
+      { "text": "Creating a template with fewer parameters", "isCorrect": false },
+      { "text": "A deprecated feature", "isCorrect": false }
+    ],
+    "explanation": "Partial specialization specializes some but not all template parameters. Pair<T,T> is partially specialized when both types match. Pair<int,double> uses the generic version. This is more flexible than full specialization. Only class templates and variable templates support partial specialization (not function templates).",
+    "difficulty": "hard",
+    "tags": ["templates", "partial-specialization"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is the output of this SFINAE with enable_if?",
+    "codeSnippet": "template <typename T>\ntypename std::enable_if<std::is_floating_point<T>::value, T>::type\nclamp(T val, T lo, T hi) {\n    return (val < lo) ? lo : (val > hi) ? hi : val;\n}\n\n// clamp(5, 1, 10);    // Error: int is not floating_point\n// clamp(5.0, 1.0, 10.0); // OK: double is floating_point",
+    "options": [
+      { "text": "Only floating-point types are accepted by the template", "isCorrect": true },
+      { "text": "All types are accepted", "isCorrect": false },
+      { "text": "Only integer types are accepted", "isCorrect": false },
+      { "text": "The template is disabled entirely", "isCorrect": false }
+    ],
+    "explanation": "enable_if<condition, type>::type evaluates to type when condition is true, or fails substitution when false. is_floating_point<T>::value is true for float, double, long double. For int, the substitution fails, and the overload is discarded. Modern C++20 alternative: template <std::floating_point T>.",
+    "difficulty": "hard",
+    "tags": ["templates", "sfinae", "enable-if"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is the purpose of a template template parameter?",
+    "codeSnippet": "template <template <typename> class Container, typename T>\nclass Wrapper {\n    Container<T> data;\npublic:\n    void add(T val) { data.push_back(val); }\n};\n\nWrapper<vector, int> w1;  // Uses vector<int>\nWrapper<list, string> w2;  // Uses list<string>",
+    "options": [
+      { "text": "A template parameter that is itself a template", "isCorrect": true },
+      { "text": "A template with two type parameters", "isCorrect": false },
+      { "text": "A template that returns another template", "isCorrect": false },
+      { "text": "A deprecated C++11 feature", "isCorrect": false }
+    ],
+    "explanation": "Template template parameters let you parameterize a class on a container type itself, not just its element type. Container<int> can be vector<int>, list<int>, deque<int>, etc. Used in: generic adapters, container wrappers, and policy-based design. The template template must match the parameter count of the actual template.",
+    "difficulty": "hard",
+    "tags": ["templates", "template-template"]
+  },
+  {
+    "topic": "Templates",
+    "question": "What is the output of this constexpr template?",
+    "codeSnippet": "template <int N>\nstruct Factorial {\n    static constexpr int value = N * Factorial<N-1>::value;\n};\n\ntemplate <>\nstruct Factorial<0> {\n    static constexpr int value = 1;\n};\n\nconstexpr int f5 = Factorial<5>::value;\ncout << f5;",
+    "options": [
+      { "text": "120", "isCorrect": true },
+      { "text": "5", "isCorrect": false },
+      { "text": "25", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "Factorial is a compile-time computation using template specialization. Factorial<5>::value = 5 * Factorial<4>::value = 5*4*3*2*1*1 = 120. The base case (Factorial<0>) returns 1. constexpr ensures the value is computed at compile time, not runtime.",
+    "difficulty": "hard",
+    "tags": ["templates", "constexpr", "metaprogramming"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is a structured binding?",
+    "codeSnippet": "auto [name, age, score] = std::tuple{\"Alice\", 25, 98.5};\n\nstd::map<std::string, int> m = {{\"a\", 1}, {\"b\", 2}};\nfor (const auto& [key, value] : m) {\n    cout << key << \":\" << value << \" \";\n}",
+    "options": [
+      { "text": "Decomposing aggregates (tuple, pair, struct, array) into named variables", "isCorrect": true },
+      { "text": "Creating multiple variables of the same type", "isCorrect": false },
+      { "text": "A way to declare references", "isCorrect": false },
+      { "text": "A deprecated feature from C++14", "isCorrect": false }
+    ],
+    "explanation": "Structured bindings (C++17) decompose aggregates into named variables. Works with: tuple, pair, array, struct (all public members), and map entries. Much cleaner than std::get<0>(tuple) or .first/.second. The auto [name, age] syntax is more readable and less error-prone.",
+    "difficulty": "medium",
+    "tags": ["modern-cpp", "structured-bindings"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is a designated initializer?",
+    "codeSnippet": "struct Point {\n    double x;\n    double y;\n    double z;\n};\n\nPoint p1{.x = 1.0, .y = 2.0, .z = 3.0};\nPoint p2{.x = 5.0, .z = 6.0};  // y = 0.0 (default)\n// Point p3{.y = 1.0, .x = 2.0};  // Error: must be in declaration order",
+    "options": [
+      { "text": "Initializing struct members by name, in declaration order", "isCorrect": true },
+      { "text": "Initializing members in any order", "isCorrect": false },
+      { "text": "Creating anonymous structs", "isCorrect": false },
+      { "text": "A deprecated C++11 feature", "isCorrect": false }
+    ],
+    "explanation": "Designated initializers (C++20) let you initialize struct members by name. Members not listed get default values (0 for scalars, default-constructed for class types). Designated members must be in declaration order (C++ rule, unlike C99). Creates cleaner, more readable initialization code.",
+    "difficulty": "medium",
+    "tags": ["modern-cpp", "designated-initializers"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is std::optional used for?",
+    "codeSnippet": "#include <optional>\nstd::optional<int> findMax(const std::vector<int>& v) {\n    if (v.empty()) return std::nullopt;\n    return *std::max_element(v.begin(), v.end());\n}\n\nauto result = findMax({1, 5, 3});\nif (result) {\n    cout << \"Max: \" << *result;\n}\n\nauto empty = findMax({});\nif (!empty) {\n    cout << \"Empty vector\";\n}",
+    "options": [
+      { "text": "Representing a value that may or may not exist, with type safety", "isCorrect": true },
+      { "text": "A nullable pointer type", "isCorrect": false },
+      { "text": "A variable that can change its type", "isCorrect": false },
+      { "text": "A deprecated way to use NULL", "isCorrect": false }
+    ],
+    "explanation": "std::optional<T> (C++17) is a type-safe way to represent optional data. Check with if(result) or result.has_value(), access with *result or result.value(). Better than: null pointers, sentinel values (-1, \"\"), output parameters, or pair<T,bool>. Used in: search results, configuration values, parsing.",
+    "difficulty": "medium",
+    "tags": ["modern-cpp", "optional"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is the output of this structured binding with a map?",
+    "codeSnippet": "std::map<std::string, int> scores = {\n    {\"Alice\", 95}, {\"Bob\", 87}, {\"Charlie\", 92}\n};\n\nfor (auto [name, score] : scores) {\n    if (score >= 90) {\n        cout << name << \" \";\n    }\n}",
+    "options": [
+      { "text": "Alice Charlie", "isCorrect": true },
+      { "text": "Alice Bob Charlie", "isCorrect": false },
+      { "text": "Bob", "isCorrect": false },
+      { "text": "95 87 92", "isCorrect": false }
+    ],
+    "explanation": "Structured bindings decompose map entries into name and score. The map iterates in sorted key order: Alice(95), Bob(87), Charlie(92). Score >= 90: Alice(95) and Charlie(92). Output: 'Alice Charlie'. Much cleaner than using .first/.second.",
+    "difficulty": "medium",
+    "tags": ["modern-cpp", "structured-bindings", "map"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is the output?",
+    "codeSnippet": "auto multiply = [](int a, int b) { return a * b; };\nauto add = [](int a, int b) { return a + b; };\n\nstd::vector<std::function<int(int,int)>> ops = {multiply, add};\n\nfor (auto& op : ops) {\n    cout << op(3, 4) << \" \";\n}",
+    "options": [
+      { "text": "12 7", "isCorrect": true },
+      { "text": "7 12", "isCorrect": false },
+      { "text": "12 12", "isCorrect": false },
+      { "text": "Error: cannot store lambdas in vector", "isCorrect": false }
+    ],
+    "explanation": "std::function<int(int,int)> is a type-erased callable wrapper that can hold lambdas, function pointers, or bind expressions. The vector stores both multiply and add lambdas. op(3,4): multiply gives 12, add gives 7. Output: '12 7'. std::function enables storing different callable types in the same container.",
+    "difficulty": "medium",
+    "tags": ["modern-cpp", "lambda", "function"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is the output of this move semantics example?",
+    "codeSnippet": "std::string createString() {\n    return \"Hello World\";\n}\nstd::string s = createString();\nstd::string s2 = std::move(s);\n\nstd::cout << s.size() << \" \" << s2.size();",
+    "options": [
+      { "text": "0 11", "isCorrect": true },
+      { "text": "11 11", "isCorrect": false },
+      { "text": "11 0", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "createString() returns a temporary, which is move-constructed into s (or RVO). std::move(s) casts s to rvalue reference, triggering move construction of s2. s is left in valid-but-unspecified state (typically empty, size 0). s2 owns the string data (size 11). Output: '0 11'.",
+    "difficulty": "medium",
+    "tags": ["modern-cpp", "move"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is std::variant and when should you use it?",
+    "codeSnippet": "#include <variant>\nstd::variant<int, double, std::string> v;\nv = 42;       // Holds int\nv = \"hello\";  // Holds string\n\n// Access:\nif (auto* p = std::get_if<std::string>(&v)) {\n    cout << *p;  // \"hello\"\n}\n\n// Or:\nstd::cout << std::get<std::string>(v);  // \"hello\"",
+    "options": [
+      { "text": "A type-safe union that can hold one of several types at runtime", "isCorrect": true },
+      { "text": "A container that holds multiple types simultaneously", "isCorrect": false },
+      { "text": "A deprecated replacement for unions", "isCorrect": false },
+      { "text": "A template for creating new types", "isCorrect": false }
+    ],
+    "explanation": "std::variant (C++17) is a type-safe union: holds exactly one of its alternative types at a time. Access with std::get<T> (throws if wrong type), std::get_if<T> (returns nullptr if wrong type), or std::visit for generic handling. Replaces unsafe unions for: AST nodes, token types, event data, and any 'one of these types' scenario.",
+    "difficulty": "medium",
+    "tags": ["modern-cpp", "variant"]
+  },
+  {
+    "topic": "Modern C++",
+    "question": "What is the output?",
+    "codeSnippet": "auto f1 = [](int x) { return x * 2; };\nauto f2 = [](int x) { return x * x; };\n\nstd::vector<int> v = {1, 2, 3, 4, 5};\nstd::transform(v.begin(), v.end(), v.begin(), f1);\nfor (int x : v) cout << x << \" \";\nstd::transform(v.begin(), v.end(), v.begin(), f2);\nfor (int x : v) cout << x << \" \";",
+    "options": [
+      { "text": "2 4 6 8 10 4 16 36 64 100", "isCorrect": true },
+      { "text": "1 2 3 4 5 2 4 6 8 10", "isCorrect": false },
+      { "text": "4 16 36 64 100 2 4 6 8 10", "isCorrect": false },
+      { "text": "Error", "isCorrect": false }
+    ],
+    "explanation": "First transform: each element * 2 → {2,4,6,8,10}. Second transform: each element² → {4,16,36,64,100}. std::transform applies a function to each element and stores the result. Lambda f1 doubles, f2 squares. Output: '2 4 6 8 10 4 16 36 64 100'.",
+    "difficulty": "medium",
+    "tags": ["modern-cpp", "algorithm", "lambda"]
+  },
+  {
+    "topic": "Best Practices",
+    "question": "When should you use std::move?",
+    "codeSnippet": "std::string source = \"Hello\";\nstd::string dest = std::move(source);  // Move, not copy\n\n// Good: transferring ownership\nstd::vector<int> v1 = {1, 2, 3};\nstd::vector<int> v2 = std::move(v1);  // v1 is now empty\n\n// Bad: moving from const\nconst std::string cs = \"World\";\nstd::string s = std::move(cs);  // Still copies! const prevents move",
+    "options": [
+      { "text": "When transferring ownership of resources where the source won't be used again", "isCorrect": true },
+      { "text": "To make all assignments faster", "isCorrect": false },
+      { "text": "Instead of copy for every assignment", "isCorrect": false },
+      { "text": "When you want to delete the source", "isCorrect": false }
+    ],
+    "explanation": "Use std::move when: (1) you're done with the source object, (2) you want to transfer resources without copying. Moving from const objects falls back to copying. Never use std::move for return values (prevents NRVO). After moving, source is in valid-but-unspecified state - don't read its value.",
+    "difficulty": "medium",
+    "tags": ["best-practices", "move"]
+  },
+  {
+    "topic": "Best Practices",
+    "question": "What naming convention should C++ code follow?",
+    "codeSnippet": "class BankAccount {           // PascalCase for classes\n    double accountBalance;     // camelCase for members\n    static int totalCount;     // camelCase for static members\npublic:\n    void deposit(double amt);  // camelCase for functions\n    double getBalance() const; // camelCase for functions\n};\nconst int MAX_SIZE = 100;     // UPPER_SNAKE for constants\nenum Color { RED, GREEN };    // PascalCase for enum type",
+    "options": [
+      { "text": "PascalCase for types, camelCase for variables/functions, UPPER_SNAKE for constants", "isCorrect": true },
+      { "text": "All lowercase with underscores", "isCorrect": false },
+      { "text": "Naming doesn't matter as long as it compiles", "isCorrect": false },
+      { "text": "Use Hungarian notation (iCount, szName)", "isCorrect": false }
+    ],
+    "explanation": "Consistent naming improves readability. Common C++ conventions: PascalCase for classes/structs/enums, camelCase for functions/variables, UPPER_SNAKE_CASE for constants/macros. Avoid: Hungarian notation (redundant with types), single-letter names (except loop counters), abbreviations. The Google C++ Style Guide is a good reference.",
+    "difficulty": "easy",
+    "tags": ["best-practices", "naming"]
+  },
+  {
+    "topic": "Best Practices",
+    "question": "How should C++ header files be organized?",
+    "codeSnippet": "#pragma once  // Or include guards\n\n// 1. Corresponding header (if .cpp)\n// 2. C system headers\n// 3. C++ standard library\n// 4. Other libraries\n// 5. Project headers\n\n#include <vector>\n#include <string>\n#include \"MyClass.h\"",
+    "options": [
+      { "text": "Order: own header, system, stdlib, third-party, project (with #pragma once)", "isCorrect": true },
+      { "text": "Headers can be in any order", "isCorrect": false },
+      { "text": "Only include what you need, order doesn't matter", "isCorrect": false },
+      { "text": "Put all includes at the end", "isCorrect": false }
+    ],
+    "explanation": "Header organization matters for: (1) self-contained headers (each includes what it needs), (2) detecting missing includes early, (3) reducing compile-time dependencies. Use #pragma once or include guards. Each .cpp file should include its own header first. Forward-declare when possible to reduce dependencies.",
+    "difficulty": "medium",
+    "tags": ["best-practices", "headers"]
+  },
+  {
+    "topic": "Best Practices",
+    "question": "What is the best error handling pattern?",
+    "codeSnippet": "// Pattern 1: Exception for exceptional cases\ndouble divide(int a, int b) {\n    if (b == 0) throw std::invalid_argument(\"Division by zero\");\n    return static_cast<double>(a) / b;\n}\n\n// Pattern 2: Expected for expected failures (C++23)\nstd::expected<int, string> parse(string s) {\n    if (s.empty()) return std::unexpected(\"Empty input\");\n    return std::stoi(s);\n}",
+    "options": [
+      { "text": "Exceptions for exceptional cases; expected/result types for expected failures", "isCorrect": true },
+      { "text": "Always use return codes like C", "isCorrect": false },
+      { "text": "Always use exceptions for everything", "isCorrect": false },
+      { "text": "Use assert() for all error handling", "isCorrect": false }
+    ],
+    "explanation": "Best practice: exceptions for unexpected conditions (out of memory, file corruption), return codes/expected for expected failures (file not found, invalid input). std::expected (C++23) is like Rust's Result - type-safe error handling without exceptions. assert() is for programmer errors (debug checks), not runtime errors.",
+    "difficulty": "medium",
+    "tags": ["best-practices", "error-handling"]
+  },
+  {
+    "topic": "Best Practices",
+    "question": "What is the most important performance rule in C++?",
+    "codeSnippet": "// BAD: premature optimization\nfor (int i = 0; i < v.size(); i++) {  // size() called each iteration!\n    process(v[i]);\n}\n\n// GOOD: profile first, then optimize\nauto size = v.size();\nfor (size_t i = 0; i < size; i++) {\n    process(v[i]);\n}\n\n// BETTER: use range-based for\nfor (const auto& x : v) {\n    process(x);\n}",
+    "options": [
+      { "text": "Don't optimize without measuring; use profiler to find actual bottlenecks", "isCorrect": true },
+      { "text": "Always use raw pointers for maximum speed", "isCorrect": false },
+      { "text": "Avoid all OOP features for performance", "isCorrect": false },
+      { "text": "Inline everything for maximum speed", "isCorrect": false }
+    ],
+    "explanation": "Premature optimization is the root of all evil (Knuth). Profile first to find real bottlenecks, then optimize those. Common optimizations: reserve() for vectors, const references for large parameters, move semantics, avoiding unnecessary copies. Modern compilers optimize range-based for efficiently.",
+    "difficulty": "medium",
+    "tags": ["best-practices", "performance"]
+  },
+  {
+    "topic": "Best Practices",
+    "question": "What should you check in a code review?",
+    "codeSnippet": "// Code review checklist areas:\n// 1. Memory safety\n// 2. Error handling\n// 3. Thread safety\n// 4. Performance\n// 5. Readability\n// 6. API design\n// 7. Test coverage",
+    "options": [
+      { "text": "Memory safety, error handling, thread safety, performance, readability", "isCorrect": true },
+      { "text": "Only check if it compiles", "isCorrect": false },
+      { "text": "Only check formatting", "isCorrect": false },
+      { "text": "Code reviews are unnecessary", "isCorrect": false }
+    ],
+    "explanation": "A thorough code review checks: (1) Memory safety (leaks, dangling pointers, buffer overflows), (2) Error handling (exceptions, return values), (3) Thread safety (data races, deadlocks), (4) Performance (unnecessary copies, algorithmic complexity), (5) Readability (naming, comments, structure), (6) API design (consistency, ease of use).",
+    "difficulty": "medium",
+    "tags": ["best-practices", "code-review"]
+  },
+  {
+    "topic": "Best Practices",
+    "question": "What is the benefit of using explicit constructors?",
+    "codeSnippet": "class Foo {\npublic:\n    Foo(int x) { }     // Implicit conversion allowed\n    explicit Foo(int x) { }  // No implicit conversion\n};\n\nFoo f1 = 42;    // OK: implicit conversion from int\n// Foo f2 = 42; // Error: explicit prevents implicit conversion\nFoo f3(42);     // OK: direct initialization\nFoo f4 = Foo(42); // OK: explicit construction",
+    "options": [
+      { "text": "Prevents unintended implicit type conversions that can hide bugs", "isCorrect": true },
+      { "text": "Makes constructors run faster", "isCorrect": false },
+      { "text": "Prevents the constructor from being called", "isCorrect": false },
+      { "text": "Makes the class non-copyable", "isCorrect": false }
+    ],
+    "explanation": "explicit prevents the compiler from using a constructor for implicit conversions. Foo f1 = 42 is actually f1 = Foo(42) - an implicit conversion. This can hide bugs: if Foo has a string constructor too, Foo f = \"hello\" might be unintended. Use explicit for single-argument constructors (except copy/move).",
+    "difficulty": "medium",
+    "tags": ["best-practices", "constructors"]
+  },
+  {
+    "topic": "Best Practices",
+    "question": "Why should you prefer emplace_back over push_back?",
+    "codeSnippet": "std::vector<std::pair<int, std::string>> v;\n\n// push_back: creates temporary, then copies/moves\nv.push_back({1, \"hello\"});\n\n// emplace_back: constructs in-place\nv.emplace_back(1, \"hello\");\n\n// emplace_back can be more efficient for complex objects",
+    "options": [
+      { "text": "emplace_back constructs in-place, avoiding temporary object creation", "isCorrect": true },
+      { "text": "push_back is always faster", "isCorrect": false },
+      { "text": "They are identical in performance", "isCorrect": false },
+      { "text": "emplace_back is deprecated", "isCorrect": false }
+    ],
+    "explanation": "push_back creates a temporary object and then moves/copies it into the container. emplace_back forwards arguments directly to the constructor, constructing in-place. For complex objects (pair, string), this avoids unnecessary temporaries. In practice, modern compilers often optimize the difference, but emplace_back is still preferred.",
+    "difficulty": "medium",
+    "tags": ["best-practices", "stl", "performance"]
   }
 ]

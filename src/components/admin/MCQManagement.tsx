@@ -30,6 +30,7 @@ import {
   Search,
   CheckCircle,
 } from "lucide-react";
+import { MCQ_OPTION_PREVIEW_LENGTH } from "@/lib/constants";
 
 interface MCQOption {
   text: string;
@@ -267,7 +268,7 @@ export default function MCQManagement() {
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         {mcq.options.filter((o) => o.isCorrect).length > 0
-                          ? `Correct: ${mcq.options.find((o) => o.isCorrect)?.text.slice(0, 30)}...`
+                          ? `Correct: ${mcq.options.find((o) => o.isCorrect)?.text.slice(0, MCQ_OPTION_PREVIEW_LENGTH)}...`
                           : "No correct answer"}
                       </span>
                     </div>

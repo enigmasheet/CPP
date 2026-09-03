@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import mongoose from "mongoose";
 import * as fs from "fs";
 import * as path from "path";

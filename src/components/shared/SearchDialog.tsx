@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search, BookOpen, HelpCircle, FileText, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants";
 
 interface SearchResult {
   id: string;
@@ -65,7 +66,7 @@ export default function SearchDialog({
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => search(query), 300);
+    const timer = setTimeout(() => search(query), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [query, search]);
 

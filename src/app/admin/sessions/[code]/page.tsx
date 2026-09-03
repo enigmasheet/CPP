@@ -30,6 +30,16 @@ import {
 import Link from "next/link";
 import QRCode from "@/components/shared/QRCode";
 import EditSessionDialog from "@/components/admin/EditSessionDialog";
+import {
+  COPY_FEEDBACK_TIMEOUT_MS,
+  MAX_SCORE_PERCENTAGE,
+  MINUTES_TO_SECONDS,
+  LEADERBOARD_HIGH_THRESHOLD,
+  LEADERBOARD_MEDIUM_THRESHOLD,
+  ANALYTICS_HIGH_THRESHOLD,
+  ANALYTICS_MEDIUM_THRESHOLD,
+  SESSION_CODE_LENGTH,
+} from "@/lib/constants";
 
 interface SessionData {
   code: string;
@@ -127,7 +137,7 @@ export default function SessionDetailPage({
   const copyLink = () => {
     navigator.clipboard.writeText(`${window.location.origin}/s/${code}`);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), COPY_FEEDBACK_TIMEOUT_MS);
   };
 
   if (isLoading) {
@@ -323,16 +333,16 @@ export default function SessionDetailPage({
                 <CardContent>
                   <div className="space-y-3">
                     {Object.entries(questionAnalytics).map(([id, qa]) => {
-                      const correctPct = qa.totalAttempts > 0 ? Math.round((qa.correctCount / qa.totalAttempts) * 100) : 0;
+                      const correctPct = qa.totalAttempts > 0 ? Math.round((qa.correctCount / qa.totalAttempts) * MAX_SCORE_PERCENTAGE) : 0;
                       return (
                         <div key={id} className="flex items-center gap-3">
                           <span className="text-xs font-mono text-muted-foreground w-20 shrink-0 truncate" title={id}>
-                            {id.slice(-6)}
+                            {id.slice(-SESSION_CODE_LENGTH)}
                           </span>
                           <div className="flex-1">
                             <div className="h-2 bg-muted rounded-full overflow-hidden">
                               <div
-                                className={`h-full rounded-full ${correctPct >= 70 ? "bg-green-500" : correctPct >= 40 ? "bg-yellow-500" : "bg-red-500"}`}
+                                className={`h-full rounded-full ${correctPct >= ANALYTICS_HIGH_THRESHOLD ? "bg-green-500" : correctPct >= ANALYTICS_MEDIUM_THRESHOLD ? "bg-yellow-500" : "bg-red-500"}`}
                                 style={{ width: `${correctPct}%` }}
                               />
                             </div>
@@ -386,9 +396,9 @@ export default function SessionDetailPage({
                           <TableCell>
                             <Badge
                               variant={
-                                r.percentage >= 70
+                                r.percentage >= LEADERBOARD_HIGH_THRESHOLD
                                   ? "default"
-                                  : r.percentage >= 50
+                                  : r.percentage >= LEADERBOARD_MEDIUM_THRESHOLD
                                   ? "secondary"
                                   : "destructive"
                               }
@@ -397,7 +407,7 @@ export default function SessionDetailPage({
                             </Badge>
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground hidden sm:table-cell font-mono">
-                            {r.timeTaken ? `${Math.floor(r.timeTaken / 60)}:${(r.timeTaken % 60).toString().padStart(2, "0")}` : "—"}
+                            {r.timeTaken ? `${Math.floor(r.timeTaken / MINUTES_TO_SECONDS)}:${(r.timeTaken % MINUTES_TO_SECONDS).toString().padStart(2, "0")}` : "—"}
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground hidden sm:table-cell">
                             {new Date(r.completedAt).toLocaleTimeString()}

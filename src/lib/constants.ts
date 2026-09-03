@@ -19,7 +19,9 @@ export const SESSION_CODE_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 // ─── Auth ─────────────────────────────────────────────────────
 export const ADMIN_TOKEN_COOKIE_NAME = "admin-token";
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 export const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24; // 24 hours
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 export const ADMIN_AUTH_STALE_TIME_MS = 5 * 60 * 1000; // 5 minutes
 
 // ─── Rate Limiting ────────────────────────────────────────────
@@ -59,6 +61,15 @@ export const SECONDS_PER_MINUTE = 60;
 export const MINUTES_TO_SECONDS = 60;
 export const LOW_TIME_WARNING_SECONDS = 5;
 export const DEFAULT_SPEED_CODE_TIME_LIMIT = 20;
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+export const ADMIN_SESSION_STALE_TIME_MS = 30 * TIMER_INTERVAL_MS;
+export const SEARCH_DEBOUNCE_MS = 300;
+export const STUDENT_CODE_CHAR_COUNT = 36;
+export const MCQ_OPTION_PREVIEW_LENGTH = 30;
+export const TOPIC_PREVIEW_HOME_COUNT = 5;
+export const PROGRESS_PERCENTAGE_MULTIPLIER = 100;
+export const SPEED_CODE_GREEN_THRESHOLD = 50;
+export const SPEED_CODE_YELLOW_THRESHOLD = 20;
 
 // ─── Scoring & Thresholds ─────────────────────────────────────
 export const PASS_THRESHOLD_RATIO = 0.7;

@@ -1,10 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import MCQ from "@/models/MCQ";
 import QuizAttempt from "@/models/QuizAttempt";
 import { MAX_SCORE_PERCENTAGE, DEFAULT_SUBJECT, DEFAULT_TOPIC } from "@/lib/constants";
 
-export const POST = withDB(async (request: NextRequest) => {
+export const POST = withDB(async (request) => {
   const { sessionId, subject, topic, answers, timeTaken } = await request.json();
 
   if (!sessionId || !answers || !Array.isArray(answers)) {

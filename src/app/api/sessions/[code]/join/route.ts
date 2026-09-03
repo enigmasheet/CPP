@@ -1,13 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import Session, { type ISessionItem } from "@/models/Session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { SESSION_JOIN_MAX_ATTEMPTS, SESSION_JOIN_RATE_WINDOW_MS, SESSION_CODE_LENGTH } from "@/lib/constants";
+import { SESSION_JOIN_MAX_ATTEMPTS, SESSION_JOIN_RATE_WINDOW_MS, SESSION_CODE_LENGTH, STUDENT_CODE_CHAR_COUNT } from "@/lib/constants";
 
-export const POST = withDB(async (
-  request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) => {
+export const POST = withDB(async (request, context) => {
   const ip = getClientIp(request);
   const { allowed } = rateLimit(`join:${ip}`, SESSION_JOIN_MAX_ATTEMPTS, SESSION_JOIN_RATE_WINDOW_MS);
 
@@ -18,8 +15,8 @@ export const POST = withDB(async (
     );
   }
 
-  const { code } = await params;
-  const session = await Session.findOne({ code: code.toUpperCase() });
+  const { code } = await context?.params ?? {};
+  const session = await Session.findOne({ code: code?.toUpperCase() });
 
   if (!session) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
@@ -35,7 +32,7 @@ export const POST = withDB(async (
   const body = await request.json();
   const name = body?.name || undefined;
 
-  const studentCode = Math.random().toString(36).substring(2, SESSION_CODE_LENGTH + 2).toUpperCase();
+  const studentCode = Math.random().toString(STUDENT_CODE_CHAR_COUNT).substring(2, SESSION_CODE_LENGTH + 2).toUpperCase();
 
   const items = session.items.map((item: ISessionItem) => ({
     contentType: item.contentType,

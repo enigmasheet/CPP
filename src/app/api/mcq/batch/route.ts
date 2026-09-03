@@ -1,8 +1,8 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import MCQ from "@/models/MCQ";
 
-export const POST = withDB(async (request: NextRequest) => {
+export const POST = withDB(async (request) => {
   const { ids } = await request.json();
 
   if (!Array.isArray(ids) || ids.length === 0) {

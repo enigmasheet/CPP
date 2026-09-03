@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { teacherNotes, type NoteSection } from "@/data/teacher-notes";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
-import { DIFFICULTY_COLORS } from "@/lib/constants";
+import { DIFFICULTY_COLORS, MINUTES_TO_SECONDS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, ChevronLeft, ChevronRight, List, Clock } from "lucide-react";
@@ -43,7 +43,7 @@ export default function TeacherNotes() {
           </div>
           <div className="flex items-center gap-1 px-1 mb-3 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
-            <span>~{Math.round(totalMinutes / 60)}h {totalMinutes % 60}m total</span>
+            <span>~{Math.round(totalMinutes / MINUTES_TO_SECONDS)}h {totalMinutes % MINUTES_TO_SECONDS}m total</span>
           </div>
           <div className="space-y-0.5">
             {teacherNotes.map((section: NoteSection, idx: number) => (

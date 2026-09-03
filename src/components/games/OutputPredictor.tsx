@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import CodeBlock from "@/components/content/CodeBlock";
 import { CheckCircle, XCircle, ArrowRight, Trophy } from "lucide-react";
-import { PASS_THRESHOLD_RATIO, ASCII_UPPERCASE_A } from "@/lib/constants";
+import { PASS_THRESHOLD_RATIO, ASCII_UPPERCASE_A, MAX_SCORE_PERCENTAGE } from "@/lib/constants";
 
 interface GameQuestion {
   id: string;
@@ -61,7 +61,7 @@ export default function OutputPredictor({ questions, onComplete }: OutputPredict
             Score: {score} / {questions.length}
           </p>
           <Badge variant={score >= questions.length * PASS_THRESHOLD_RATIO ? "default" : "secondary"}>
-            {Math.round((score / questions.length) * 100)}%
+            {Math.round((score / questions.length) * MAX_SCORE_PERCENTAGE)}%
           </Badge>
         </CardContent>
       </Card>

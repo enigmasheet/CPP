@@ -1,14 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import Session from "@/models/Session";
 import SessionResult from "@/models/SessionResult";
 
-export const GET = withDB(async (
-  _request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) => {
-  const { code } = await params;
-  const session = await Session.findOne({ code: code.toUpperCase() }).lean();
+export const GET = withDB(async (_request, context) => {
+  const { code } = await context?.params ?? {};
+  const session = await Session.findOne({ code: code?.toUpperCase() }).lean();
 
   if (!session) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });

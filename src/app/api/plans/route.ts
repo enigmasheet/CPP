@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import TeachingPlan from "@/models/TeachingPlan";
@@ -13,7 +13,7 @@ export const GET = withDB(async () => {
   return NextResponse.json(plans);
 });
 
-export const POST = withDB(async (request: NextRequest) => {
+export const POST = withDB(async (request) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 

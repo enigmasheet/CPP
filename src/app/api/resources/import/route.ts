@@ -1,10 +1,10 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import Resource from "@/models/Resource";
 import { createResourceSchema } from "@/lib/validations";
 
-export const POST = withDB(async (request: NextRequest) => {
+export const POST = withDB(async (request) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 

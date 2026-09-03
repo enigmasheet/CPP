@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { LogIn, Loader2 } from "lucide-react";
+import { SESSION_CODE_LENGTH } from "@/lib/constants";
 
 export default function JoinPage() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function JoinPage() {
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = code.trim().toUpperCase();
-    if (trimmed.length !== 6) {
+    if (trimmed.length !== SESSION_CODE_LENGTH) {
       setError("Code must be 6 characters");
       return;
     }
@@ -56,11 +57,11 @@ export default function JoinPage() {
                 placeholder="ABC123"
                 value={code}
                 onChange={(e) => {
-                  setCode(e.target.value.toUpperCase().slice(0, 6));
+                  setCode(e.target.value.toUpperCase().slice(0, SESSION_CODE_LENGTH));
                   setError("");
                 }}
                 className="text-center text-2xl font-mono tracking-widest"
-                maxLength={6}
+                maxLength={SESSION_CODE_LENGTH}
                 autoFocus
               />
               {error && (
@@ -69,7 +70,7 @@ export default function JoinPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={code.length !== 6 || loading}
+                disabled={code.length !== SESSION_CODE_LENGTH || loading}
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

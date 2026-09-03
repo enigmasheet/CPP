@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import CodeBlock from "@/components/content/CodeBlock";
 import { CheckCircle, XCircle, ArrowRight, Trophy, Clock } from "lucide-react";
-import { PASS_THRESHOLD_RATIO, ASCII_UPPERCASE_A, LOW_TIME_WARNING_SECONDS, DEFAULT_SPEED_CODE_TIME_LIMIT, TIMER_INTERVAL_MS } from "@/lib/constants";
+import { PASS_THRESHOLD_RATIO, ASCII_UPPERCASE_A, LOW_TIME_WARNING_SECONDS, DEFAULT_SPEED_CODE_TIME_LIMIT, TIMER_INTERVAL_MS, MAX_SCORE_PERCENTAGE, SPEED_CODE_GREEN_THRESHOLD, SPEED_CODE_YELLOW_THRESHOLD } from "@/lib/constants";
 
 interface SpeedQuestion {
   id: string;
@@ -33,7 +33,7 @@ export default function SpeedCode({ questions, onComplete }: SpeedCodeProps) {
 
   const current = questions[currentIndex];
   const totalTime = current?.timeLimit || DEFAULT_SPEED_CODE_TIME_LIMIT;
-  const progress = (timeLeft / totalTime) * 100;
+  const progress = (timeLeft / totalTime) * MAX_SCORE_PERCENTAGE;
 
   const handleTimeout = useCallback(() => {
     setShowResult(true);
@@ -87,7 +87,7 @@ export default function SpeedCode({ questions, onComplete }: SpeedCodeProps) {
             Score: {score} / {questions.length}
           </p>
           <Badge variant={score >= questions.length * PASS_THRESHOLD_RATIO ? "default" : "secondary"}>
-            {Math.round((score / questions.length) * 100)}%
+            {Math.round((score / questions.length) * MAX_SCORE_PERCENTAGE)}%
           </Badge>
         </CardContent>
       </Card>
@@ -114,7 +114,7 @@ export default function SpeedCode({ questions, onComplete }: SpeedCodeProps) {
         <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-2">
           <div
             className={`h-full rounded-full transition-all duration-1000 ${
-              progress > 50 ? "bg-green-500" : progress > 20 ? "bg-yellow-500" : "bg-red-500"
+              progress > SPEED_CODE_GREEN_THRESHOLD ? "bg-green-500" : progress > SPEED_CODE_YELLOW_THRESHOLD ? "bg-yellow-500" : "bg-red-500"
             }`}
             style={{ width: `${progress}%` }}
           />

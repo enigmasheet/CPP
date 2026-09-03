@@ -417,8 +417,8 @@ export default function StudentSessionPage({
                 {finalResult.totalScore} / {finalResult.totalPossible} points
               </p>
               <p className="text-muted-foreground mb-6">
-                Time: {Math.floor(timeTaken / 60)}:
-                {(timeTaken % 60).toString().padStart(2, "0")}
+                Time: {Math.floor(timeTaken / MINUTES_TO_SECONDS)}:
+                {(timeTaken % MINUTES_TO_SECONDS).toString().padStart(2, "0")}
               </p>
               <div className="flex justify-center gap-3">
                 <Link href="/">
@@ -609,12 +609,12 @@ export default function StudentSessionPage({
     : null;
 
   const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
+    const m = Math.floor(seconds / MINUTES_TO_SECONDS);
+    const s = seconds % MINUTES_TO_SECONDS;
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const isLowTime = remainingTime !== null && remainingTime <= 60;
+  const isLowTime = remainingTime !== null && remainingTime <= MINUTES_TO_SECONDS;
 
   return (
     <AppShell>

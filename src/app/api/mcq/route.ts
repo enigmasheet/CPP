@@ -1,11 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import MCQ from "@/models/MCQ";
 import { createMCQSchema, mcqQuerySchema } from "@/lib/validations";
 import { DEFAULT_MCQ_FETCH_LIMIT } from "@/lib/constants";
 
-export const GET = withDB(async (request: NextRequest) => {
+export const GET = withDB(async (request) => {
   const { searchParams } = new URL(request.url);
   const parsed = mcqQuerySchema.safeParse({
     topic: searchParams.get("topic") || undefined,
@@ -26,7 +26,7 @@ export const GET = withDB(async (request: NextRequest) => {
   return NextResponse.json(mcqs);
 });
 
-export const POST = withDB(async (request: NextRequest) => {
+export const POST = withDB(async (request) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 

@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { TIMER_INTERVAL_MS } from "@/lib/constants";
+import { ADMIN_SESSION_STALE_TIME_MS } from "@/lib/constants";
 
 export default function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -10,7 +10,7 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30 * TIMER_INTERVAL_MS,
+            staleTime: ADMIN_SESSION_STALE_TIME_MS,
             refetchOnWindowFocus: false,
             retry: 1,
           },

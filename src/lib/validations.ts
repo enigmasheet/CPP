@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DIFFICULTY_LEVELS, RESOURCE_DIFFICULTY_LEVELS, CONTENT_TYPES, SESSION_TYPES, AUDIT_STATUSES, PLAN_STATUSES, PLAN_PRIORITIES, MAX_MCQ_QUERY_LIMIT, MAX_SESSION_TITLE_LENGTH, MAX_SECTION_LENGTH, MAX_STUDENT_NAME_LENGTH, DEFAULT_QUIZ_LIMIT, MAX_QUIZ_LIMIT } from "./constants";
+import { DIFFICULTY_LEVELS, RESOURCE_DIFFICULTY_LEVELS, CONTENT_TYPES, SESSION_TYPES, AUDIT_STATUSES, PLAN_STATUSES, PLAN_PRIORITIES, MAX_MCQ_QUERY_LIMIT, MAX_SESSION_TITLE_LENGTH, MAX_SECTION_LENGTH, MAX_STUDENT_NAME_LENGTH, DEFAULT_QUIZ_LIMIT, MAX_QUIZ_LIMIT, MAX_SCORE_PERCENTAGE } from "./constants";
 
 // ─── MCQ Schemas ─────────────────────────────────────────────
 export const mcqOptionSchema = z.object({
@@ -106,9 +106,9 @@ export const createAuditSchema = z.object({
   topicsCovered: z.array(z.string()).optional(),
   mcqsUsed: z.number().int().nonnegative().optional(),
   studentCount: z.number().int().nonnegative().optional(),
-  averageScore: z.number().min(0).max(100).optional(),
-  highestScore: z.number().min(0).max(100).optional(),
-  lowestScore: z.number().min(0).max(100).optional(),
+  averageScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
+  highestScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
+  lowestScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
   duration: z.number().positive().optional(),
   notes: z.string().optional(),
   status: z.enum(AUDIT_STATUSES).optional(),

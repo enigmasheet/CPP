@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { withDB } from "@/lib/db";
-import { requireAdmin } from "@/lib/auth";
 import Session from "@/models/Session";
 import SessionResult from "@/models/SessionResult";
 import { sessionSubmitSchema } from "@/lib/validations";
@@ -19,8 +18,8 @@ export const POST = withDB(async (request: NextRequest, context) => {
     );
   }
 
-  const { code } = await context!.params;
-  const session = await Session.findOne({ code: code.toUpperCase() });
+  const { code } = await context?.params ?? {};
+  const session = await Session.findOne({ code: code?.toUpperCase() });
 
   if (!session) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });

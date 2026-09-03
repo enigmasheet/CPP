@@ -8,6 +8,7 @@ import {
   Code2,
 } from "lucide-react";
 import { SUBJECTS, getTopics } from "@/config/subjects";
+import { TOPIC_PREVIEW_HOME_COUNT } from "@/lib/constants";
 
 const firstSlug = Object.keys(SUBJECTS)[0];
 const subject = SUBJECTS[firstSlug];
@@ -51,7 +52,7 @@ export default function Home() {
             description={`Structured curriculum covering ${subject.name.replace(" Programming", "")} fundamentals to advanced concepts`}
             href={`/subjects/${firstSlug}/learn`}
           />
-          {topics.slice(0, 5).map((topic) => (
+          {topics.slice(0, TOPIC_PREVIEW_HOME_COUNT).map((topic) => (
             <FeatureCard
               key={topic.slug}
               icon={<Code2 className="w-8 h-8" />}

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import Session from "@/models/Session";
 import SessionResult from "@/models/SessionResult";
 import AuditLog from "@/models/AuditLog";
 import MCQ from "@/models/MCQ";
@@ -10,8 +9,8 @@ import {
   MIN_TIME_BONUS,
   MAX_TIME_BONUS,
   AUDIT_STATUSES,
+  MAX_SCORE_PERCENTAGE,
 } from "@/lib/constants";
-import type { SessionResultItem } from "@/lib/types";
 
 interface GradedAnswer {
   contentId: string;
@@ -83,7 +82,7 @@ export async function gradeAnswers(
   }
 
   const percentage =
-    totalPossible > 0 ? Math.round((totalScore / totalPossible) * 100) : 0;
+    totalPossible > 0 ? Math.round((totalScore / totalPossible) * MAX_SCORE_PERCENTAGE) : 0;
 
   let finalPercentage = percentage;
   if (timeLimit && timeTaken && timeTaken > 0) {
