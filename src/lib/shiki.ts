@@ -16,11 +16,12 @@ const ALLOWED_LANGUAGES = new Set([
 
 export async function highlightCode(
   code: string,
-  lang: string = "cpp"
+  lang: string = "cpp",
+  theme: "light" | "dark" = "dark"
 ): Promise<string> {
   const safeLang = ALLOWED_LANGUAGES.has(lang) ? lang : "text";
   return codeToHtml(code, {
     lang: safeLang,
-    theme: "github-dark",
+    theme: theme === "dark" ? "github-dark" : "github-light",
   });
 }

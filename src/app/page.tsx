@@ -21,7 +21,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 relative">
           <div className="text-center">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-              <span className="bg-linear-to-r from-zinc-100 via-white to-zinc-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-zinc-600 via-zinc-900 to-black dark:from-zinc-100 dark:via-white dark:to-zinc-400 bg-clip-text text-transparent">
                 TeachMate
               </span>
             </h1>

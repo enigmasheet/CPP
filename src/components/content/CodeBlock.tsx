@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { Copy, Check } from "lucide-react";
 
 interface CodeBlockProps {
@@ -14,14 +15,16 @@ export default function CodeBlock({
   language = "cpp",
   showLineNumbers = false,
 }: CodeBlockProps) {
+  const { theme } = useTheme();
   const [html, setHtml] = useState("");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    const resolvedTheme = theme === "dark" || theme === "light" ? theme : "dark";
     import("@/lib/shiki").then(({ highlightCode }) => {
-      highlightCode(code, language).then(setHtml);
+      highlightCode(code, language, resolvedTheme).then(setHtml);
     });
-  }, [code, language]);
+  }, [code, language, theme]);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);

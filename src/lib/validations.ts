@@ -86,6 +86,7 @@ export const sessionAnswerSchema = z.object({
   contentType: z.enum(["mcq", "game"]),
   selected: z.number().int().min(0).optional(),
   score: z.number().optional(),
+  totalQuestions: z.number().int().positive().optional(),
 });
 
 export const sessionSubmitSchema = z.object({

@@ -62,19 +62,6 @@ const EMPTY_FORM = {
   tags: "",
 };
 
-const TOPICS = [
-  "basics",
-  "control-flow",
-  "functions",
-  "arrays-strings",
-  "pointers-references",
-  "structures",
-  "oop",
-  "file-handling",
-  "stl",
-  "practice",
-];
-
 export default function MCQManagement() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -141,6 +128,8 @@ export default function MCQManagement() {
       difficultyFilter === "all" || mcq.difficulty === difficultyFilter;
     return matchesSearch && matchesTopic && matchesDifficulty;
   });
+
+  const availableTopics = [...new Set(mcqs.map((m) => m.topic))].sort();
 
   const openCreate = () => {
     setEditingId(null);
@@ -214,20 +203,20 @@ export default function MCQManagement() {
             className="pl-9"
           />
         </div>
-        <Select value={topicFilter} onValueChange={(v) => setTopicFilter(v || "all")}>
+        <Select value={topicFilter} onValueChange={(v) => setTopicFilter((v as string) || "all")}>
           <SelectTrigger className="w-full sm:w-40">
             <SelectValue placeholder="Topic" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Topics</SelectItem>
-            {TOPICS.map((t) => (
+            {availableTopics.map((t) => (
               <SelectItem key={t} value={t}>
                 {t}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Select value={difficultyFilter} onValueChange={(v) => setDifficultyFilter(v || "all")}>
+        <Select value={difficultyFilter} onValueChange={(v) => setDifficultyFilter((v as string) || "all")}>
           <SelectTrigger className="w-full sm:w-36">
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
@@ -320,13 +309,13 @@ export default function MCQManagement() {
                 <label className="text-sm font-medium">Topic</label>
                 <Select
                   value={form.topic}
-                  onValueChange={(v) => setForm((p) => ({ ...p, topic: v || "" }))}
+                  onValueChange={(v) => setForm((p) => ({ ...p, topic: (v as string) || "" }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select topic" />
                   </SelectTrigger>
                   <SelectContent>
-                    {TOPICS.map((t) => (
+                    {availableTopics.map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
                       </SelectItem>
@@ -339,7 +328,7 @@ export default function MCQManagement() {
                 <Select
                   value={form.difficulty}
                   onValueChange={(v) =>
-                    setForm((p) => ({ ...p, difficulty: (v || "medium") as "easy" | "medium" | "hard" }))
+                    setForm((p) => ({ ...p, difficulty: ((v as string) || "medium") as "easy" | "medium" | "hard" }))
                   }
                 >
                   <SelectTrigger>

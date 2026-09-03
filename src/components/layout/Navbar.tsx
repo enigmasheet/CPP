@@ -67,7 +67,7 @@ export default function Navbar() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg">
           <FlaskConical className="w-5 h-5" />
-          <span className="bg-linear-to-r from-zinc-100 via-white to-zinc-400 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-zinc-600 via-zinc-900 to-black dark:from-zinc-100 dark:via-white dark:to-zinc-400 bg-clip-text text-transparent">
             TeachMate
           </span>
         </Link>

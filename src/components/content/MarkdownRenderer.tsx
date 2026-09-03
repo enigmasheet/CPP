@@ -10,7 +10,7 @@ interface MarkdownRendererProps {
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
-    <div className="prose prose-invert max-w-none">
+    <div className="prose dark:prose-invert max-w-none">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -69,7 +69,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
               >
                 {children}
               </a>
