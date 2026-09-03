@@ -8,13 +8,6 @@ import { notFound } from "next/navigation";
 import { teacherNotes } from "@/data/teacher-notes";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
 
-function stripTeachingTips(content: string): string {
-  return content
-    .split("\n")
-    .filter((line) => !line.match(/^\s*>\s*\*\*Teaching Tip:?\*\*/i))
-    .join("\n");
-}
-
 const DIFFICULTY_COLORS = {
   beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
   intermediate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
@@ -33,7 +26,7 @@ export default async function LearnTopicPage({
   if (!topic) return notFound();
   const topics = getTopics(slug);
 
-  const topicNotes = teacherNotes.filter(n => !n.teacherOnly);
+  const topicNotes = teacherNotes.filter(n => n.topic === topicSlug && !n.teacherOnly);
 
   const currentIdx = topics.findIndex((t) => t.slug === topicSlug);
   const prevTopic = currentIdx > 0 ? topics[currentIdx - 1] : null;
@@ -97,7 +90,7 @@ export default async function LearnTopicPage({
                     </span>
                   </div>
                   <div className="prose prose-invert prose-sm max-w-none">
-                    <MarkdownRenderer content={stripTeachingTips(note.content)} />
+                    <MarkdownRenderer content={note.content} />
                   </div>
                 </div>
               ))}
