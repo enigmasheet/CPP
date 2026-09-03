@@ -59,7 +59,7 @@ const EMPTY_FORM = {
     { text: "", isCorrect: false },
   ] as MCQOption[],
   explanation: "",
-  difficulty: "medium" as const,
+  difficulty: "medium" as "easy" | "medium" | "hard",
   tags: "",
 };
 
@@ -220,7 +220,7 @@ export default function MCQManagement() {
             className="pl-9"
           />
         </div>
-        <Select value={topicFilter} onValueChange={setTopicFilter}>
+        <Select value={topicFilter} onValueChange={(v) => setTopicFilter(v || "all")}>
           <SelectTrigger className="w-full sm:w-40">
             <SelectValue placeholder="Topic" />
           </SelectTrigger>
@@ -233,7 +233,7 @@ export default function MCQManagement() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+        <Select value={difficultyFilter} onValueChange={(v) => setDifficultyFilter(v || "all")}>
           <SelectTrigger className="w-full sm:w-36">
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
@@ -326,7 +326,7 @@ export default function MCQManagement() {
                 <label className="text-sm font-medium">Topic</label>
                 <Select
                   value={form.topic}
-                  onValueChange={(v) => setForm((p) => ({ ...p, topic: v }))}
+                  onValueChange={(v) => setForm((p) => ({ ...p, topic: v || "" }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select topic" />

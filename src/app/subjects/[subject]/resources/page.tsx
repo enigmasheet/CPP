@@ -93,7 +93,7 @@ export default function ResourcesPage() {
             className="pl-9"
           />
         </div>
-        <Select value={topicFilter} onValueChange={setTopicFilter}>
+        <Select value={topicFilter} onValueChange={(v) => setTopicFilter(v || "all")}>
           <SelectTrigger className="w-full sm:w-40">
             <SelectValue placeholder="Topic" />
           </SelectTrigger>
@@ -106,7 +106,7 @@ export default function ResourcesPage() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
+        <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v || "all")}>
           <SelectTrigger className="w-full sm:w-32">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
