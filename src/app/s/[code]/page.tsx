@@ -47,6 +47,7 @@ interface SessionInfo {
   type: string;
   items: SessionItem[];
   isActive: boolean;
+  timeLimit?: number;
 }
 
 interface Answer {
@@ -98,6 +99,7 @@ export default function StudentSessionPage({
 
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [joinError, setJoinError] = useState<string | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number | null>(null);
 
   useEffect(() => {
     fetch(`/api/sessions/${code}`)
@@ -124,6 +126,28 @@ export default function StudentSessionPage({
     const timer = setInterval(() => setTimeTaken((t) => t + 1), 1000);
     return () => clearInterval(timer);
   }, [joined, finished]);
+
+  useEffect(() => {
+    if (!joined || finished || !session?.timeLimit) return;
+    setRemainingTime(session.timeLimit * 60);
+    const countdown = setInterval(() => {
+      setRemainingTime((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(countdown);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(countdown);
+  }, [joined, finished, session?.timeLimit]);
+
+  useEffect(() => {
+    if (remainingTime === 0 && !finished && !submitting) {
+      toast.error("Time's up! Submitting your answers...");
+      submitAnswers(answers);
+    }
+  }, [remainingTime, finished, submitting, answers]);
 
   useEffect(() => {
     if (!joined || !session) return;
@@ -231,6 +255,7 @@ export default function StudentSessionPage({
         studentCode,
         name: name.trim() || undefined,
         answers: finalAnswers,
+        timeTaken,
       }),
     });
     const data = await res.json();
@@ -315,6 +340,7 @@ export default function StudentSessionPage({
               <CardTitle>Ready to Start</CardTitle>
               <p className="text-sm text-muted-foreground">
                 {session.items.length} exercises
+                {session.timeLimit && ` · ${session.timeLimit} min time limit`}
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -512,6 +538,14 @@ export default function StudentSessionPage({
     ? mcqData[currentItem.contentId]
     : null;
 
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const isLowTime = remainingTime !== null && remainingTime <= 60;
+
   return (
     <AppShell>
       <div className="mx-auto max-w-2xl px-4 py-8">
@@ -520,12 +554,16 @@ export default function StudentSessionPage({
             {session.title}
           </p>
           <div className="flex items-center gap-4">
+            {session.timeLimit && remainingTime !== null && (
+              <span className={`text-sm font-mono font-medium px-2 py-0.5 rounded ${isLowTime ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"}`}>
+                {formatTime(remainingTime)}
+              </span>
+            )}
             <Badge variant="outline">
               {currentIndex + 1}/{session.items.length}
             </Badge>
             <span className="text-sm text-muted-foreground font-mono">
-              {Math.floor(timeTaken / 60)}:
-              {(timeTaken % 60).toString().padStart(2, "0")}
+              {formatTime(timeTaken)}
             </span>
           </div>
         </div>

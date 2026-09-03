@@ -50,6 +50,7 @@ export async function GET(
         isActive: session.isActive,
         section: session.section,
         items: session.items,
+        timeLimit: session.timeLimit,
         createdAt: session.createdAt,
       },
       results: results.map((r) => ({

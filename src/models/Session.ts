@@ -15,6 +15,7 @@ export interface ISessionDoc extends Document {
   createdBy: string;
   section?: string;
   maxAttempts?: number;
+  timeLimit?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +46,7 @@ const SessionSchema = new Schema<ISessionDoc>(
     createdBy: { type: String, default: "teacher" },
     section: { type: String },
     maxAttempts: { type: Number },
+    timeLimit: { type: Number },
   },
   { timestamps: true }
 );

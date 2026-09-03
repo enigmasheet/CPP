@@ -48,6 +48,7 @@ export const createSessionSchema = z.object({
   items: z.array(sessionItemSchema).min(1, "At least 1 item required"),
   section: z.string().max(100).optional(),
   maxAttempts: z.number().int().positive().optional(),
+  timeLimit: z.number().int().positive().optional(),
 });
 
 export const updateSessionSchema = z.object({

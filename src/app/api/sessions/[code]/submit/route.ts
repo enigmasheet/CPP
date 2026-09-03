@@ -29,7 +29,7 @@ export async function POST(
       );
     }
 
-    const { studentCode, name, answers } = parsed.data;
+    const { studentCode, name, answers, timeTaken } = parsed.data;
 
     const existing = await SessionResult.findOne({
       sessionId: session._id,
@@ -75,6 +75,14 @@ export async function POST(
     const percentage =
       totalPossible > 0 ? Math.round((totalScore / totalPossible) * 100) : 0;
 
+    let finalPercentage = percentage;
+    if (session.timeLimit && timeTaken && timeTaken > 0) {
+      const timeLimitSeconds = session.timeLimit * 60;
+      const halfTime = timeLimitSeconds * 0.5;
+      const timeBonus = Math.max(0.5, Math.min(1, 1 - ((timeTaken - halfTime) / halfTime)));
+      finalPercentage = Math.round(percentage * timeBonus);
+    }
+
     const result = await SessionResult.create({
       sessionId: session._id,
       studentCode,
@@ -82,7 +90,8 @@ export async function POST(
       answers: gradedAnswers,
       totalScore,
       totalPossible,
-      percentage,
+      percentage: finalPercentage,
+      timeTaken: timeTaken || undefined,
     });
 
     const allResults = await SessionResult.find({ sessionId: session._id })

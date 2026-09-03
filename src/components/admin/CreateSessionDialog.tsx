@@ -55,6 +55,7 @@ export default function CreateSessionDialog() {
   const [createdCode, setCreatedCode] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [copied, setCopied] = useState(false);
+  const [timeLimit, setTimeLimit] = useState("");
 
   const loadMcqs = async () => {
     const res = await fetch("/api/mcq?limit=100");
@@ -74,6 +75,7 @@ export default function CreateSessionDialog() {
       setCreatedCode(null);
       setSearchQuery("");
       setCopied(false);
+      setTimeLimit("");
     }
   };
 
@@ -110,6 +112,7 @@ export default function CreateSessionDialog() {
         type: contentType,
         items,
         section: section || undefined,
+        timeLimit: timeLimit ? parseInt(timeLimit) : undefined,
       }),
     });
 
@@ -203,6 +206,7 @@ export default function CreateSessionDialog() {
                   setSelectedMcqs([]);
                   setSelectedGames([]);
                   setContentType("quiz");
+                  setTimeLimit("");
                 }}
               >
                 Create Another Session
@@ -228,6 +232,18 @@ export default function CreateSessionDialog() {
                   onChange={(e) => setSection(e.target.value)}
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Time Limit (minutes)</label>
+              <Input
+                type="number"
+                placeholder="No time limit"
+                min="1"
+                value={timeLimit}
+                onChange={(e) => setTimeLimit(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">Leave empty for no time limit. Session auto-closes when time expires.</p>
             </div>
 
             <div className="space-y-3">

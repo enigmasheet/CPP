@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
     const body = await request.json();
-    const { title, type, items, section, maxAttempts } = body;
+    const { title, type, items, section, maxAttempts, timeLimit } = body;
 
     if (!title || !type || !items || items.length === 0) {
       return NextResponse.json(
@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
       items,
       section,
       maxAttempts,
+      timeLimit,
     });
 
     const mcqIds = items

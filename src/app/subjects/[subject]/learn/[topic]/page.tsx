@@ -1,12 +1,12 @@
 import AppShell from "@/components/layout/AppShell";
+import TopicSidebar from "@/components/layout/TopicSidebar";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Clock, ChevronRight, Menu } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, ChevronRight } from "lucide-react";
 import { getSubject, getTopics, getTopic } from "@/config/subjects";
 import { notFound } from "next/navigation";
 import { teacherNotes } from "@/data/teacher-notes";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 function stripTeachingTips(content: string): string {
   return content
@@ -80,30 +80,7 @@ export default async function LearnTopicPage({
             </div>
           </nav>
 
-          <Sheet>
-            <SheetTrigger className="lg:hidden inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted">
-              <Menu className="w-5 h-5" />
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72">
-              <nav className="flex flex-col gap-2 mt-8">
-                <p className="text-xs font-medium text-muted-foreground mb-2 px-3">Topics</p>
-                {topics.map((t) => (
-                  <Link
-                    key={t.slug}
-                    href={`/subjects/${slug}/learn/${t.slug}`}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
-                      t.slug === topicSlug
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                    onClick={() => {}}
-                  >
-                    {t.name}
-                  </Link>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
+          <TopicSidebar topics={topics} slug={slug} topicSlug={topicSlug} />
 
           <div className="space-y-8">
             <div className="space-y-6">

@@ -16,6 +16,7 @@ export interface ISessionResultDoc extends Document {
   totalScore: number;
   totalPossible: number;
   percentage: number;
+  timeTaken?: number;
   completedAt: Date;
 }
 
@@ -42,6 +43,7 @@ const SessionResultSchema = new Schema<ISessionResultDoc>({
   totalScore: { type: Number, required: true },
   totalPossible: { type: Number, required: true },
   percentage: { type: Number, required: true },
+  timeTaken: { type: Number },
   completedAt: { type: Date, default: Date.now },
 });
 

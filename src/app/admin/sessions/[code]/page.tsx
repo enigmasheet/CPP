@@ -24,6 +24,7 @@ import {
   Trophy,
   BookOpen,
   HelpCircle,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import QRCode from "@/components/shared/QRCode";
@@ -32,9 +33,10 @@ interface SessionData {
   code: string;
   title: string;
   type: string;
-  isActive: boolean;
   section?: string;
-  items: { contentType: string; contentId: string; gameType?: string }[];
+  isActive: boolean;
+  items: { contentType: string; contentId: string }[];
+  timeLimit?: number;
   createdAt: string;
 }
 
@@ -44,6 +46,7 @@ interface Result {
   totalScore: number;
   totalPossible: number;
   percentage: number;
+  timeTaken?: number;
   completedAt: string;
 }
 
@@ -184,6 +187,12 @@ export default function SessionDetailPage({
                   <span>
                     {session.items?.filter((i) => i.contentType === "mcq").length || 0} MCQs
                   </span>
+                  {session.timeLimit && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {session.timeLimit} min
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
@@ -265,6 +274,7 @@ export default function SessionDetailPage({
                         <TableHead>Student</TableHead>
                         <TableHead>Score</TableHead>
                         <TableHead>Percentage</TableHead>
+                        <TableHead className="hidden sm:table-cell">Time</TableHead>
                         <TableHead className="hidden sm:table-cell">Completed</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -293,6 +303,9 @@ export default function SessionDetailPage({
                             >
                               {r.percentage}%
                             </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground hidden sm:table-cell font-mono">
+                            {r.timeTaken ? `${Math.floor(r.timeTaken / 60)}:${(r.timeTaken % 60).toString().padStart(2, "0")}` : "—"}
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground hidden sm:table-cell">
                             {new Date(r.completedAt).toLocaleTimeString()}
