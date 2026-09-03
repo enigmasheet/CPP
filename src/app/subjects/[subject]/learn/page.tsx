@@ -1,17 +1,10 @@
 import AppShell from "@/components/layout/AppShell";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, ArrowRight } from "lucide-react";
 import { getSubject, getTopics } from "@/config/subjects";
 import { notFound } from "next/navigation";
 import { teacherNotes } from "@/data/teacher-notes";
-
-const DIFFICULTY_COLORS = {
-  beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-  intermediate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-  advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-};
 
 export default async function LearnPage({
   params,
