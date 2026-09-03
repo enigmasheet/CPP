@@ -5,18 +5,36 @@ import SessionResult from "@/models/SessionResult";
 import AuditLog from "@/models/AuditLog";
 import MCQ from "@/models/MCQ";
 import { sessionSubmitSchema } from "@/lib/validations";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
 ) {
   try {
+    const ip = getClientIp(request);
+    const { allowed } = rateLimit(`submit:${ip}`, 10, 60000);
+
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many submit attempts. Try again later." },
+        { status: 429 }
+      );
+    }
+
     await connectDB();
     const { code } = await params;
     const session = await Session.findOne({ code: code.toUpperCase() });
 
     if (!session) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
+    }
+
+    if (!session.isActive) {
+      return NextResponse.json(
+        { error: "This session is no longer active" },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();

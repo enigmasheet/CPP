@@ -22,7 +22,8 @@ export default async function LearnPage({
   if (!subject) return notFound();
   const topics = getTopics(slug);
 
-  const totalMinutes = teacherNotes.reduce((sum, n) => sum + n.estimatedMinutes, 0);
+  const studentNotes = teacherNotes.filter(n => !n.teacherOnly);
+  const totalMinutes = studentNotes.reduce((sum, n) => sum + n.estimatedMinutes, 0);
 
   return (
     <AppShell>
@@ -37,12 +38,12 @@ export default async function LearnPage({
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Learn {subject.name.replace(" Programming", "")}</h1>
           <p className="mt-2 text-muted-foreground">
-            {teacherNotes.length} sections covering fundamentals to advanced concepts
+            {studentNotes.length} sections covering fundamentals to advanced concepts
           </p>
           <div className="flex gap-4 mt-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
               <BookOpen className="w-4 h-4" />
-              {teacherNotes.length} sections
+              {studentNotes.length} sections
             </span>
             <span className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
@@ -78,10 +79,10 @@ export default async function LearnPage({
         <div className="mt-12">
           <h2 className="text-xl font-bold mb-4">Full Curriculum</h2>
           <div className="grid gap-3">
-            {teacherNotes.map((note) => (
+            {teacherNotes.filter(n => !n.teacherOnly).map((note) => (
               <Link
                 key={note.id}
-                href={`/subjects/${slug}/learn/basics?section=${note.id}`}
+                href={`/subjects/${slug}/learn/${note.topic}`}
               >
                 <Card className="transition-all hover:border-primary/50 cursor-pointer">
                   <CardContent className="py-3 px-4">

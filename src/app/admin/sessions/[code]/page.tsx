@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import QRCode from "@/components/shared/QRCode";
+import EditSessionDialog from "@/components/admin/EditSessionDialog";
 
 interface SessionData {
   code: string;
@@ -57,6 +58,11 @@ interface Stats {
   lowestPercentage: number;
 }
 
+interface QuestionAnalytic {
+  totalAttempts: number;
+  correctCount: number;
+}
+
 const STUDENT_NAMES = [
   "Student A", "Student B", "Student C", "Student D", "Student E",
   "Student F", "Student G", "Student H", "Student I", "Student J",
@@ -79,8 +85,10 @@ export default function SessionDetailPage({
   const [session, setSession] = useState<SessionData | null>(null);
   const [results, setResults] = useState<Result[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [questionAnalytics, setQuestionAnalytics] = useState<Record<string, QuestionAnalytic>>({});
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     fetch(`/api/sessions/${code}/results`)
@@ -89,9 +97,24 @@ export default function SessionDetailPage({
         setSession(data.session);
         setResults(data.results);
         setStats(data.stats);
+        setQuestionAnalytics(data.questionAnalytics || {});
         setLoading(false);
       });
   }, [code]);
+
+  useEffect(() => {
+    if (!session?.isActive) return;
+    const interval = setInterval(() => {
+      fetch(`/api/sessions/${code}/results`)
+        .then((r) => r.json())
+        .then((data) => {
+          setResults(data.results);
+          setStats(data.stats);
+          setQuestionAnalytics(data.questionAnalytics || {});
+        });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [code, session?.isActive]);
 
   const toggleActive = async () => {
     if (!session) return;
@@ -201,6 +224,14 @@ export default function SessionDetailPage({
                     {copied ? "Copied!" : "Copy Link"}
                   </Button>
                   <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setEditOpen(true)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
                     variant={session.isActive ? "secondary" : "default"}
                     size="sm"
                     className="flex-1"
@@ -226,6 +257,12 @@ export default function SessionDetailPage({
                 >
                   {session.isActive ? "Active - Accepting Responses" : "Closed"}
                 </Badge>
+                {session.isActive && (
+                  <Badge variant="outline" className="w-full justify-center mt-2 text-green-600 dark:text-green-400">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse mr-2" />
+                    Live - Auto-updating
+                  </Badge>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -255,6 +292,64 @@ export default function SessionDetailPage({
                   </CardContent>
                 </Card>
               </div>
+            )}
+
+            <div className="flex justify-end">
+              <Button variant="outline" size="sm" onClick={() => {
+                const headers = ["Name", "Student Code", "Score", "Percentage", "Time (s)", "Completed"];
+                const rows = results.map((r) => [
+                  r.name || `Student ${r.studentCode}`,
+                  r.studentCode,
+                  `${r.totalScore}/${r.totalPossible}`,
+                  `${r.percentage}%`,
+                  r.timeTaken?.toString() || "",
+                  new Date(r.completedAt).toLocaleString(),
+                ]);
+                const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n");
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${session?.title || code}-results.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}>
+                Export CSV
+              </Button>
+            </div>
+
+            {Object.keys(questionAnalytics).length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Question Analytics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {Object.entries(questionAnalytics).map(([id, qa]) => {
+                      const correctPct = qa.totalAttempts > 0 ? Math.round((qa.correctCount / qa.totalAttempts) * 100) : 0;
+                      return (
+                        <div key={id} className="flex items-center gap-3">
+                          <span className="text-xs font-mono text-muted-foreground w-20 shrink-0 truncate" title={id}>
+                            {id.slice(-6)}
+                          </span>
+                          <div className="flex-1">
+                            <div className="h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${correctPct >= 70 ? "bg-green-500" : correctPct >= 40 ? "bg-yellow-500" : "bg-red-500"}`}
+                                style={{ width: `${correctPct}%` }}
+                              />
+                            </div>
+                          </div>
+                          <span className="text-xs font-medium w-12 text-right">{correctPct}%</span>
+                          <span className="text-xs text-muted-foreground w-16 text-right">
+                            {qa.correctCount}/{qa.totalAttempts}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             <Card>
@@ -320,6 +415,22 @@ export default function SessionDetailPage({
           </div>
         </div>
       </div>
+      {session && (
+        <EditSessionDialog
+          session={session}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onUpdated={() => {
+            fetch(`/api/sessions/${code}/results`)
+              .then((r) => r.json())
+              .then((data) => {
+                setSession(data.session);
+                setResults(data.results);
+                setStats(data.stats);
+              });
+          }}
+        />
+      )}
     </AppShell>
   );
 }

@@ -12,7 +12,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Eye, EyeOff, Link2, Loader2, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Link2, Loader2, Trash2, Users, BarChart } from "lucide-react";
 import Link from "next/link";
 
 interface Session {
@@ -23,6 +23,8 @@ interface Session {
   isActive: boolean;
   items: { contentType: string; contentId: string; gameType?: string }[];
   createdAt: string;
+  submissions?: number;
+  avgScore?: number | null;
 }
 
 export default function SessionsList() {
@@ -94,6 +96,18 @@ export default function SessionsList() {
                     <span className="mx-1.5">-</span>
                     {new Date(session.createdAt).toLocaleDateString()}
                   </p>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Users className="w-3 h-3" />
+                      {session.submissions ?? 0} submissions
+                    </span>
+                    {session.avgScore !== null && session.avgScore !== undefined && (
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <BarChart className="w-3 h-3" />
+                        Avg: {session.avgScore}%
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -108,6 +122,7 @@ export default function SessionsList() {
                   size="icon-sm"
                   onClick={() => toggleActive(session.code, session.isActive)}
                   title={session.isActive ? "Close session" : "Open session"}
+                  aria-label={session.isActive ? "Close session" : "Open session"}
                 >
                   {session.isActive ? (
                     <EyeOff className="w-4 h-4" />
@@ -119,6 +134,7 @@ export default function SessionsList() {
                   href={`/admin/sessions/${session.code}`}
                   className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
                   title="View session"
+                  aria-label="View session"
                 >
                   <Link2 className="w-4 h-4" />
                 </Link>

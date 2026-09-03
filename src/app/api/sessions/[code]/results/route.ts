@@ -42,6 +42,20 @@ export async function GET(
         : 0,
     };
 
+    const questionAnalytics: Record<string, { totalAttempts: number; correctCount: number }> = {};
+    for (const result of results) {
+      for (const answer of result.answers) {
+        const id = answer.contentId.toString();
+        if (!questionAnalytics[id]) {
+          questionAnalytics[id] = { totalAttempts: 0, correctCount: 0 };
+        }
+        questionAnalytics[id].totalAttempts++;
+        if (answer.isCorrect) {
+          questionAnalytics[id].correctCount++;
+        }
+      }
+    }
+
     return NextResponse.json({
       session: {
         code: session.code,
@@ -59,9 +73,11 @@ export async function GET(
         totalScore: r.totalScore,
         totalPossible: r.totalPossible,
         percentage: r.percentage,
+        timeTaken: r.timeTaken,
         completedAt: r.completedAt,
       })),
       stats,
+      questionAnalytics,
     });
   } catch {
     return NextResponse.json(

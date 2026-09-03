@@ -6,7 +6,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck, LogOut } from "lucide-react";
+import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck, LogOut, HelpCircle } from "lucide-react";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import CreateSessionDialog from "@/components/admin/CreateSessionDialog";
 import SessionsList from "@/components/admin/SessionsList";
@@ -15,9 +15,11 @@ const TeacherNotes = lazy(() => import("@/components/admin/TeacherNotes"));
 const CppKnowledge = lazy(() => import("@/components/admin/CppKnowledge"));
 const AuditLogTab = lazy(() => import("@/components/admin/AuditLog"));
 const TeachingPlanTab = lazy(() => import("@/components/admin/TeachingPlan"));
+const MCQManagementTab = lazy(() => import("@/components/admin/MCQManagement"));
 
 const TABS = [
   { id: "sessions", label: "Sessions", icon: FlaskConical },
+  { id: "mcqs", label: "MCQs", icon: HelpCircle },
   { id: "audit", label: "Audit Log", icon: ClipboardList },
   { id: "plans", label: "Teaching Plan", icon: CalendarCheck },
   { id: "notes", label: "Teacher Notes", icon: BookOpen },
@@ -26,6 +28,7 @@ const TABS = [
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,7 +39,8 @@ export default function AdminPage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.authenticated) setIsAuthenticated(true);
-      });
+      })
+      .finally(() => setAuthLoading(false));
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -63,6 +67,16 @@ export default function AdminPage() {
     setIsAuthenticated(false);
     setPassword("");
   };
+
+  if (authLoading) {
+    return (
+      <AppShell>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-6 h-6 animate-spin" />
+        </div>
+      </AppShell>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -133,6 +147,11 @@ export default function AdminPage() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
         {activeTab === "sessions" && <SessionsList />}
+        {activeTab === "mcqs" && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <MCQManagementTab />
+          </Suspense>
+        )}
         {activeTab === "audit" && (
           <Suspense fallback={<LoadingSpinner />}>
             <AuditLogTab />

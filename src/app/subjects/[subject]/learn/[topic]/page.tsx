@@ -77,7 +77,11 @@ export default async function LearnTopicPage({
 
           <div className="space-y-8">
             <div className="space-y-6">
-              {topicNotes.map((note) => (
+              {topicNotes.length === 0 ? (
+                <div className="border border-border rounded-lg p-8 text-center">
+                  <p className="text-muted-foreground">No content available for this topic yet.</p>
+                </div>
+              ) : topicNotes.map((note) => (
                 <div key={note.id} className="border border-border rounded-lg p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <h2 className="text-lg font-bold">{note.title}</h2>

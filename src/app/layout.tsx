@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -14,10 +15,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background antialiased">
-        <Toaster />
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <Toaster />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -13,7 +13,6 @@ import {
   ArrowRight,
   Loader2,
   ClipboardList,
-  Gamepad2,
   Lock,
   CheckCircle,
   XCircle,
@@ -21,9 +20,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import OutputPredictor from "@/components/games/OutputPredictor";
 
 interface MCQOption {
   text: string;
+  isCorrect?: boolean;
 }
 
 interface MCQData {
@@ -54,6 +55,7 @@ interface Answer {
   contentId: string | undefined;
   contentType: string | undefined;
   selected: number | null;
+  score?: number;
 }
 
 interface FinalResult {
@@ -94,6 +96,7 @@ export default function StudentSessionPage({
 
   const [mcqData, setMcqData] = useState<Record<string, MCQData>>({});
   const mcqIdsLoaded = useRef(new Set<string>());
+  const [gameQuestions, setGameQuestions] = useState<Record<string, unknown[]>>({});
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
@@ -186,26 +189,42 @@ export default function StudentSessionPage({
     if (mcqIds.length === 0) return;
 
     const loadMcqs = async () => {
-      const results = await Promise.all(
-        mcqIds.map((id) =>
-          fetch(`/api/mcq/${id}`)
-            .then((r) => r.json())
-            .then((data) => (data.error ? null : data))
-            .catch(() => null)
-        )
-      );
-      const map: Record<string, MCQData> = {};
-      results.forEach((mcq) => {
-        if (mcq && mcq._id) {
-          map[mcq._id] = mcq;
-        }
+      const res = await fetch("/api/mcq/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: mcqIds }),
       });
+      const data = await res.json();
+      const map: Record<string, MCQData> = {};
+      if (Array.isArray(data)) {
+        data.forEach((mcq: MCQData) => {
+          if (mcq && mcq._id) {
+            map[mcq._id] = mcq;
+          }
+        });
+      }
       setMcqData((prev) => ({ ...prev, ...map }));
       mcqIds.forEach((id) => mcqIdsLoaded.current.add(id));
     };
 
     loadMcqs();
   }, [joined, session]);
+
+  useEffect(() => {
+    if (!joined || !session) return;
+    const gameItems = session.items.filter((item) => item.contentType === "game" && item.gameType);
+    for (const item of gameItems) {
+      if (gameQuestions[item.contentId]) continue;
+      fetch(`/api/games/${item.gameType}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setGameQuestions((prev) => ({ ...prev, [item.contentId]: data }));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [joined, session, gameQuestions]);
 
   useEffect(() => {
     if (!finished || !studentCode) return;
@@ -467,7 +486,8 @@ export default function StudentSessionPage({
                   if (!mcq) return null;
                   const wasCorrect =
                     answer.selected !== null &&
-                    mcq.options[answer.selected]?.text !== undefined;
+                    mcq.options[answer.selected]?.isCorrect === true;
+                  const correctIdx = mcq.options.findIndex((o) => o.isCorrect);
                   return (
                     <div
                       key={idx}
@@ -491,16 +511,22 @@ export default function StudentSessionPage({
                           <div className="mt-2 space-y-1">
                             {mcq.options.map((opt, oIdx) => {
                               const isStudentAnswer = answer.selected === oIdx;
+                              const isCorrectAnswer = oIdx === correctIdx;
                               return (
                                 <div
                                   key={oIdx}
                                    className={`text-xs px-2 py-1 rounded ${
-                                    isStudentAnswer && !wasCorrect
+                                    isCorrectAnswer
+                                      ? "bg-green-500/10 text-green-600 dark:text-green-400 font-medium"
+                                      : isStudentAnswer && !wasCorrect
                                       ? "bg-destructive/10 text-destructive"
                                       : "text-muted-foreground"
                                   }`}
                                 >
                                   {String.fromCharCode(65 + oIdx)}. {opt.text}
+                                  {isCorrectAnswer && !isStudentAnswer && (
+                                    <span className="ml-1 text-[10px]">(correct)</span>
+                                  )}
                                 </div>
                               );
                             })}
@@ -584,25 +610,37 @@ export default function StudentSessionPage({
             </CardContent>
           </Card>
         ) : currentItem.contentType === "game" ? (
-          <Card className="mb-6">
-            <CardContent className="pt-6 text-center">
-              <Gamepad2 className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <p className="font-medium">Game: {currentItem.gameType}</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                This game is coming soon. Skipping...
-              </p>
-              <Button onClick={handleNext} className="mt-4" size="lg">
-                {currentIndex === session.items.length - 1 ? (
-                  "Finish Session"
-                ) : (
-                  <>
-                    Skip
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+          gameQuestions[currentItem.contentId] ? (
+            <div className="mb-6">
+              <OutputPredictor
+                questions={gameQuestions[currentItem.contentId] as never[]}
+                onComplete={(gameScore) => {
+                  const answer: Answer = {
+                    contentId: currentItem.contentId,
+                    contentType: currentItem.contentType,
+                    selected: null,
+                    score: gameScore,
+                  };
+                  const newAnswers = [...answers, answer];
+                  setAnswers(newAnswers);
+                  if (currentIndex < session.items.length - 1) {
+                    setCurrentIndex(currentIndex + 1);
+                    setSelected(null);
+                    setShowResult(false);
+                  } else {
+                    submitAnswers(newAnswers);
+                  }
+                }}
+              />
+            </div>
+          ) : (
+            <Card className="mb-6">
+              <CardContent className="pt-6 text-center">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Loading game...</p>
+              </CardContent>
+            </Card>
+          )
         ) : currentMcq ? (
           <Card className="mb-6">
             <CardContent className="pt-6">

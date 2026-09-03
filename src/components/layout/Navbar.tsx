@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -21,15 +22,37 @@ import {
   ChevronDown,
   GraduationCap,
   LogOut,
+  Sun,
+  Moon,
+  Search,
 } from "lucide-react";
+import SearchDialog from "@/components/shared/SearchDialog";
 
 const subjects = Object.values(SUBJECTS);
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [isTeacher, setIsTeacher] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setMounted(true));
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const handleLogout = async () => {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -126,6 +149,24 @@ export default function Navbar() {
               </button>
             </>
           )}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className={buttonVariants({ variant: "ghost", size: "sm" })}
+            aria-label="Search"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className={buttonVariants({ variant: "ghost", size: "sm" })}
+            aria-label="Toggle theme"
+          >
+            {mounted && theme === "dark" ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+          </button>
         </nav>
 
         <Sheet open={open} onOpenChange={setOpen}>
@@ -178,9 +219,22 @@ export default function Navbar() {
                   </button>
                 </>
               )}
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className={buttonVariants({ variant: "ghost" })}
+                aria-label="Toggle theme"
+              >
+                {mounted && theme === "dark" ? (
+                  <Sun className="w-4 h-4 mr-3" />
+                ) : (
+                  <Moon className="w-4 h-4 mr-3" />
+                )}
+                {mounted && theme === "dark" ? "Light Mode" : "Dark Mode"}
+              </button>
             </nav>
           </SheetContent>
         </Sheet>
+        <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
       </div>
     </header>
   );

@@ -8,9 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, ChevronLeft, ChevronRight, List, Clock } from "lucide-react";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
-  beginner: "bg-green-500/10 text-green-500 border-green-500/20",
-  intermediate: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-  advanced: "bg-red-500/10 text-red-500 border-red-500/20",
+  beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+  intermediate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+  advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
 };
 
 export default function TeacherNotes() {
@@ -81,6 +81,7 @@ export default function TeacherNotes() {
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
             >
               <List className="w-4 h-4" />
             </Button>
@@ -103,6 +104,7 @@ export default function TeacherNotes() {
                 size="sm"
                 onClick={goPrev}
                 disabled={activeSection === 0}
+                aria-label="Previous section"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -111,6 +113,7 @@ export default function TeacherNotes() {
                 size="sm"
                 onClick={goNext}
                 disabled={activeSection === total - 1}
+                aria-label="Next section"
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>

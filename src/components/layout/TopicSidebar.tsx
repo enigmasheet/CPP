@@ -20,7 +20,7 @@ export default function TopicSidebar({
 }) {
   return (
     <Sheet>
-      <SheetTrigger className="lg:hidden inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+      <SheetTrigger className="lg:hidden inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Open topic navigation">
         <Menu className="w-5 h-5" />
       </SheetTrigger>
       <SheetContent side="left" className="w-72">

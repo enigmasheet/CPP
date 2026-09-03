@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 import Session from "@/models/Session";
+import SessionResult from "@/models/SessionResult";
 import AuditLog from "@/models/AuditLog";
 import MCQ from "@/models/MCQ";
 import { generateSessionCode } from "@/lib/session-code";
@@ -18,7 +19,23 @@ export async function GET() {
       .sort({ createdAt: -1 })
       .lean();
 
-    return NextResponse.json(sessions);
+    const sessionsWithStats = await Promise.all(
+      sessions.map(async (session) => {
+        const results = await SessionResult.find({ sessionCode: session.code })
+          .select("score")
+          .lean();
+        const submissions = results.length;
+        const avgScore =
+          submissions > 0
+            ? Math.round(
+                results.reduce((sum, r) => sum + (r.score || 0), 0) / submissions
+              )
+            : null;
+        return { ...session, submissions, avgScore };
+      })
+    );
+
+    return NextResponse.json(sessionsWithStats);
   } catch {
     return NextResponse.json({ error: "Failed to fetch sessions" }, { status: 500 });
   }
