@@ -80,12 +80,14 @@ export async function POST(
           });
         }
       } else if (answer.contentType === "game") {
-        totalPossible += 100;
+        const gameQuestions = answer.totalQuestions || 5;
+        totalPossible += gameQuestions;
         totalScore += answer.score || 0;
         gradedAnswers.push({
           contentId: answer.contentId,
           contentType: "game",
           score: answer.score,
+          totalQuestions: gameQuestions,
         });
       }
     }
