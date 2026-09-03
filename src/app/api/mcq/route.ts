@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 import MCQ from "@/models/MCQ";
 import { createMCQSchema, mcqQuerySchema } from "@/lib/validations";
+import { DEFAULT_MCQ_FETCH_LIMIT } from "@/lib/constants";
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
       if (parsed.data.subject) filter.subject = parsed.data.subject;
     }
 
-    const limit = parsed.success ? parsed.data.limit ?? 50 : 50;
+    const limit = parsed.success ? parsed.data.limit ?? DEFAULT_MCQ_FETCH_LIMIT : DEFAULT_MCQ_FETCH_LIMIT;
     const mcqs = await MCQ.find(filter).limit(limit).lean();
     return NextResponse.json(mcqs);
   } catch {

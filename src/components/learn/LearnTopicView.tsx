@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -55,16 +55,16 @@ export default function LearnTopicView({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentNoteIdx, setCurrentNoteIdx] = useState(0);
-  const [completed, setCompleted] = useState<Set<number>>(new Set());
-
-  useEffect(() => {
+  const [completed, setCompleted] = useState<Set<number>>(() => {
+    if (typeof window === "undefined") return new Set();
     const saved = localStorage.getItem(getStorageKey(slug, currentTopic.slug));
     if (saved) {
       try {
-        setCompleted(new Set(JSON.parse(saved)));
+        return new Set(JSON.parse(saved));
       } catch {}
     }
-  }, [slug, currentTopic.slug]);
+    return new Set();
+  });
 
   const toggleComplete = (noteId: number) => {
     setCompleted((prev) => {

@@ -12,8 +12,8 @@
     "id": "sc-2",
     "question": "Complete the for loop:",
     "codeSnippet": "for (int i = 0; i < 10; ___) {\n    cout << i;\n}",
-    "options": ["i++", "i--", "i+=2", "i--"],
-    "correctAnswer": 0,
+    "options": ["i--", "i++", "i+=2", "i*=2"],
+    "correctAnswer": 1,
     "timeLimit": 25,
     "difficulty": "easy"
   },
@@ -21,8 +21,8 @@
     "id": "sc-3",
     "question": "Complete the function declaration:",
     "codeSnippet": "___ add(int a, int b) {\n    return a + b;\n}",
-    "options": ["int", "void", "string", "bool"],
-    "correctAnswer": 0,
+    "options": ["void", "int", "string", "bool"],
+    "correctAnswer": 1,
     "timeLimit": 20,
     "difficulty": "easy"
   },
@@ -30,8 +30,8 @@
     "id": "sc-4",
     "question": "Complete the if statement:",
     "codeSnippet": "int x = 10;\nif (x ___ 5) {\n    cout << \"Greater\";\n}",
-    "options": [">", "<", "==", "!="],
-    "correctAnswer": 0,
+    "options": ["<", "==", ">", "!="],
+    "correctAnswer": 2,
     "timeLimit": 20,
     "difficulty": "easy"
   },
@@ -39,8 +39,8 @@
     "id": "sc-5",
     "question": "Complete the array declaration:",
     "codeSnippet": "___ arr[5] = {1, 2, 3, 4, 5};",
-    "options": ["int", "string", "char", "float"],
-    "correctAnswer": 0,
+    "options": ["string", "char", "int", "float"],
+    "correctAnswer": 2,
     "timeLimit": 15,
     "difficulty": "easy"
   }

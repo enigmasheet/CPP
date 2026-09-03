@@ -6,6 +6,16 @@ import AuditLog from "@/models/AuditLog";
 import MCQ from "@/models/MCQ";
 import { sessionSubmitSchema } from "@/lib/validations";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import {
+  SESSION_SUBMIT_MAX_ATTEMPTS,
+  SESSION_SUBMIT_RATE_WINDOW_MS,
+  DEFAULT_GAME_TOTAL_QUESTIONS,
+  MINUTES_TO_SECONDS,
+  TIME_BONUS_HALF_TIME_RATIO,
+  MIN_TIME_BONUS,
+  MAX_TIME_BONUS,
+  AUDIT_STATUSES,
+} from "@/lib/constants";
 
 export async function POST(
   request: NextRequest,
@@ -13,7 +23,7 @@ export async function POST(
 ) {
   try {
     const ip = getClientIp(request);
-    const { allowed } = rateLimit(`submit:${ip}`, 10, 60000);
+    const { allowed } = rateLimit(`submit:${ip}`, SESSION_SUBMIT_MAX_ATTEMPTS, SESSION_SUBMIT_RATE_WINDOW_MS);
 
     if (!allowed) {
       return NextResponse.json(
@@ -80,7 +90,7 @@ export async function POST(
           });
         }
       } else if (answer.contentType === "game") {
-        const gameQuestions = answer.totalQuestions || 5;
+        const gameQuestions = answer.totalQuestions || DEFAULT_GAME_TOTAL_QUESTIONS;
         totalPossible += gameQuestions;
         totalScore += answer.score || 0;
         gradedAnswers.push({
@@ -97,9 +107,9 @@ export async function POST(
 
     let finalPercentage = percentage;
     if (session.timeLimit && timeTaken && timeTaken > 0) {
-      const timeLimitSeconds = session.timeLimit * 60;
-      const halfTime = timeLimitSeconds * 0.5;
-      const timeBonus = Math.max(0.5, Math.min(1, 1 - ((timeTaken - halfTime) / halfTime)));
+      const timeLimitSeconds = session.timeLimit * MINUTES_TO_SECONDS;
+      const halfTime = timeLimitSeconds * TIME_BONUS_HALF_TIME_RATIO;
+      const timeBonus = Math.max(MIN_TIME_BONUS, Math.min(MAX_TIME_BONUS, 1 - ((timeTaken - halfTime) / halfTime)));
       finalPercentage = Math.round(percentage * timeBonus);
     }
 
@@ -130,7 +140,7 @@ export async function POST(
         averageScore: avgScore,
         highestScore,
         lowestScore,
-        status: "completed",
+        status: AUDIT_STATUSES[1], // completed
       }
     );
 

@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile } from "fs/promises";
-import { join } from "path";
-
-const GAME_FILES: Record<string, string> = {
-  "output-predictor": "output-predictor.json",
-  "bug-hunter": "bug-hunter.json",
-  "code-golf": "code-golf.json",
-  "speed-code": "speed-code.json",
-  "memory-match": "memory-match.json",
-  "syntax-scramble": "syntax-scramble.json",
-};
+import { GAME_DATA } from "@/data/games";
 
 export async function GET(
   request: NextRequest,
@@ -17,15 +7,11 @@ export async function GET(
 ) {
   try {
     const { gameType } = await params;
-    const fileName = GAME_FILES[gameType];
+    const questions = GAME_DATA[gameType];
 
-    if (!fileName) {
+    if (!questions) {
       return NextResponse.json({ error: "Game not found" }, { status: 404 });
     }
-
-    const filePath = join(process.cwd(), "seed", "games", fileName);
-    const data = await readFile(filePath, "utf-8");
-    const questions = JSON.parse(data);
 
     return NextResponse.json(questions);
   } catch {

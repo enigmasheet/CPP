@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { SESSION_CODE_LENGTH, CONTENT_TYPES, SESSION_TYPES, DEFAULT_SESSION_CREATOR } from "@/lib/constants";
 
 export interface ISessionItem {
   contentType: "mcq" | "game";
@@ -22,7 +23,7 @@ export interface ISessionDoc extends Document {
 
 const SessionItemSchema = new Schema<ISessionItem>(
   {
-    contentType: { type: String, enum: ["mcq", "game"], required: true },
+    contentType: { type: String, enum: CONTENT_TYPES, required: true },
     contentId: { type: Schema.Types.Mixed, required: true },
     gameType: { type: String },
   },
@@ -36,14 +37,14 @@ const SessionSchema = new Schema<ISessionDoc>(
       required: true,
       unique: true,
       uppercase: true,
-      minlength: 6,
-      maxlength: 6,
+      minlength: SESSION_CODE_LENGTH,
+      maxlength: SESSION_CODE_LENGTH,
     },
     title: { type: String, required: true },
-    type: { type: String, enum: ["quiz", "game", "mixed"], required: true },
+    type: { type: String, enum: SESSION_TYPES, required: true },
     items: { type: [SessionItemSchema], required: true, min: 1 },
     isActive: { type: Boolean, default: true },
-    createdBy: { type: String, default: "teacher" },
+    createdBy: { type: String, default: DEFAULT_SESSION_CREATOR },
     section: { type: String },
     maxAttempts: { type: Number },
     timeLimit: { type: Number },

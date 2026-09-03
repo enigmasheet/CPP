@@ -13,6 +13,19 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // ─── Ban magic numbers ─────────────────────────────────
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "Literal[type='number']",
+          message:
+            "Magic number detected. Extract it to a named constant in src/lib/constants.ts",
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

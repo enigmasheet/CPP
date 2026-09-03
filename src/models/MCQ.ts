@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { DIFFICULTY_LEVELS, DEFAULT_MCQ_DIFFICULTY } from "@/lib/constants";
 
 export interface IMCQDoc extends Document {
   subject: mongoose.Types.ObjectId;
@@ -22,7 +23,7 @@ const MCQSchema = new Schema<IMCQDoc>({
     isCorrect: { type: Boolean, required: true },
   }],
   explanation: { type: String, required: true },
-  difficulty: { type: String, enum: ["easy", "medium", "hard"], default: "medium" },
+  difficulty: { type: String, enum: DIFFICULTY_LEVELS, default: DEFAULT_MCQ_DIFFICULTY },
   tags: [String],
   createdAt: { type: Date, default: Date.now },
 });

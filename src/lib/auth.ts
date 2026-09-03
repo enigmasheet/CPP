@@ -1,8 +1,9 @@
 import { cookies } from "next/headers";
+import { ADMIN_TOKEN_COOKIE_NAME, ADMIN_SESSION_MAX_AGE_SECONDS } from "./constants";
 
 export async function verifyAdmin(): Promise<boolean> {
   const cookieStore = await cookies();
-  const adminToken = cookieStore.get("admin-token");
+  const adminToken = cookieStore.get(ADMIN_TOKEN_COOKIE_NAME);
   if (!adminToken) return false;
 
   const expectedPassword = process.env.ADMIN_PASSWORD;
@@ -17,11 +18,11 @@ export async function verifyAdmin(): Promise<boolean> {
 export async function setAdminCookie(password: string): Promise<void> {
   const cookieStore = await cookies();
   const token = Buffer.from(password).toString("base64");
-  cookieStore.set("admin-token", token, {
+  cookieStore.set(ADMIN_TOKEN_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24,
+    maxAge: ADMIN_SESSION_MAX_AGE_SECONDS,
     path: "/",
   });
 }

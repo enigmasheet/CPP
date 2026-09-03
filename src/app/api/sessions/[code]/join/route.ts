@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Session, { ISessionItem } from "@/models/Session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { SESSION_JOIN_MAX_ATTEMPTS, SESSION_JOIN_RATE_WINDOW_MS, SESSION_CODE_LENGTH } from "@/lib/constants";
 
 export async function POST(
   request: NextRequest,
@@ -9,7 +10,7 @@ export async function POST(
 ) {
   try {
     const ip = getClientIp(request);
-    const { allowed } = rateLimit(`join:${ip}`, 10, 60000);
+    const { allowed } = rateLimit(`join:${ip}`, SESSION_JOIN_MAX_ATTEMPTS, SESSION_JOIN_RATE_WINDOW_MS);
 
     if (!allowed) {
       return NextResponse.json(
@@ -36,7 +37,7 @@ export async function POST(
     const body = await request.json();
     const name = body?.name || undefined;
 
-    const studentCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const studentCode = Math.random().toString(36).substring(2, SESSION_CODE_LENGTH + 2).toUpperCase();
 
     const items = session.items.map((item: ISessionItem) => ({
       contentType: item.contentType,

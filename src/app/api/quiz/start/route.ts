@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import MCQ, { IMCQDoc } from "@/models/MCQ";
 import { shuffleArray } from "@/lib/utils";
+import { DEFAULT_QUIZ_LIMIT } from "@/lib/constants";
 
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    const { topic, difficulty, limit = 10 } = await request.json();
+    const { topic, difficulty, limit = DEFAULT_QUIZ_LIMIT } = await request.json();
 
     const filter: Record<string, string> = {};
     if (topic) filter.topic = topic;

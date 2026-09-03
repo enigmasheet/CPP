@@ -17,10 +17,12 @@ import {
   CheckCircle,
   XCircle,
   Home,
+  Gamepad2,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import OutputPredictor from "@/components/games/OutputPredictor";
+import SpeedCode from "@/components/games/SpeedCode";
 
 interface MCQOption {
   text: string;
@@ -56,6 +58,7 @@ interface Answer {
   contentType: string | undefined;
   selected: number | null;
   score?: number;
+  totalQuestions?: number;
 }
 
 interface FinalResult {
@@ -97,6 +100,7 @@ export default function StudentSessionPage({
   const [mcqData, setMcqData] = useState<Record<string, MCQData>>({});
   const mcqIdsLoaded = useRef(new Set<string>());
   const [gameQuestions, setGameQuestions] = useState<Record<string, unknown[]>>({});
+  const gameIdsLoaded = useRef(new Set<string>());
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
@@ -214,7 +218,8 @@ export default function StudentSessionPage({
     if (!joined || !session) return;
     const gameItems = session.items.filter((item) => item.contentType === "game" && item.gameType);
     for (const item of gameItems) {
-      if (gameQuestions[item.contentId]) continue;
+      if (gameIdsLoaded.current.has(item.contentId)) continue;
+      gameIdsLoaded.current.add(item.contentId);
       fetch(`/api/games/${item.gameType}`)
         .then((r) => r.json())
         .then((data) => {
@@ -224,7 +229,7 @@ export default function StudentSessionPage({
         })
         .catch(() => {});
     }
-  }, [joined, session, gameQuestions]);
+  }, [joined, session]);
 
   useEffect(() => {
     if (!finished || !studentCode) return;
@@ -482,6 +487,33 @@ export default function StudentSessionPage({
             <CardContent>
               <div className="space-y-4">
                 {answers.map((answer, idx) => {
+                  if (answer.contentType === "game") {
+                    const gameTitle = answer.contentId?.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) || "Game";
+                    const totalQ = answer.totalQuestions || 5;
+                    const gameScore = answer.score || 0;
+                    return (
+                      <div
+                        key={idx}
+                        className="border border-border rounded-lg p-4"
+                      >
+                        <div className="flex items-start gap-2">
+                          <Gamepad2 className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              Game: {gameTitle}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Score: {gameScore} / {totalQ} correct
+                              <span className="ml-2">
+                                ({Math.round((gameScore / totalQ) * 100)}%)
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   const mcq = mcqData[answer.contentId || ""];
                   if (!mcq) return null;
                   const wasCorrect =
@@ -612,26 +644,53 @@ export default function StudentSessionPage({
         ) : currentItem.contentType === "game" ? (
           gameQuestions[currentItem.contentId] ? (
             <div className="mb-6">
-              <OutputPredictor
-                questions={gameQuestions[currentItem.contentId] as never[]}
-                onComplete={(gameScore) => {
-                  const answer: Answer = {
-                    contentId: currentItem.contentId,
-                    contentType: currentItem.contentType,
-                    selected: null,
-                    score: gameScore,
-                  };
-                  const newAnswers = [...answers, answer];
-                  setAnswers(newAnswers);
-                  if (currentIndex < session.items.length - 1) {
-                    setCurrentIndex(currentIndex + 1);
-                    setSelected(null);
-                    setShowResult(false);
-                  } else {
-                    submitAnswers(newAnswers);
-                  }
-                }}
-              />
+              {currentItem.gameType === "speed-code" ? (
+                <SpeedCode
+                  questions={gameQuestions[currentItem.contentId] as never[]}
+                  onComplete={(gameScore) => {
+                    const questions = gameQuestions[currentItem.contentId] || [];
+                    const answer: Answer = {
+                      contentId: currentItem.contentId,
+                      contentType: currentItem.contentType,
+                      selected: null,
+                      score: gameScore,
+                      totalQuestions: questions.length,
+                    };
+                    const newAnswers = [...answers, answer];
+                    setAnswers(newAnswers);
+                    if (currentIndex < session.items.length - 1) {
+                      setCurrentIndex(currentIndex + 1);
+                      setSelected(null);
+                      setShowResult(false);
+                    } else {
+                      submitAnswers(newAnswers);
+                    }
+                  }}
+                />
+              ) : (
+                <OutputPredictor
+                  questions={gameQuestions[currentItem.contentId] as never[]}
+                  onComplete={(gameScore) => {
+                    const questions = gameQuestions[currentItem.contentId] || [];
+                    const answer: Answer = {
+                      contentId: currentItem.contentId,
+                      contentType: currentItem.contentType,
+                      selected: null,
+                      score: gameScore,
+                      totalQuestions: questions.length,
+                    };
+                    const newAnswers = [...answers, answer];
+                    setAnswers(newAnswers);
+                    if (currentIndex < session.items.length - 1) {
+                      setCurrentIndex(currentIndex + 1);
+                      setSelected(null);
+                      setShowResult(false);
+                    } else {
+                      submitAnswers(newAnswers);
+                    }
+                  }}
+                />
+              )}
             </div>
           ) : (
             <Card className="mb-6">

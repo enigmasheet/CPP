@@ -34,12 +34,9 @@ interface MCQ {
 }
 
 const GAME_TYPES = [
-  { id: "output-predictor", name: "Output Predictor", description: "Predict C++ program output", implemented: false },
-  { id: "bug-hunter", name: "Bug Hunter", description: "Find bugs in code snippets", implemented: false },
-  { id: "code-golf", name: "Code Golf", description: "Solve problems with fewest characters", implemented: false },
-  { id: "speed-code", name: "Speed Code", description: "Race against time to code", implemented: false },
-  { id: "memory-match", name: "Memory Match", description: "Match concepts with definitions", implemented: false },
-  { id: "syntax-scramble", name: "Syntax Scramble", description: "Arrange code in correct order", implemented: false },
+  { id: "output-predictor", name: "Output Predictor", description: "Predict C++ program output", implemented: true },
+  { id: "bug-hunter", name: "Bug Hunter", description: "Find bugs in code snippets", implemented: true },
+  { id: "speed-code", name: "Speed Code", description: "Race against time to code", implemented: true },
 ];
 
 export default function CreateSessionDialog() {
