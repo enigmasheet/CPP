@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -34,10 +35,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { data: authData } = useAdminAuth();
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [isTeacher, setIsTeacher] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const isTeacher = authData?.authenticated ?? false;
 
   useEffect(() => {
     requestAnimationFrame(() => setMounted(true));
@@ -58,15 +61,6 @@ export default function Navbar() {
     await fetch("/api/admin/logout", { method: "POST" });
     router.refresh();
   };
-
-  useEffect(() => {
-    fetch("/api/admin/verify")
-      .then((r) => r.json())
-      .then((data) => {
-        setIsTeacher(data.authenticated);
-      })
-      .catch(() => {});
-  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">

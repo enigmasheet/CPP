@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import QueryProvider from "@/components/providers/QueryProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,8 +19,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <Toaster />
-          {children}
+          <QueryProvider>
+            <Toaster />
+            {children}
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

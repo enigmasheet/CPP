@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CodeBlock from "@/components/content/CodeBlock";
 import { Search, FileText, Code, Image, Loader2 } from "lucide-react";
 import Link from "next/link";

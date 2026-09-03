@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, use } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AppShell from "@/components/layout/AppShell";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,51 +83,46 @@ export default function SessionDetailPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = use(params);
-  const [session, setSession] = useState<SessionData | null>(null);
-  const [results, setResults] = useState<Result[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [questionAnalytics, setQuestionAnalytics] = useState<Record<string, QuestionAnalytic>>({});
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
-  useEffect(() => {
-    fetch(`/api/sessions/${code}/results`)
-      .then((r) => r.json())
-      .then((data) => {
-        setSession(data.session);
-        setResults(data.results);
-        setStats(data.stats);
-        setQuestionAnalytics(data.questionAnalytics || {});
-        setLoading(false);
-      });
-  }, [code]);
+  const { data, isLoading } = useQuery({
+    queryKey: ["session-results", code],
+    queryFn: () => fetch(`/api/sessions/${code}/results`).then((r) => r.json()),
+    refetchInterval: 5000,
+  });
 
-  useEffect(() => {
-    if (!session?.isActive) return;
-    const interval = setInterval(() => {
-      fetch(`/api/sessions/${code}/results`)
-        .then((r) => r.json())
-        .then((data) => {
-          setResults(data.results);
-          setStats(data.stats);
-          setQuestionAnalytics(data.questionAnalytics || {});
-        });
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [code, session?.isActive]);
+  const session = data?.session as SessionData | undefined;
+  const results = (data?.results as Result[]) || [];
+  const stats = (data?.stats as Stats) || null;
+  const questionAnalytics = (data?.questionAnalytics as Record<string, QuestionAnalytic>) || {};
 
-  const toggleActive = async () => {
-    if (!session) return;
-    await fetch(`/api/sessions/${code}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !session.isActive }),
-    });
-    setSession((prev) =>
-      prev ? { ...prev, isActive: !prev.isActive } : null
-    );
-  };
+  const toggleMutation = useMutation({
+    mutationFn: () =>
+      fetch(`/api/sessions/${code}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !session?.isActive }),
+      }),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["session-results", code] });
+      const previous = queryClient.getQueryData(["session-results", code]);
+      queryClient.setQueryData(["session-results", code], (old: typeof data) => ({
+        ...old,
+        session: { ...old?.session, isActive: !old?.session?.isActive },
+      }));
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["session-results", code], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["session-results", code] });
+    },
+  });
 
   const copyLink = () => {
     navigator.clipboard.writeText(`${window.location.origin}/s/${code}`);
@@ -134,7 +130,7 @@ export default function SessionDetailPage({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <AppShell>
         <div className="flex items-center justify-center min-h-[60vh]">
@@ -235,7 +231,8 @@ export default function SessionDetailPage({
                     variant={session.isActive ? "secondary" : "default"}
                     size="sm"
                     className="flex-1"
-                    onClick={toggleActive}
+                    onClick={() => toggleMutation.mutate()}
+                    disabled={toggleMutation.isPending}
                   >
                     {session.isActive ? (
                       <>
@@ -421,13 +418,7 @@ export default function SessionDetailPage({
           open={editOpen}
           onOpenChange={setEditOpen}
           onUpdated={() => {
-            fetch(`/api/sessions/${code}/results`)
-              .then((r) => r.json())
-              .then((data) => {
-                setSession(data.session);
-                setResults(data.results);
-                setStats(data.stats);
-              });
+            queryClient.invalidateQueries({ queryKey: ["session-results", code] });
           }}
         />
       )}

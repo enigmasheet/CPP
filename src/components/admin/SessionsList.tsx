@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,42 +29,66 @@ interface Session {
 }
 
 export default function SessionsList() {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Session | null>(null);
 
-  useEffect(() => {
-    fetch("/api/sessions")
-      .then((r) => r.json())
-      .then((data) => {
-        setSessions(Array.isArray(data) ? data : []);
-        setLoading(false);
-      });
-  }, []);
+  const { data: sessions = [], isLoading } = useQuery<Session[]>({
+    queryKey: ["sessions"],
+    queryFn: () => fetch("/api/sessions").then((r) => r.json()),
+  });
 
-  const toggleActive = async (code: string, isActive: boolean) => {
-    await fetch(`/api/sessions/${code}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !isActive }),
-    });
-    setSessions((prev) =>
-      prev.map((s) => (s.code === code ? { ...s, isActive: !isActive } : s))
-    );
-  };
+  const toggleMutation = useMutation({
+    mutationFn: ({ code, isActive }: { code: string; isActive: boolean }) =>
+      fetch(`/api/sessions/${code}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !isActive }),
+      }),
+    onMutate: async ({ code, isActive }) => {
+      await queryClient.cancelQueries({ queryKey: ["sessions"] });
+      const previous = queryClient.getQueryData<Session[]>(["sessions"]);
+      queryClient.setQueryData<Session[]>(["sessions"], (old) =>
+        old?.map((s) => (s.code === code ? { ...s, isActive: !isActive } : s))
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["sessions"], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+    },
+  });
 
-  const handleDelete = async (code: string) => {
-    setDeleting(code);
-    const res = await fetch(`/api/sessions/${code}`, { method: "DELETE" });
-    if (res.ok) {
-      setSessions((prev) => prev.filter((s) => s.code !== code));
-    }
-    setDeleting(null);
-    setDeleteTarget(null);
-  };
+  const deleteMutation = useMutation({
+    mutationFn: (code: string) =>
+      fetch(`/api/sessions/${code}`, { method: "DELETE" }),
+    onMutate: async (code) => {
+      await queryClient.cancelQueries({ queryKey: ["sessions"] });
+      const previous = queryClient.getQueryData<Session[]>(["sessions"]);
+      queryClient.setQueryData<Session[]>(["sessions"], (old) =>
+        old?.filter((s) => s.code !== code)
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["sessions"], context.previous);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+    },
+    onSuccess: () => {
+      setDeleteTarget(null);
+      setDeleting(null);
+    },
+  });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="text-center py-12">
         <Loader2 className="w-6 h-6 animate-spin mx-auto" />
@@ -120,7 +145,8 @@ export default function SessionsList() {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  onClick={() => toggleActive(session.code, session.isActive)}
+                  onClick={() => toggleMutation.mutate({ code: session.code, isActive: session.isActive })}
+                  disabled={toggleMutation.isPending}
                   title={session.isActive ? "Close session" : "Open session"}
                   aria-label={session.isActive ? "Close session" : "Open session"}
                 >
@@ -174,7 +200,12 @@ export default function SessionsList() {
                       </Button>
                       <Button
                         variant="destructive"
-                        onClick={() => handleDelete(session.code)}
+                        onClick={() => {
+                          if (deleteTarget) {
+                            setDeleting(deleteTarget.code);
+                            deleteMutation.mutate(deleteTarget.code);
+                          }
+                        }}
                         disabled={deleting === session.code}
                       >
                         {deleting === session.code ? (

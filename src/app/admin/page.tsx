@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, lazy, Suspense } from "react";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,21 +28,14 @@ const TABS = [
 ] as const;
 
 export default function AdminPage() {
+  const { data: authData, isLoading: authLoading } = useAdminAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true);
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("sessions");
 
-  useEffect(() => {
-    fetch("/api/admin/verify")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.authenticated) setIsAuthenticated(true);
-      })
-      .finally(() => setAuthLoading(false));
-  }, []);
+  const authed = authData?.authenticated ?? isAuthenticated;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +72,7 @@ export default function AdminPage() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!authed) {
     return (
       <AppShell>
         <div className="flex items-center justify-center min-h-[60vh] px-4">

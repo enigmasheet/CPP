@@ -1,6 +1,7 @@
 import AppShell from "@/components/layout/AppShell";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, ArrowRight } from "lucide-react";
 import { getSubject, getTopics } from "@/config/subjects";
 import { notFound } from "next/navigation";
@@ -22,7 +23,7 @@ export default async function LearnPage({
   if (!subject) return notFound();
   const topics = getTopics(slug);
 
-  const studentNotes = teacherNotes.filter(n => !n.teacherOnly);
+  const studentNotes = teacherNotes.filter((n) => !n.teacherOnly);
   const totalMinutes = studentNotes.reduce((sum, n) => sum + n.estimatedMinutes, 0);
 
   return (
@@ -36,7 +37,9 @@ export default async function LearnPage({
             <span>/</span>
             <span>Learn</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Learn {subject.name.replace(" Programming", "")}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Learn {subject.name.replace(" Programming", "")}
+          </h1>
           <p className="mt-2 text-muted-foreground">
             {studentNotes.length} sections covering fundamentals to advanced concepts
           </p>
@@ -47,7 +50,7 @@ export default async function LearnPage({
             </span>
             <span className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              ~{Math.round(totalMinutes / 60)} hours
+              ~{Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
             </span>
           </div>
         </div>
@@ -55,59 +58,31 @@ export default async function LearnPage({
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {topics.map((topic) => (
-            <Link key={topic.slug} href={`/subjects/${slug}/learn/${topic.slug}`}>
-              <Card className="h-full transition-all hover:border-primary/50 hover:shadow-lg cursor-pointer group">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                      {topic.name}
-                    </CardTitle>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    {topic.description}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-
-        <div className="mt-12">
-          <h2 className="text-xl font-bold mb-4">Full Curriculum</h2>
-          <div className="grid gap-3">
-            {teacherNotes.filter(n => !n.teacherOnly).map((note) => (
-              <Link
-                key={note.id}
-                href={`/subjects/${slug}/learn/${note.topic}`}
-              >
-                <Card className="transition-all hover:border-primary/50 cursor-pointer">
-                  <CardContent className="py-3 px-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-xs text-muted-foreground font-mono w-6 shrink-0">
-                          {note.id}
-                        </span>
-                        <span className="text-sm font-medium truncate">{note.title}</span>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${DIFFICULTY_COLORS[note.difficulty]}`}>
-                          {note.difficulty}
-                        </span>
-                        <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-                          <Clock className="w-3 h-3" />
-                          {note.estimatedMinutes}m
-                        </span>
-                      </div>
+          {topics.map((topic) => {
+            const topicNotes = studentNotes.filter((n) => n.topic === topic.slug);
+            const topicTime = topicNotes.reduce((sum, n) => sum + n.estimatedMinutes, 0);
+            return (
+              <Link key={topic.slug} href={`/subjects/${slug}/learn/${topic.slug}`}>
+                <Card className="h-full transition-all hover:border-primary/50 hover:shadow-lg cursor-pointer group">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                        {topic.name}
+                      </CardTitle>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">{topic.description}</p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span>{topicNotes.length} sections</span>
+                      <span>~{topicTime}m</span>
                     </div>
                   </CardContent>
                 </Card>
               </Link>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
     </AppShell>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   Plus,
@@ -29,7 +29,6 @@ import {
   Loader2,
   Search,
   CheckCircle,
-  XCircle,
 } from "lucide-react";
 
 interface MCQOption {
@@ -77,30 +76,62 @@ const TOPICS = [
 ];
 
 export default function MCQManagement() {
-  const [mcqs, setMcqs] = useState<MCQ[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [topicFilter, setTopicFilter] = useState("all");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<MCQ | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    loadMCQs();
-  }, []);
+  const { data: mcqs = [], isLoading } = useQuery<MCQ[]>({
+    queryKey: ["mcqs"],
+    queryFn: () => fetch("/api/mcq?limit=500").then((r) => r.json()),
+  });
 
-  const loadMCQs = () => {
-    fetch("/api/mcq?limit=500")
-      .then((r) => r.json())
-      .then((data) => {
-        setMcqs(Array.isArray(data) ? data : []);
-        setLoading(false);
-      });
-  };
+  const createMutation = useMutation({
+    mutationFn: (body: object) =>
+      fetch("/api/mcq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then((r) => { if (!r.ok) throw new Error(); return r.json(); }),
+    onSuccess: () => {
+      toast.success("MCQ created");
+      queryClient.invalidateQueries({ queryKey: ["mcqs"] });
+      setDialogOpen(false);
+    },
+    onError: () => toast.error("Failed to create MCQ"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, body }: { id: string; body: object }) =>
+      fetch(`/api/mcq/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then((r) => { if (!r.ok) throw new Error(); return r.json(); }),
+    onSuccess: () => {
+      toast.success("MCQ updated");
+      queryClient.invalidateQueries({ queryKey: ["mcqs"] });
+      setDialogOpen(false);
+    },
+    onError: () => toast.error("Failed to update MCQ"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/mcq/${id}`, { method: "DELETE" }).then((r) => {
+        if (!r.ok) throw new Error();
+      }),
+    onSuccess: () => {
+      toast.success("MCQ deleted");
+      queryClient.invalidateQueries({ queryKey: ["mcqs"] });
+      setDeleteTarget(null);
+    },
+    onError: () => toast.error("Failed to delete MCQ"),
+  });
 
   const filtered = mcqs.filter((mcq) => {
     const matchesSearch =
@@ -140,8 +171,7 @@ export default function MCQManagement() {
     }));
   };
 
-  const handleSave = async () => {
-    setSaving(true);
+  const handleSave = () => {
     const body = {
       topic: form.topic,
       question: form.question,
@@ -155,50 +185,14 @@ export default function MCQManagement() {
         .filter(Boolean),
     };
 
-    try {
-      if (editingId) {
-        const res = await fetch(`/api/mcq/${editingId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) throw new Error("Failed to update");
-        toast.success("MCQ updated");
-      } else {
-        const res = await fetch("/api/mcq", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) throw new Error("Failed to create");
-        toast.success("MCQ created");
-      }
-      setDialogOpen(false);
-      loadMCQs();
-    } catch {
-      toast.error("Failed to save MCQ");
+    if (editingId) {
+      updateMutation.mutate({ id: editingId, body });
+    } else {
+      createMutation.mutate(body);
     }
-    setSaving(false);
   };
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/mcq/${deleteTarget._id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete");
-      toast.success("MCQ deleted");
-      setDeleteTarget(null);
-      loadMCQs();
-    } catch {
-      toast.error("Failed to delete MCQ");
-    }
-    setDeleting(false);
-  };
-
-  const topics = [...new Set(mcqs.map((m) => m.topic))].sort();
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="space-y-4">
@@ -250,7 +244,7 @@ export default function MCQManagement() {
         {filtered.length} of {mcqs.length} questions
       </p>
 
-      {loading ? (
+      {isLoading ? (
         <div className="text-center py-8">
           <Loader2 className="w-6 h-6 animate-spin mx-auto" />
         </div>
@@ -344,8 +338,8 @@ export default function MCQManagement() {
                 <label className="text-sm font-medium">Difficulty</label>
                 <Select
                   value={form.difficulty}
-                  onValueChange={(v: "easy" | "medium" | "hard") =>
-                    setForm((p) => ({ ...p, difficulty: v }))
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, difficulty: (v || "medium") as "easy" | "medium" | "hard" }))
                   }
                 >
                   <SelectTrigger>
@@ -440,9 +434,9 @@ export default function MCQManagement() {
             </Button>
             <Button
               onClick={handleSave}
-              disabled={saving || !form.topic || !form.question}
+              disabled={isSaving || !form.topic || !form.question}
             >
-              {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               {editingId ? "Update" : "Create"}
             </Button>
           </DialogFooter>
@@ -464,10 +458,10 @@ export default function MCQManagement() {
             </Button>
             <Button
               variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting}
+              onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget._id)}
+              disabled={deleteMutation.isPending}
             >
-              {deleting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              {deleteMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               Delete
             </Button>
           </DialogFooter>
