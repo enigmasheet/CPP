@@ -92,6 +92,7 @@ export const sessionSubmitSchema = z.object({
   studentCode: z.string().min(1),
   name: z.string().max(100).optional(),
   answers: z.array(sessionAnswerSchema).min(1, "At least 1 answer required"),
+  timeTaken: z.number().int().positive().optional(),
 });
 
 // ─── Admin Auth Schemas ──────────────────────────────────────

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use, useRef } from "react";
+import { useState, useEffect, use, useRef, useCallback } from "react";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -100,6 +100,7 @@ export default function StudentSessionPage({
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [joinError, setJoinError] = useState<string | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const autoSubmittedRef = useRef(false);
 
   useEffect(() => {
     fetch(`/api/sessions/${code}`)
@@ -109,6 +110,9 @@ export default function StudentSessionPage({
           setSessionError(data.error);
         } else {
           setSession(data);
+          if (data.timeLimit) {
+            setRemainingTime(data.timeLimit * 60);
+          }
           const saved = localStorage.getItem(`session_${code}`);
           if (saved) {
             setStudentCode(saved);
@@ -128,8 +132,7 @@ export default function StudentSessionPage({
   }, [joined, finished]);
 
   useEffect(() => {
-    if (!joined || finished || !session?.timeLimit) return;
-    setRemainingTime(session.timeLimit * 60);
+    if (remainingTime === null || remainingTime <= 0 || finished) return;
     const countdown = setInterval(() => {
       setRemainingTime((prev) => {
         if (prev === null || prev <= 1) {
@@ -140,14 +143,37 @@ export default function StudentSessionPage({
       });
     }, 1000);
     return () => clearInterval(countdown);
-  }, [joined, finished, session?.timeLimit]);
+  }, [remainingTime, finished]);
+
+  const submitAnswers = useCallback(async (finalAnswers: Answer[]) => {
+    setSubmitting(true);
+    const res = await fetch(`/api/sessions/${code}/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        studentCode,
+        name: name.trim() || undefined,
+        answers: finalAnswers,
+        timeTaken,
+      }),
+    });
+    const data = await res.json();
+    if (data.error) {
+      toast.error(data.error);
+      setSubmitting(false);
+      return;
+    }
+    setFinalResult(data);
+    setFinished(true);
+    setSubmitting(false);
+  }, [code, studentCode, name, timeTaken]);
 
   useEffect(() => {
-    if (remainingTime === 0 && !finished && !submitting) {
-      toast.error("Time's up! Submitting your answers...");
-      submitAnswers(answers);
-    }
-  }, [remainingTime, finished, submitting, answers]);
+    if (remainingTime === null || remainingTime > 0 || finished || submitting || autoSubmittedRef.current) return;
+    autoSubmittedRef.current = true;
+    toast.error("Time's up! Submitting your answers...");
+    submitAnswers(answers);
+  }, [remainingTime, finished, submitting, answers, submitAnswers]);
 
   useEffect(() => {
     if (!joined || !session) return;
@@ -244,29 +270,6 @@ export default function StudentSessionPage({
     } else {
       submitAnswers(newAnswers);
     }
-  };
-
-  const submitAnswers = async (finalAnswers: Answer[]) => {
-    setSubmitting(true);
-    const res = await fetch(`/api/sessions/${code}/submit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        studentCode,
-        name: name.trim() || undefined,
-        answers: finalAnswers,
-        timeTaken,
-      }),
-    });
-    const data = await res.json();
-    if (data.error) {
-      toast.error(data.error);
-      setSubmitting(false);
-      return;
-    }
-    setFinalResult(data);
-    setFinished(true);
-    setSubmitting(false);
   };
 
   if (!session) {
