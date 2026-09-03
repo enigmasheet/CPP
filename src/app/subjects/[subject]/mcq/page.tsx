@@ -1,20 +1,24 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { getSubject, getTopics } from "@/config/subjects";
-import { notFound } from "next/navigation";
+import { verifyAdmin } from "@/lib/auth";
 
 export default async function MCQTopicsPage({
   params,
 }: {
   params: Promise<{ subject: string }>;
 }) {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) redirect("/join");
+
   const { subject: slug } = await params;
   const subject = getSubject(slug);
-  if (!subject) return notFound();
+  if (!subject) redirect("/join");
   const topics = getTopics(slug);
 
   return (

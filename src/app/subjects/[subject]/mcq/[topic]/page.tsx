@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,6 +25,7 @@ interface Question {
 
 export default function QuizPage() {
   const params = useParams();
+  const router = useRouter();
   const subject = params.subject as string;
   const topic = params.topic as string;
 
@@ -37,6 +38,15 @@ export default function QuizPage() {
   const [quizFinished, setQuizFinished] = useState(false);
   const [score, setScore] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/admin/verify")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.authenticated) router.push("/join");
+      })
+      .catch(() => router.push("/join"));
+  }, [router]);
 
   useEffect(() => {
     if (!quizStarted) return;
