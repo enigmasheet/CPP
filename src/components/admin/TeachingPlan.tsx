@@ -31,6 +31,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { SUBJECTS } from "@/config/subjects";
+import { PLAN_STATUS_TRANSITIONS } from "@/lib/constants";
 
 interface Plan {
   _id: string;
@@ -58,11 +59,6 @@ const PRIORITY_COLORS = {
   medium: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
   high: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
 } as const;
-
-const NEXT_STATUS: Record<string, string> = {
-  todo: "in_progress",
-  in_progress: "done",
-};
 
 export default function TeachingPlanTab() {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -143,7 +139,7 @@ export default function TeachingPlanTab() {
   };
 
   const advanceStatus = async (plan: Plan) => {
-    const next = NEXT_STATUS[plan.status];
+    const next = PLAN_STATUS_TRANSITIONS[plan.status];
     if (!next) return;
     await fetch(`/api/plans/${plan._id}`, {
       method: "PATCH",
@@ -306,7 +302,7 @@ export default function TeachingPlanTab() {
                             )}
                           </div>
                           <div className="flex flex-col gap-1">
-                            {NEXT_STATUS[plan.status] && (
+                            {PLAN_STATUS_TRANSITIONS[plan.status] && (
                               <Button
                                 variant="ghost"
                                 size="sm"

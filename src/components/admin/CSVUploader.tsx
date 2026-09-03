@@ -5,6 +5,7 @@ import Papa from "papaparse";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, X, AlertCircle } from "lucide-react";
+import { CSV_PREVIEW_MAX_ROWS } from "@/lib/constants";
 
 interface CSVUploaderProps {
   onImport: (data: Record<string, string>[], headers: string[]) => void;
@@ -161,7 +162,7 @@ export default function CSVUploader({
                       </tr>
                     </thead>
                     <tbody>
-                      {data.slice(0, 10).map((row, i) => (
+                      {data.slice(0, CSV_PREVIEW_MAX_ROWS).map((row, i) => (
                         <tr key={i} className="border-b border-border">
                           {headers.map((h) => (
                             <td key={h} className="p-2">
@@ -173,9 +174,9 @@ export default function CSVUploader({
                     </tbody>
                   </table>
                 </div>
-                {data.length > 10 && (
+                {data.length > CSV_PREVIEW_MAX_ROWS && (
                   <p className="text-xs text-muted-foreground">
-                    Showing first 10 of {data.length} rows
+                    Showing first {CSV_PREVIEW_MAX_ROWS} of {data.length} rows
                   </p>
                 )}
               </>

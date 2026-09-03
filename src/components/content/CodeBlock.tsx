@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Copy, Check } from "lucide-react";
+import { COPY_FEEDBACK_TIMEOUT_MS } from "@/lib/constants";
 
 interface CodeBlockProps {
   code: string;
@@ -29,7 +30,7 @@ export default function CodeBlock({
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), COPY_FEEDBACK_TIMEOUT_MS);
   };
 
   if (!html) {

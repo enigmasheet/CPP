@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import { ADMIN_TOKEN_COOKIE_NAME, ADMIN_SESSION_MAX_AGE_SECONDS } from "./constants";
 
 export async function verifyAdmin(): Promise<boolean> {
@@ -13,6 +14,14 @@ export async function verifyAdmin(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export async function requireAdmin(): Promise<NextResponse | null> {
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return null; // null means authorized
 }
 
 export async function setAdminCookie(password: string): Promise<void> {

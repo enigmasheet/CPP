@@ -5,6 +5,7 @@ import { BookOpen, Clock, ArrowRight } from "lucide-react";
 import { getSubject, getTopics } from "@/config/subjects";
 import { notFound } from "next/navigation";
 import { teacherNotes } from "@/data/teacher-notes";
+import { MINUTES_TO_SECONDS } from "@/lib/constants";
 
 export default async function LearnPage({
   params,
@@ -43,7 +44,7 @@ export default async function LearnPage({
             </span>
             <span className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              ~{Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
+              ~{Math.floor(totalMinutes / MINUTES_TO_SECONDS)}h {totalMinutes % MINUTES_TO_SECONDS}m
             </span>
           </div>
         </div>

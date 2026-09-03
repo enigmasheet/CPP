@@ -14,6 +14,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
+import { MAX_SCORE_PERCENTAGE, MINUTES_TO_SECONDS } from "@/lib/constants";
 
 interface Topic {
   slug: string;
@@ -92,7 +93,7 @@ export default function LearnTopicView({
 
   const totalTime = topicNotes.reduce((sum, n) => sum + n.estimatedMinutes, 0);
   const completedCount = topicNotes.filter((n) => completed.has(n.id)).length;
-  const progressPercent = totalNotes > 0 ? Math.round((completedCount / totalNotes) * 100) : 0;
+  const progressPercent = totalNotes > 0 ? Math.round((completedCount / totalNotes) * MAX_SCORE_PERCENTAGE) : 0;
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
@@ -113,7 +114,7 @@ export default function LearnTopicView({
               </button>
             </div>
             <p className="text-xs text-muted-foreground mb-2">
-              {completedCount}/{totalNotes} completed · ~{Math.floor(totalTime / 60)}h {totalTime % 60}m
+              {completedCount}/{totalNotes} completed · ~{Math.floor(totalTime / MINUTES_TO_SECONDS)}h {totalTime % MINUTES_TO_SECONDS}m
             </p>
             <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
               <div

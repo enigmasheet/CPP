@@ -1,45 +1,41 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { connectDB } from "@/lib/db";
-import { verifyAdmin } from "@/lib/auth";
+import { withDB } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 import TeachingPlan from "@/models/TeachingPlan";
+import { createPlanSchema } from "@/lib/validations";
+import { PLAN_STATUSES, PLAN_PRIORITIES } from "@/lib/constants";
 
-export async function GET() {
-  try {
-    const isAdmin = await verifyAdmin();
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export const GET = withDB(async () => {
+  const authError = await requireAdmin();
+  if (authError) return authError;
 
-    await connectDB();
-    const plans = await TeachingPlan.find().sort({ createdAt: -1 }).lean();
-    return NextResponse.json(plans);
-  } catch {
-    return NextResponse.json({ error: "Failed to fetch plans" }, { status: 500 });
+  const plans = await TeachingPlan.find().sort({ createdAt: -1 }).lean();
+  return NextResponse.json(plans);
+});
+
+export const POST = withDB(async (request: NextRequest) => {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
+  const body = await request.json();
+  const parsed = createPlanSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
-}
 
-export async function POST(request: NextRequest) {
-  try {
-    const isAdmin = await verifyAdmin();
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const plan = await TeachingPlan.create({
+    title: parsed.data.title,
+    description: parsed.data.description || undefined,
+    targetDate: parsed.data.targetDate || undefined,
+    topics: parsed.data.topics || [],
+    status: parsed.data.status || PLAN_STATUSES[0], // todo
+    priority: parsed.data.priority || PLAN_PRIORITIES[1], // medium
+    notes: parsed.data.notes || undefined,
+  });
 
-    await connectDB();
-    const body = await request.json();
-
-    const plan = await TeachingPlan.create({
-      title: body.title,
-      description: body.description || undefined,
-      targetDate: body.targetDate || undefined,
-      topics: body.topics || [],
-      status: body.status || "todo",
-      priority: body.priority || "medium",
-      notes: body.notes || undefined,
-    });
-
-    return NextResponse.json(plan, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Failed to create plan" }, { status: 500 });
-  }
-}
+  return NextResponse.json(plan, { status: 201 });
+});

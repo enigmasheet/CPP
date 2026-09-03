@@ -62,7 +62,7 @@ export default function CppKnowledge() {
       <div
         className={`${
           sidebarOpen ? "w-80" : "w-0"
-        } transition-all duration-200 overflow-hidden border-r border-border bg-muted/30 flex-shrink-0`}
+        } transition-all duration-200 overflow-hidden border-r border-border bg-muted/30 shrink-0`}
       >
         <div className="w-80 h-full overflow-y-auto p-3">
           {/* Category filter */}

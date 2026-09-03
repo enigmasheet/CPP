@@ -3,15 +3,10 @@
 import { useState } from "react";
 import { teacherNotes, type NoteSection } from "@/data/teacher-notes";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
+import { DIFFICULTY_COLORS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, ChevronLeft, ChevronRight, List, Clock } from "lucide-react";
-
-const DIFFICULTY_COLORS: Record<string, string> = {
-  beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-  intermediate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-  advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-};
 
 export default function TeacherNotes() {
   const [activeSection, setActiveSection] = useState<number>(0);

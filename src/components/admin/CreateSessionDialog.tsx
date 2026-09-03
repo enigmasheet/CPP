@@ -25,6 +25,7 @@ import {
   Check,
 } from "lucide-react";
 import Link from "next/link";
+import { GAME_TYPES, SESSION_CREATE_MCQ_FETCH_LIMIT, COPY_FEEDBACK_TIMEOUT_MS } from "@/lib/constants";
 
 interface MCQ {
   _id: string;
@@ -32,12 +33,6 @@ interface MCQ {
   question: string;
   difficulty: string;
 }
-
-const GAME_TYPES = [
-  { id: "output-predictor", name: "Output Predictor", description: "Predict C++ program output", implemented: true },
-  { id: "bug-hunter", name: "Bug Hunter", description: "Find bugs in code snippets", implemented: true },
-  { id: "speed-code", name: "Speed Code", description: "Race against time to code", implemented: true },
-];
 
 export default function CreateSessionDialog() {
   const [open, setOpen] = useState(false);
@@ -55,7 +50,7 @@ export default function CreateSessionDialog() {
   const [timeLimit, setTimeLimit] = useState("");
 
   const loadMcqs = async () => {
-    const res = await fetch("/api/mcq?limit=100");
+    const res = await fetch(`/api/mcq?limit=${SESSION_CREATE_MCQ_FETCH_LIMIT}`);
     const data = await res.json();
     setMcqs(Array.isArray(data) ? data : []);
   };
@@ -125,7 +120,7 @@ export default function CreateSessionDialog() {
       `${window.location.origin}/s/${createdCode}`
     );
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), COPY_FEEDBACK_TIMEOUT_MS);
   };
 
   const filteredMcqs = mcqs.filter((m) => {

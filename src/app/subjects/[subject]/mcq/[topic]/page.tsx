@@ -11,6 +11,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import { TIMER_INTERVAL_MS, MAX_SCORE_PERCENTAGE, MINUTES_TO_SECONDS, ASCII_UPPERCASE_A } from "@/lib/constants";
 
 interface Question {
   id: string;
@@ -50,7 +51,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (!quizStarted) return;
-    const timer = setInterval(() => setTimeTaken((t) => t + 1), 1000);
+    const timer = setInterval(() => setTimeTaken((t) => t + 1), TIMER_INTERVAL_MS);
     return () => clearInterval(timer);
   }, [quizStarted]);
 
@@ -90,7 +91,7 @@ export default function QuizPage() {
       setSelected(null);
       setShowResult(false);
     } else {
-      const finalScore = Math.round((correctCount / questions.length) * 100);
+      const finalScore = Math.round((correctCount / questions.length) * MAX_SCORE_PERCENTAGE);
       setScore(finalScore);
       setQuizFinished(true);
     }
@@ -116,7 +117,7 @@ export default function QuizPage() {
                 {correctCount} / {questions.length} correct
               </p>
               <p className="text-muted-foreground mb-6">
-                Time: {Math.floor(timeTaken / 60)}:{(timeTaken % 60).toString().padStart(2, "0")}
+                Time: {Math.floor(timeTaken / MINUTES_TO_SECONDS)}:{(timeTaken % MINUTES_TO_SECONDS).toString().padStart(2, "0")}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <Button onClick={() => window.location.reload()}>Try Again</Button>
@@ -144,12 +145,12 @@ export default function QuizPage() {
               {currentIdx + 1}/{questions.length}
             </Badge>
             <span className="text-sm text-muted-foreground font-mono">
-              {Math.floor(timeTaken / 60)}:{(timeTaken % 60).toString().padStart(2, "0")}
+              {Math.floor(timeTaken / MINUTES_TO_SECONDS)}:{(timeTaken % MINUTES_TO_SECONDS).toString().padStart(2, "0")}
             </span>
           </div>
         </div>
 
-        <Progress value={((currentIdx + 1) / questions.length) * 100} className="mb-6" />
+        <Progress value={((currentIdx + 1) / questions.length) * MAX_SCORE_PERCENTAGE} className="mb-6" />
 
         <Card className="mb-6">
           <CardContent className="pt-6">
@@ -194,7 +195,7 @@ export default function QuizPage() {
                 disabled={showResult}
               >
                 <span className="font-mono text-sm text-muted-foreground mr-3">
-                  {String.fromCharCode(65 + idx)}.
+                  {String.fromCharCode(ASCII_UPPERCASE_A + idx)}.
                 </span>
                 {option}
               </Button>

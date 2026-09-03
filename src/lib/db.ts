@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import { NextResponse } from "next/server";
+import { DEFAULT_MONGODB_URI, MONGODB_MAX_POOL_SIZE } from "./constants";
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/cpp-cms";
+const MONGODB_URI = process.env.MONGODB_URI || DEFAULT_MONGODB_URI;
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -25,7 +27,7 @@ export async function connectDB(): Promise<typeof mongoose> {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      maxPoolSize: 10,
+      maxPoolSize: MONGODB_MAX_POOL_SIZE,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((m) => m);
@@ -33,4 +35,24 @@ export async function connectDB(): Promise<typeof mongoose> {
 
   cached.conn = await cached.promise;
   return cached.conn;
+}
+
+type RouteContext = { params: Promise<Record<string, string>> };
+type RouteHandler = (
+  request: Request,
+  context?: RouteContext
+) => Promise<NextResponse>;
+
+export function withDB(handler: RouteHandler): RouteHandler {
+  return async (request, context) => {
+    try {
+      await connectDB();
+      return await handler(request, context);
+    } catch {
+      return NextResponse.json(
+        { error: "Internal server error" },
+        { status: 500 }
+      );
+    }
+  };
 }

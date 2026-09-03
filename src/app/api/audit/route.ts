@@ -1,50 +1,46 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { connectDB } from "@/lib/db";
-import { verifyAdmin } from "@/lib/auth";
+import { withDB } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 import AuditLog from "@/models/AuditLog";
+import { createAuditSchema } from "@/lib/validations";
+import { AUDIT_STATUSES } from "@/lib/constants";
 
-export async function GET() {
-  try {
-    const isAdmin = await verifyAdmin();
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export const GET = withDB(async () => {
+  const authError = await requireAdmin();
+  if (authError) return authError;
 
-    await connectDB();
-    const logs = await AuditLog.find().sort({ date: -1 }).lean();
-    return NextResponse.json(logs);
-  } catch {
-    return NextResponse.json({ error: "Failed to fetch audit logs" }, { status: 500 });
+  const logs = await AuditLog.find().sort({ date: -1 }).lean();
+  return NextResponse.json(logs);
+});
+
+export const POST = withDB(async (request: NextRequest) => {
+  const authError = await requireAdmin();
+  if (authError) return authError;
+
+  const body = await request.json();
+  const parsed = createAuditSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
-}
 
-export async function POST(request: NextRequest) {
-  try {
-    const isAdmin = await verifyAdmin();
-    if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const log = await AuditLog.create({
+    date: parsed.data.date || new Date(),
+    sessionCode: parsed.data.sessionCode || undefined,
+    section: parsed.data.section || undefined,
+    topicsCovered: parsed.data.topicsCovered || [],
+    mcqsUsed: parsed.data.mcqsUsed || 0,
+    studentCount: parsed.data.studentCount || 0,
+    averageScore: parsed.data.averageScore,
+    highestScore: parsed.data.highestScore,
+    lowestScore: parsed.data.lowestScore,
+    duration: parsed.data.duration,
+    notes: parsed.data.notes || undefined,
+    status: parsed.data.status || AUDIT_STATUSES[1], // completed
+  });
 
-    await connectDB();
-    const body = await request.json();
-
-    const log = await AuditLog.create({
-      date: body.date || new Date(),
-      sessionCode: body.sessionCode || undefined,
-      section: body.section || undefined,
-      topicsCovered: body.topicsCovered || [],
-      mcqsUsed: body.mcqsUsed || 0,
-      studentCount: body.studentCount || 0,
-      averageScore: body.averageScore,
-      highestScore: body.highestScore,
-      lowestScore: body.lowestScore,
-      duration: body.duration,
-      notes: body.notes || undefined,
-      status: body.status || "completed",
-    });
-
-    return NextResponse.json(log, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: "Failed to create audit log" }, { status: 500 });
-  }
-}
+  return NextResponse.json(log, { status: 201 });
+});

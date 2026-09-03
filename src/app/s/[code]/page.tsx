@@ -23,6 +23,15 @@ import Link from "next/link";
 import { toast } from "sonner";
 import OutputPredictor from "@/components/games/OutputPredictor";
 import SpeedCode from "@/components/games/SpeedCode";
+import {
+  MINUTES_TO_SECONDS,
+  TIMER_INTERVAL_MS,
+  ASCII_UPPERCASE_A,
+  LEADERBOARD_HIGH_THRESHOLD,
+  LEADERBOARD_MEDIUM_THRESHOLD,
+  DEFAULT_GAME_TOTAL_QUESTIONS,
+  MAX_SCORE_PERCENTAGE,
+} from "@/lib/constants";
 
 interface MCQOption {
   text: string;
@@ -118,7 +127,7 @@ export default function StudentSessionPage({
         } else {
           setSession(data);
           if (data.timeLimit) {
-            setRemainingTime(data.timeLimit * 60);
+            setRemainingTime(data.timeLimit * MINUTES_TO_SECONDS);
           }
           const saved = localStorage.getItem(`session_${code}`);
           if (saved) {
@@ -134,7 +143,7 @@ export default function StudentSessionPage({
 
   useEffect(() => {
     if (!joined || finished) return;
-    const timer = setInterval(() => setTimeTaken((t) => t + 1), 1000);
+    const timer = setInterval(() => setTimeTaken((t) => t + 1), TIMER_INTERVAL_MS);
     return () => clearInterval(timer);
   }, [joined, finished]);
 
@@ -148,7 +157,7 @@ export default function StudentSessionPage({
         }
         return prev - 1;
       });
-    }, 1000);
+    }, TIMER_INTERVAL_MS);
     return () => clearInterval(countdown);
   }, [remainingTime, finished]);
 
@@ -463,9 +472,9 @@ export default function StudentSessionPage({
                         </span>
                         <Badge
                           variant={
-                            entry.percentage >= 70
+                            entry.percentage >= LEADERBOARD_HIGH_THRESHOLD
                               ? "default"
-                              : entry.percentage >= 50
+                              : entry.percentage >= LEADERBOARD_MEDIUM_THRESHOLD
                               ? "secondary"
                               : "destructive"
                           }
@@ -489,7 +498,7 @@ export default function StudentSessionPage({
                 {answers.map((answer, idx) => {
                   if (answer.contentType === "game") {
                     const gameTitle = answer.contentId?.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) || "Game";
-                    const totalQ = answer.totalQuestions || 5;
+                    const totalQ = answer.totalQuestions || DEFAULT_GAME_TOTAL_QUESTIONS;
                     const gameScore = answer.score || 0;
                     return (
                       <div
@@ -505,7 +514,7 @@ export default function StudentSessionPage({
                             <p className="text-xs text-muted-foreground mt-1">
                               Score: {gameScore} / {totalQ} correct
                               <span className="ml-2">
-                                ({Math.round((gameScore / totalQ) * 100)}%)
+                                ({Math.round((gameScore / totalQ) * MAX_SCORE_PERCENTAGE)}%)
                               </span>
                             </p>
                           </div>
@@ -555,7 +564,7 @@ export default function StudentSessionPage({
                                       : "text-muted-foreground"
                                   }`}
                                 >
-                                  {String.fromCharCode(65 + oIdx)}. {opt.text}
+                                  {String.fromCharCode(ASCII_UPPERCASE_A + oIdx)}. {opt.text}
                                   {isCorrectAnswer && !isStudentAnswer && (
                                     <span className="ml-1 text-[10px]">(correct)</span>
                                   )}
@@ -630,7 +639,7 @@ export default function StudentSessionPage({
         </div>
 
         <Progress
-          value={((currentIndex + 1) / session.items.length) * 100}
+          value={((currentIndex + 1) / session.items.length) * MAX_SCORE_PERCENTAGE}
           className="mb-6"
         />
 
@@ -733,7 +742,7 @@ export default function StudentSessionPage({
                     }`}
                   >
                     <span className="font-medium mr-2">
-                      {String.fromCharCode(65 + idx)}.
+                      {String.fromCharCode(ASCII_UPPERCASE_A + idx)}.
                     </span>
                     {opt.text}
                   </button>
