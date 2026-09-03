@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
-import Session, { ISessionItem } from "@/models/Session";
+import Session, { type ISessionItem } from "@/models/Session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { SESSION_JOIN_MAX_ATTEMPTS, SESSION_JOIN_RATE_WINDOW_MS, SESSION_CODE_LENGTH } from "@/lib/constants";
 

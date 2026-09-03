@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { teacherNotes, NoteSection } from "@/data/teacher-notes";
+import { teacherNotes, type NoteSection } from "@/data/teacher-notes";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

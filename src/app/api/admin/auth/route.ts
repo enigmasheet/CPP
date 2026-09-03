@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { setAdminCookie } from "@/lib/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { ADMIN_LOGIN_MAX_ATTEMPTS, ADMIN_LOGIN_RATE_WINDOW_MS } from "@/lib/constants";

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, type Document } from "mongoose";
 import { DIFFICULTY_LEVELS, DEFAULT_MCQ_DIFFICULTY } from "@/lib/constants";
 
 export interface IMCQDoc extends Document {

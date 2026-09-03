@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, type Document } from "mongoose";
 import { SESSION_CODE_LENGTH, CONTENT_TYPES, SESSION_TYPES, DEFAULT_SESSION_CREATOR } from "@/lib/constants";
 
 export interface ISessionItem {

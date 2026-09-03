@@ -24,6 +24,26 @@ const eslintConfig = defineConfig([
             "Magic number detected. Extract it to a named constant in src/lib/constants.ts",
         },
       ],
+
+      // ─── TypeScript best practices ─────────────────────────
+      "@typescript-eslint/consistent-type-imports": [
+        "warn",
+        { prefer: "type-imports" },
+      ],
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-non-null-assertion": "warn",
+
+      // ─── React best practices ──────────────────────────────
+      "react/self-closing-comp": "warn",
+
+      // ─── Code quality ──────────────────────────────────────
+      "no-console": [
+        "warn",
+        { allow: ["warn", "error"] },
+      ],
+      "no-alert": "warn",
+      "no-debugger": "warn",
+      "no-duplicate-imports": "warn",
     },
   },
 ]);

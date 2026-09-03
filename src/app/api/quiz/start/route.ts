@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
-import MCQ, { IMCQDoc } from "@/models/MCQ";
+import MCQ, { type IMCQDoc } from "@/models/MCQ";
 import { shuffleArray } from "@/lib/utils";
 import { DEFAULT_QUIZ_LIMIT } from "@/lib/constants";
 
