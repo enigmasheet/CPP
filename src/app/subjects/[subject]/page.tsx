@@ -2,7 +2,6 @@ import AppShell from "@/components/layout/AppShell";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import { getSubject, getTopics } from "@/config/subjects";
 import { notFound } from "next/navigation";
@@ -43,9 +42,6 @@ export default async function SubjectPage({
                     <CardTitle className="text-lg group-hover:text-primary transition-colors">
                       {topic.name}
                     </CardTitle>
-                    <Badge variant="secondary">
-                      {topic.count} MCQs
-                    </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>

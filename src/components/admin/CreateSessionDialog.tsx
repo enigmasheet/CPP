@@ -10,16 +10,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Plus,
-  Link2,
   CheckCircle,
   CircleDot,
   Loader2,
   Lock,
   Puzzle,
   FlaskConical,
+  Search,
+  Copy,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -50,6 +53,8 @@ export default function CreateSessionDialog() {
   const [contentType, setContentType] = useState<"quiz" | "game" | "mixed">("quiz");
   const [creating, setCreating] = useState(false);
   const [createdCode, setCreatedCode] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const loadMcqs = async () => {
     const res = await fetch("/api/mcq?limit=100");
@@ -67,6 +72,8 @@ export default function CreateSessionDialog() {
       setSelectedGames([]);
       setContentType("quiz");
       setCreatedCode(null);
+      setSearchQuery("");
+      setCopied(false);
     }
   };
 
@@ -113,10 +120,20 @@ export default function CreateSessionDialog() {
     setCreating(false);
   };
 
-  const filteredMcqs =
-    topicFilter === "all"
-      ? mcqs
-      : mcqs.filter((m) => m.topic === topicFilter);
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(
+      `${window.location.origin}/s/${createdCode}`
+    );
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const filteredMcqs = mcqs.filter((m) => {
+    const matchesTopic = topicFilter === "all" || m.topic === topicFilter;
+    const matchesSearch = searchQuery === "" || 
+      m.question.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTopic && matchesSearch;
+  });
 
   const topics = [...new Set(mcqs.map((m) => m.topic))];
 
@@ -124,11 +141,15 @@ export default function CreateSessionDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
-      <DialogTrigger className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90">
+      <DialogTrigger
+        render={
+          <Button size="sm" />
+        }
+      >
         <Plus className="w-4 h-4 mr-2" />
         New Session
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {createdCode ? "Session Created" : "Create New Session"}
@@ -136,37 +157,62 @@ export default function CreateSessionDialog() {
         </DialogHeader>
 
         {createdCode ? (
-          <div className="text-center py-6 space-y-4">
-            <p className="text-muted-foreground">Share this code with students:</p>
-            <div className="text-4xl font-mono font-bold tracking-widest">
-              {createdCode}
+          <div className="py-8">
+            <div className="text-center space-y-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
+                <CheckCircle className="w-8 h-8 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-muted-foreground">Share this code with students:</p>
+                <div className="text-5xl font-mono font-bold tracking-[0.3em] text-foreground">
+                  {createdCode}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">or share link:</p>
+                <code className="text-sm bg-muted px-4 py-2 rounded-lg inline-block">
+                  {typeof window !== "undefined" ? window.location.origin : ""}/s/{createdCode}
+                </code>
+              </div>
+              <div className="flex justify-center gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyLink}
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 mr-2" />
+                  ) : (
+                    <Copy className="w-4 h-4 mr-2" />
+                  )}
+                  {copied ? "Copied!" : "Copy Link"}
+                </Button>
+                <Link href={`/admin/sessions/${createdCode}`} className={buttonVariants({ size: "sm" })}>
+                  View Session
+                </Link>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">or share link:</p>
-            <code className="text-sm bg-muted px-3 py-1 rounded">
-              {typeof window !== "undefined" ? window.location.origin : ""}/s/{createdCode}
-            </code>
-            <div className="flex justify-center gap-2 pt-2">
+            <div className="mt-6 pt-4 border-t border-border">
               <Button
-                variant="outline"
-                size="sm"
+                variant="ghost"
+                className="w-full"
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${window.location.origin}/s/${createdCode}`
-                  );
+                  setCreatedCode(null);
+                  setTitle("");
+                  setSection("");
+                  setSelectedMcqs([]);
+                  setSelectedGames([]);
+                  setContentType("quiz");
                 }}
               >
-                <Link2 className="w-4 h-4 mr-2" />
-                Copy Link
+                Create Another Session
               </Button>
-              <Link href={`/admin/sessions/${createdCode}`} className={buttonVariants({ size: "sm" })}>
-                View Session
-              </Link>
             </div>
           </div>
         ) : (
-          <div className="space-y-5">
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div>
+          <div className="space-y-6">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <label className="text-sm font-medium">Session Title *</label>
                 <Input
                   placeholder="e.g. Week 3 - OOP Quiz"
@@ -174,7 +220,7 @@ export default function CreateSessionDialog() {
                   onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <label className="text-sm font-medium">Class Section</label>
                 <Input
                   placeholder="e.g. CS101 - Section A"
@@ -184,25 +230,26 @@ export default function CreateSessionDialog() {
               </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Content Type</label>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Content Type</label>
+              <div className="grid grid-cols-3 gap-3">
                 {[
-                  { id: "quiz" as const, label: "MCQ Quiz", icon: FlaskConical },
-                  { id: "game" as const, label: "Games", icon: Puzzle },
-                  { id: "mixed" as const, label: "Both", icon: Puzzle },
+                  { id: "quiz" as const, label: "MCQ Quiz", icon: FlaskConical, description: "Test knowledge with questions" },
+                  { id: "game" as const, label: "Games", icon: Puzzle, description: "Interactive learning games" },
+                  { id: "mixed" as const, label: "Both", icon: Puzzle, description: "Quiz and games combined" },
                 ].map((opt) => (
                   <button
                     key={opt.id}
                     onClick={() => setContentType(opt.id)}
-                    className={`flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors text-sm ${
+                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-sm ${
                       contentType === opt.id
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border hover:border-primary/30 text-muted-foreground"
+                        ? "border-primary bg-primary/5 text-primary shadow-sm"
+                        : "border-border hover:border-primary/30 text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    <opt.icon className="w-5 h-5" />
+                    <opt.icon className="w-6 h-6" />
                     <span className="font-medium">{opt.label}</span>
+                    <span className="text-[10px] text-muted-foreground">{opt.description}</span>
                   </button>
                 ))}
               </div>
@@ -215,6 +262,16 @@ export default function CreateSessionDialog() {
                   <span className="text-xs text-muted-foreground">
                     {selectedMcqs.length} selected
                   </span>
+                </div>
+
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search questions..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
@@ -243,12 +300,12 @@ export default function CreateSessionDialog() {
                   ))}
                 </div>
 
-                <div className="max-h-52 overflow-y-auto border border-border rounded-lg divide-y divide-border">
+                <div className="max-h-64 overflow-y-auto border border-border rounded-xl divide-y divide-border">
                   {filteredMcqs.map((mcq) => (
                     <button
                       key={mcq._id}
                       onClick={() => toggleMcq(mcq._id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                         selectedMcqs.includes(mcq._id)
                           ? "bg-primary/5"
                           : "hover:bg-muted/50"
@@ -260,7 +317,7 @@ export default function CreateSessionDialog() {
                         <CircleDot className="w-4 h-4 text-muted-foreground shrink-0" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs truncate">{mcq.question}</p>
+                        <p className="text-sm truncate">{mcq.question}</p>
                       </div>
                       <div className="flex gap-1.5 shrink-0">
                         <Badge variant="outline" className="text-[10px]">{mcq.topic}</Badge>
@@ -269,8 +326,8 @@ export default function CreateSessionDialog() {
                     </button>
                   ))}
                   {filteredMcqs.length === 0 && (
-                    <p className="text-center text-sm text-muted-foreground py-4">
-                      No MCQs found for this topic.
+                    <p className="text-center text-sm text-muted-foreground py-6">
+                      No MCQs found.
                     </p>
                   )}
                 </div>
@@ -285,13 +342,13 @@ export default function CreateSessionDialog() {
                     {selectedGames.length} selected
                   </span>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {GAME_TYPES.map((game) => (
                     <button
                       key={game.id}
                       onClick={() => game.implemented && toggleGame(game.id)}
                       disabled={!game.implemented}
-                      className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-colors text-left ${
+                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-colors text-left ${
                         !game.implemented
                           ? "border-border opacity-60 cursor-not-allowed"
                           : selectedGames.includes(game.id)
@@ -322,18 +379,22 @@ export default function CreateSessionDialog() {
                 </div>
               </div>
             )}
+          </div>
+        )}
 
+        {!createdCode && (
+          <DialogFooter>
             <Button
               onClick={handleCreate}
               disabled={!title || selectedCount === 0 || creating}
-              className="w-full"
+              className="w-full sm:w-auto"
             >
               {creating ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
               ) : null}
               Create Session ({selectedCount} items)
             </Button>
-          </div>
+          </DialogFooter>
         )}
       </DialogContent>
     </Dialog>

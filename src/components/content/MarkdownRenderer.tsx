@@ -1,6 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import CodeBlock from "./CodeBlock";
 
 interface MarkdownRendererProps {
@@ -11,6 +12,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
     <div className="prose prose-invert max-w-none">
       <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
         components={{
           code({ className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || "");

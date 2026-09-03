@@ -1,7 +1,6 @@
 import AppShell from "@/components/layout/AppShell";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { BookOpen, Clock, ArrowRight } from "lucide-react";
 import { getSubject, getTopics } from "@/config/subjects";
 import { notFound } from "next/navigation";
@@ -70,9 +69,6 @@ export default async function LearnPage({
                   <p className="text-sm text-muted-foreground">
                     {topic.description}
                   </p>
-                  <div className="flex gap-2 mt-3">
-                    <Badge variant="secondary">{topic.count} MCQs</Badge>
-                  </div>
                 </CardContent>
               </Card>
             </Link>

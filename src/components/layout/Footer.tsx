@@ -21,7 +21,7 @@ export default function Footer() {
             <Link href="/join" className="hover:text-foreground transition-colors">
               Join Session
             </Link>
-            <span className="text-muted-foreground/50">|</span>
+            <span className="text-muted-foreground">|</span>
             <span>{subjectCount} Subject{subjectCount > 1 ? "s" : ""}</span>
           </div>
         </div>

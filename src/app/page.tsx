@@ -21,7 +21,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16 relative">
           <div className="text-center">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
-              <span className="bg-linear-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-zinc-100 via-white to-zinc-400 bg-clip-text text-transparent">
                 TeachMate
               </span>
             </h1>
@@ -65,7 +65,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-20">
         <h2 className="text-3xl font-bold text-center mb-8">Topics Covered</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {topics.map((topic) => (
             <Link
               key={topic.slug}

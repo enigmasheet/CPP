@@ -4,6 +4,7 @@ export interface NoteSection {
   content: string;
   difficulty: "beginner" | "intermediate" | "advanced";
   estimatedMinutes: number;
+  teacherOnly?: boolean;
 }
 
 export const teacherNotes: NoteSection[] = [
@@ -1847,6 +1848,7 @@ Operations: Add, Display, Search, Update, Delete
     title: "First-Class Teaching Plan",
     difficulty: "beginner",
     estimatedMinutes: 10,
+    teacherOnly: true,
     content: `## First 90 Minutes
 
 ### Part 1 - Introduction (10 minutes)
@@ -1894,6 +1896,7 @@ Program: __________
     title: "Recommended Teaching Pattern",
     difficulty: "beginner",
     estimatedMinutes: 10,
+    teacherOnly: true,
     content: `For every new concept, use:
 
 \`\`\`text
@@ -1936,6 +1939,7 @@ The syntax now has a **reason**.`,
     title: "What Students Should NOT Do",
     difficulty: "beginner",
     estimatedMinutes: 5,
+    teacherOnly: true,
     content: `Avoid making beginners memorize:
 
 \`\`\`text
@@ -1973,6 +1977,7 @@ This develops **programming thinking**, not just syntax knowledge.`,
     title: "Core Topics Checklist",
     difficulty: "beginner",
     estimatedMinutes: 5,
+    teacherOnly: true,
     content: `By the end of the introductory portion, students should know:
 
 - Programming fundamentals

@@ -6,7 +6,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck } from "lucide-react";
+import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck, LogOut } from "lucide-react";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import CreateSessionDialog from "@/components/admin/CreateSessionDialog";
 import SessionsList from "@/components/admin/SessionsList";
@@ -58,6 +58,12 @@ export default function AdminPage() {
     setLoading(false);
   };
 
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    setIsAuthenticated(false);
+    setPassword("");
+  };
+
   if (!isAuthenticated) {
     return (
       <AppShell>
@@ -97,17 +103,21 @@ export default function AdminPage() {
     <AppShell>
       <PageHeader title="Teacher Dashboard" description="Manage sessions, notes, and teaching resources">
         <CreateSessionDialog />
+        <Button variant="outline" onClick={handleLogout}>
+          <LogOut className="w-4 h-4 mr-2" />
+          Log out
+        </Button>
       </PageHeader>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex gap-1 border-b border-border mb-6">
+        <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto scrollbar-none">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                   activeTab === tab.id
                     ? "border-primary text-foreground"
                     : "border-transparent text-muted-foreground hover:text-foreground"
