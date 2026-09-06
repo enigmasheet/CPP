@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { BookOpen, CheckCircle } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { getSubject, getTopics, getAllSubjectSlugs, getNoteCounts } from "@/config/subjects";
-import { STUDENT_TOPICS_FILTER, MAX_SCORE_PERCENTAGE } from "@/lib/constants";
+import { STUDENT_TOPICS_FILTER } from "@/lib/constants";
 import SubjectTopicList from "@/components/subjects/SubjectTopicList";
 import type { Metadata } from "next";
 

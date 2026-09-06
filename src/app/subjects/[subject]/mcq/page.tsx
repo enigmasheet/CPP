@@ -5,8 +5,12 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { getSubject, getTopics } from "@/config/subjects";
+import { getSubject, getTopics, getAllSubjectSlugs } from "@/config/subjects";
 import { verifyAdmin } from "@/lib/auth";
+
+export function generateStaticParams() {
+  return getAllSubjectSlugs().map((subject) => ({ subject }));
+}
 
 export default async function MCQTopicsPage({
   params,

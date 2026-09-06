@@ -8,11 +8,11 @@ import {
   BarChart3,
   GraduationCap,
 } from "lucide-react";
-import { SUBJECTS, getTopics } from "@/config/subjects";
+import { SUBJECTS, getTopics, getNoteCounts } from "@/config/subjects";
+import { STUDENT_TOPICS_FILTER } from "@/lib/constants";
 
-const firstSlug = Object.keys(SUBJECTS)[0];
-const subject = SUBJECTS[firstSlug];
-const topics = getTopics(firstSlug).filter((t) => t.slug !== "teacher-plans");
+const allSubjects = Object.values(SUBJECTS);
+const firstSlug = allSubjects[0]?.slug;
 
 export default function Home() {
   return (
@@ -49,11 +49,45 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold">Subjects</h2>
+          <p className="text-muted-foreground mt-2">{allSubjects.length} subjects available</p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {allSubjects.map((subject) => {
+            const topics = getTopics(subject.slug).filter((t) => t.slug !== STUDENT_TOPICS_FILTER);
+            const noteCounts = getNoteCounts(subject.slug);
+            const totalNotes = topics.reduce((sum, t) => sum + (noteCounts[t.slug] ?? 0), 0);
+
+            return (
+              <Link key={subject.slug} href={`/subjects/${subject.slug}/learn`}>
+                <Card className="h-full transition-all hover:border-primary/50 hover:shadow-lg cursor-pointer">
+                  <CardHeader>
+                    <div className="text-primary mb-2">
+                      <GraduationCap className="w-8 h-8" />
+                    </div>
+                    <CardTitle className="text-lg">{subject.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3">{subject.description}</p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span>{topics.length} topics</span>
+                      <span>{totalNotes} notes</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <FeatureCard
             icon={<BookOpen className="w-8 h-8" />}
             title="Study Materials"
-            description={`Structured curriculum covering ${subject.name.replace(" Programming", "")} fundamentals to advanced concepts`}
+            description="Structured curriculum with topics covering fundamentals to advanced concepts"
             href={`/subjects/${firstSlug}/learn`}
           />
           <FeatureCard
@@ -68,26 +102,6 @@ export default function Home() {
             description="Monitor your learning journey, review completed topics, and check quiz scores"
             href="/my-progress"
           />
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold">Topics Covered</h2>
-          <p className="text-muted-foreground mt-2">{topics.length} topics, 80+ sections of learning content</p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {topics.map((topic) => (
-            <Link
-              key={topic.slug}
-              href={`/subjects/${firstSlug}/learn/${topic.slug}`}
-              className="group p-4 bg-card rounded-lg border border-border text-center transition-all hover:border-primary/50 hover:shadow-lg"
-            >
-              <span className="font-medium group-hover:text-primary transition-colors">
-                {topic.name}
-              </span>
-            </Link>
-          ))}
         </div>
       </section>
     </AppShell>

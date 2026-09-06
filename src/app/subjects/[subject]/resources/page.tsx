@@ -16,6 +16,7 @@ import { Search, FileText, Code, Image, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { useResources } from "@/hooks/queries";
+import { useParams } from "next/navigation";
 
 const DIFFICULTY_COLORS = {
   beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
@@ -30,6 +31,7 @@ const TYPE_ICONS = {
 };
 
 export default function ResourcesPage() {
+  const { subject: slug } = useParams<{ subject: string }>();
   const { data: resources = [], isLoading } = useResources();
   const [search, setSearch] = useState("");
   const [topicFilter, setTopicFilter] = useState("all");
@@ -55,7 +57,7 @@ export default function ResourcesPage() {
           </p>
         </div>
         <Link
-          href="/subjects/cpp"
+          href={`/subjects/${slug}`}
           className={buttonVariants({ variant: "outline" })}
         >
           Back to Subjects

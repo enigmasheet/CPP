@@ -53,7 +53,6 @@ export default function SubjectTopicList({ slug, topics, noteCounts }: Props) {
       )}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {topics.map((topic) => {
-          const noteCount = noteCounts[topic.slug] ?? 0;
           const progress = progressMap[topic.slug];
           const hasProgress = progress && progress.completed > 0;
 

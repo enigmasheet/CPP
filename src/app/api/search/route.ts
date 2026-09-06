@@ -40,23 +40,35 @@ export async function GET(request: NextRequest) {
         snippet: n.content.slice(0, SEARCH_SNIPPET_LENGTH).replace(/[#*`]/g, "") + "...",
       }));
 
-    const mcqs = await MCQ.find({ question: regex }).limit(MAX_MCQ_SEARCH_RESULTS).lean();
-    const questions = mcqs.map((m) => ({
-      id: `mcq-${m._id}`,
-      title: m.question.slice(0, SEARCH_TITLE_SNIPPET_LENGTH),
-      type: "question" as const,
-      url: `/subjects/cpp/mcq/${m.topic}`,
-      snippet: m.options.map((o: { text: string }) => o.text).join(" | ").slice(0, SEARCH_SNIPPET_LENGTH),
-    }));
+    const mcqs = await MCQ.find({ question: regex })
+      .limit(MAX_MCQ_SEARCH_RESULTS)
+      .populate("subject", "slug")
+      .lean();
+    const questions = mcqs.map((m) => {
+      const subjectSlug = (m.subject as unknown as { slug: string })?.slug ?? "cpp";
+      return {
+        id: `mcq-${m._id}`,
+        title: m.question.slice(0, SEARCH_TITLE_SNIPPET_LENGTH),
+        type: "question" as const,
+        url: `/subjects/${subjectSlug}/mcq/${m.topic}`,
+        snippet: m.options.map((o: { text: string }) => o.text).join(" | ").slice(0, SEARCH_SNIPPET_LENGTH),
+      };
+    });
 
-    const resources = await Resource.find({ title: regex }).limit(MAX_RESOURCE_SEARCH_RESULTS).lean();
-    const resourceResults = resources.map((r) => ({
-      id: `resource-${r._id}`,
-      title: r.title,
-      type: "resource" as const,
-      url: `/subjects/cpp/learn`,
-      snippet: r.description?.slice(0, SEARCH_SNIPPET_LENGTH) || r.content?.slice(0, SEARCH_SNIPPET_LENGTH) || "",
-    }));
+    const resources = await Resource.find({ title: regex })
+      .limit(MAX_RESOURCE_SEARCH_RESULTS)
+      .populate("subject", "slug")
+      .lean();
+    const resourceResults = resources.map((r) => {
+      const subjectSlug = (r.subject as unknown as { slug: string })?.slug ?? "cpp";
+      return {
+        id: `resource-${r._id}`,
+        title: r.title,
+        type: "resource" as const,
+        url: `/subjects/${subjectSlug}/resources`,
+        snippet: r.description?.slice(0, SEARCH_SNIPPET_LENGTH) || r.content?.slice(0, SEARCH_SNIPPET_LENGTH) || "",
+      };
+    });
 
     return NextResponse.json({ topics, questions, resources: resourceResults });
   } catch {

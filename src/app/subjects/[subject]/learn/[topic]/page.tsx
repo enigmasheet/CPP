@@ -1,8 +1,19 @@
 import AppShell from "@/components/layout/AppShell";
 import LearnTopicView from "@/components/learn/LearnTopicView";
-import { getSubject, getTopics, getTopic } from "@/config/subjects";
+import { getSubject, getTopics, getTopic, getAllSubjectSlugs } from "@/config/subjects";
 import { notFound } from "next/navigation";
 import { teacherNotes } from "@/data/teacher-notes";
+
+export function generateStaticParams() {
+  const params: Array<{ subject: string; topic: string }> = [];
+  for (const subjectSlug of getAllSubjectSlugs()) {
+    const topics = getTopics(subjectSlug);
+    for (const topic of topics) {
+      params.push({ subject: subjectSlug, topic: topic.slug });
+    }
+  }
+  return params;
+}
 
 export default async function LearnTopicPage({
   params,
