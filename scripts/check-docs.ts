@@ -3,12 +3,49 @@ import path from "path";
 
 const ROOT = path.resolve(__dirname, "..");
 const SRC = path.join(ROOT, "src");
+const DOCS_DIR = path.join(ROOT, "docs");
 const MODELS_DIR = path.join(SRC, "models");
 const API_DIR = path.join(SRC, "app", "api");
 
 function readMarkdownFiles(): string[] {
-  const files = fs.readdirSync(ROOT).filter((f) => f.endsWith(".md"));
-  return files.map((f) => fs.readFileSync(path.join(ROOT, f), "utf-8"));
+  const files: string[] = [];
+  
+  // Read from docs/
+  if (fs.existsSync(DOCS_DIR)) {
+    for (const f of fs.readdirSync(DOCS_DIR)) {
+      if (f.endsWith(".md")) {
+        files.push(fs.readFileSync(path.join(DOCS_DIR, f), "utf-8"));
+      }
+    }
+    // Read from docs/generated/
+    const generatedDir = path.join(DOCS_DIR, "generated");
+    if (fs.existsSync(generatedDir)) {
+      for (const f of fs.readdirSync(generatedDir)) {
+        if (f.endsWith(".md")) {
+          files.push(fs.readFileSync(path.join(generatedDir, f), "utf-8"));
+        }
+      }
+    }
+    // Read from docs/audits/
+    const auditsDir = path.join(DOCS_DIR, "audits");
+    if (fs.existsSync(auditsDir)) {
+      for (const f of fs.readdirSync(auditsDir)) {
+        if (f.endsWith(".md")) {
+          files.push(fs.readFileSync(path.join(auditsDir, f), "utf-8"));
+        }
+      }
+    }
+  }
+  
+  // Read AGENTS.md and README.md from root
+  for (const f of ["AGENTS.md", "README.md"]) {
+    const filePath = path.join(ROOT, f);
+    if (fs.existsSync(filePath)) {
+      files.push(fs.readFileSync(filePath, "utf-8"));
+    }
+  }
+  
+  return files;
 }
 
 function checkModels(): string[] {

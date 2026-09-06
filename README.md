@@ -79,16 +79,16 @@ src/
 
 ## Documentation
 
-- [Project Context](PROJECT_CONTEXT.md) — Purpose, users, workflows
-- [Architecture](ARCHITECTURE.md) — System design and rendering strategy
-- [Database](DATABASE.md) — Models, relationships, indexes
-- [API Reference](API.md) — All endpoints documented
-- [Authentication](AUTH.md) — Auth mechanism and protected routes
-- [Features](FEATURES.md) — Feature inventory with code locations
-- [Development](DEVELOPMENT.md) — Setup, commands, conventions
-- [Deployment](DEPLOYMENT.md) — Build, deploy, environment config
-- [Decisions](DECISIONS.md) — Architectural decisions and rationale
-- [TODO](TODO.md) — Known issues and planned features
+- [Project Context](docs/PROJECT_CONTEXT.md) — Purpose, users, workflows
+- [Architecture](docs/ARCHITECTURE.md) — System design and rendering strategy
+- [Database](docs/DATABASE.md) — Models, relationships, indexes
+- [API Reference](docs/API.md) — All endpoints documented
+- [Authentication](docs/AUTH.md) — Auth mechanism and protected routes
+- [Features](docs/FEATURES.md) — Feature inventory with code locations
+- [Development](docs/DEVELOPMENT.md) — Setup, commands, conventions
+- [Deployment](docs/DEPLOYMENT.md) — Build, deploy, environment config
+- [Decisions](docs/DECISIONS.md) — Architectural decisions and rationale
+- [TODO](docs/TODO.md) — Known issues and planned features
 
 ## License
 

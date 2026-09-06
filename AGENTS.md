@@ -99,17 +99,17 @@ The following are planned improvements as more subjects are added:
 
 | File | Purpose |
 |------|---------|
-| `PROJECT_CONTEXT.md` | Product purpose, users, workflows |
-| `ARCHITECTURE.md` | System design, rendering strategy, state management |
-| `DATABASE.md` | Models, relationships, indexes (single source of truth for DB) |
-| `API.md` | All API endpoints with auth, request/response |
-| `AUTH.md` | Authentication mechanism and protected routes |
-| `FEATURES.md` | Feature inventory with code locations |
-| `DEVELOPMENT.md` | Setup, commands, conventions |
-| `DEPLOYMENT.md` | Build, deploy, environment config |
-| `DECISIONS.md` | Architectural decisions and rationale |
-| `TODO.md` | Known issues and planned features |
-| `CHANGELOG.md` | Historical changes |
+| `docs/PROJECT_CONTEXT.md` | Product purpose, users, workflows |
+| `docs/ARCHITECTURE.md` | System design, rendering strategy, state management |
+| `docs/DATABASE.md` | Models, relationships, indexes (single source of truth for DB) |
+| `docs/API.md` | All API endpoints with auth, request/response |
+| `docs/AUTH.md` | Authentication mechanism and protected routes |
+| `docs/FEATURES.md` | Feature inventory with code locations |
+| `docs/DEVELOPMENT.md` | Setup, commands, conventions |
+| `docs/DEPLOYMENT.md` | Build, deploy, environment config |
+| `docs/DECISIONS.md` | Architectural decisions and rationale |
+| `docs/TODO.md` | Known issues and planned features |
+| `docs/CHANGELOG.md` | Historical changes |
 | `docs/generated/` | Auto-generated route, model, env var inventories |
 
 ## Before Finishing Any Task

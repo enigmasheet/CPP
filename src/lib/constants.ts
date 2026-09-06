@@ -151,6 +151,13 @@ export const QUIZ_RESULTS_KEY = "quiz-results";
 export const LEARN_PROGRESS_KEY_PREFIX = "learn-progress-";
 export const STUDENT_TOPICS_FILTER = "teacher-plans";
 
+// ─── Learn Resume ──────────────────────────────────────────────
+export const LEARN_NOTE_IDX_KEY_PREFIX = "learn-note-idx-";
+
+// ─── Join Recent Sessions ──────────────────────────────────────
+export const JOIN_RECENT_SESSIONS_KEY = "join-recent-sessions";
+export const MAX_RECENT_SESSIONS = 5;
+
 // ─── Class Validation ────────────────────────────────────────
 export const MAX_CLASS_NAME_LENGTH = 100;
 export const MAX_CLASS_DESCRIPTION_LENGTH = 500;

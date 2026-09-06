@@ -23,6 +23,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import OutputPredictor from "@/components/games/OutputPredictor";
 import SpeedCode from "@/components/games/SpeedCode";
+import BugHunter from "@/components/games/BugHunter";
 import {
   MINUTES_TO_SECONDS,
   TIMER_INTERVAL_MS,
@@ -712,49 +713,19 @@ export default function StudentSessionPage({
                 <SpeedCode
                   key={currentItem.contentId}
                   questions={gameQuestions[currentItem.contentId] as never[]}
-                  onComplete={(gameScore) => {
-                    const questions = gameQuestions[currentItem.contentId] || [];
-                    const answer: Answer = {
-                      contentId: currentItem.contentId,
-                      contentType: currentItem.contentType,
-                      selected: null,
-                      score: gameScore,
-                      totalQuestions: questions.length,
-                    };
-                    const newAnswers = [...answers, answer];
-                    setAnswers(newAnswers);
-                    if (currentIndex < session.items.length - 1) {
-                      setCurrentIndex(currentIndex + 1);
-                      setSelected(null);
-                      setShowResult(false);
-                    } else {
-                      submitAnswers(newAnswers);
-                    }
-                  }}
+                  onComplete={handleGameComplete}
+                />
+              ) : currentItem.gameType === "bug-hunter" ? (
+                <BugHunter
+                  key={currentItem.contentId}
+                  questions={gameQuestions[currentItem.contentId] as never[]}
+                  onComplete={handleGameComplete}
                 />
               ) : (
                 <OutputPredictor
                   key={currentItem.contentId}
                   questions={gameQuestions[currentItem.contentId] as never[]}
-                  onComplete={(gameScore) => {
-                    const questions = gameQuestions[currentItem.contentId] || [];
-                    const answer: Answer = {
-                      contentId: currentItem.contentId,
-                      contentType: currentItem.contentType,
-                      selected: null,
-                      score: gameScore,
-                      totalQuestions: questions.length,
-                    };
-                    const newAnswers = [...answers, answer];
-                    setAnswers(newAnswers);
-                    if (currentIndex < session.items.length - 1) {
-                      setCurrentIndex(currentIndex + 1);
-                      setSelected(null);
-                      setShowResult(false);
-                    } else {
-                      submitAnswers(newAnswers);
-                    }
-                  }}
+                  onComplete={handleGameComplete}
                 />
               )}
             </div>
