@@ -90,3 +90,58 @@ The following are planned improvements as more subjects are added:
 
 ### Classes
 - **Multi-subject classes**: A class can be linked to a subject, so "CS101 - OOP" tracks OOP topics and "CS101 - C++" tracks C++ topics
+
+# Documentation Maintenance
+
+**Documentation is part of the codebase.** Every code change must be evaluated for documentation impact.
+
+## Documentation Files
+
+| File | Purpose |
+|------|---------|
+| `PROJECT_CONTEXT.md` | Product purpose, users, workflows |
+| `ARCHITECTURE.md` | System design, rendering strategy, state management |
+| `DATABASE.md` | Models, relationships, indexes (single source of truth for DB) |
+| `API.md` | All API endpoints with auth, request/response |
+| `AUTH.md` | Authentication mechanism and protected routes |
+| `FEATURES.md` | Feature inventory with code locations |
+| `DEVELOPMENT.md` | Setup, commands, conventions |
+| `DEPLOYMENT.md` | Build, deploy, environment config |
+| `DECISIONS.md` | Architectural decisions and rationale |
+| `TODO.md` | Known issues and planned features |
+| `CHANGELOG.md` | Historical changes |
+| `docs/generated/` | Auto-generated route, model, env var inventories |
+
+## Before Finishing Any Task
+
+Determine whether the change affects:
+- Architecture, Database, API, Authentication, Features, Routes
+- Rendering, Deployment, Environment variables, Business rules
+- Architectural decisions, Known limitations, TODO items
+
+If it does, update the appropriate documentation in the same change.
+
+## Documentation Impact Check
+
+```md
+## Documentation Impact
+
+- [ ] Project context
+- [ ] Architecture
+- [ ] Database
+- [ ] API
+- [ ] Authentication
+- [ ] Features
+- [ ] Development
+- [ ] Deployment
+- [ ] Decisions
+- [ ] TODO
+```
+
+## Rules
+
+1. Never intentionally leave known stale documentation behind
+2. Source code is the ultimate source of truth — if docs conflict with code, update docs
+3. Prefer a smaller number of high-quality documents over dozens of repetitive files
+4. Do not over-document obvious implementation details
+5. Include actual file paths and code references where useful
