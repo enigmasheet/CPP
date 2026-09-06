@@ -41,7 +41,7 @@ export const PATCH = withDB(async (request, context) => {
   const session = await Session.findOneAndUpdate(
     { code: code?.toUpperCase() },
     { $set: parsed.data },
-    { new: true }
+    { returnDocument: "after" }
   );
 
   if (!session) {

@@ -23,7 +23,7 @@ export const PATCH = withDB(async (request, context) => {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
-  const mcq = await MCQ.findByIdAndUpdate(id, parsed.data, { new: true }).lean();
+  const mcq = await MCQ.findByIdAndUpdate(id, parsed.data, { returnDocument: "after" }).lean();
   if (!mcq) {
     return NextResponse.json({ error: "MCQ not found" }, { status: 404 });
   }

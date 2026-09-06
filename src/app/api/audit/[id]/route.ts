@@ -15,7 +15,7 @@ export const PATCH = withDB(async (request, context) => {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const log = await AuditLog.findByIdAndUpdate(id, parsed.data, { new: true });
+  const log = await AuditLog.findByIdAndUpdate(id, parsed.data, { returnDocument: "after" });
   if (!log) {
     return NextResponse.json({ error: "Log not found" }, { status: 404 });
   }

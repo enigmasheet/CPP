@@ -15,7 +15,7 @@ export const PATCH = withDB(async (request, context) => {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
   }
 
-  const plan = await TeachingPlan.findByIdAndUpdate(id, parsed.data, { new: true });
+  const plan = await TeachingPlan.findByIdAndUpdate(id, parsed.data, { returnDocument: "after" });
   if (!plan) {
     return NextResponse.json({ error: "Plan not found" }, { status: 404 });
   }

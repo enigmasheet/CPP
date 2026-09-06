@@ -31,7 +31,7 @@ export const PATCH = withDB(async (request: Request, context) => {
     );
   }
 
-  const cls = await Class.findByIdAndUpdate(id, parsed.data, { new: true }).lean();
+  const cls = await Class.findByIdAndUpdate(id, parsed.data, { returnDocument: "after" }).lean();
   if (!cls) {
     return NextResponse.json({ error: "Class not found" }, { status: 404 });
   }

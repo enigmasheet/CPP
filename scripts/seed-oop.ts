@@ -441,7 +441,7 @@ async function seed() {
     const doc = await Subject.findOneAndUpdate(
       { slug: s.slug },
       { $setOnInsert: s },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
     console.log(`Subject: ${s.name} (${doc._id})`);
   }

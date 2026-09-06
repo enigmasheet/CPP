@@ -18,7 +18,7 @@ export const PATCH = withDB(async (request: Request, context) => {
     );
   }
 
-  const entry = await ClassEntry.findByIdAndUpdate(entryId, parsed.data, { new: true }).lean();
+  const entry = await ClassEntry.findByIdAndUpdate(entryId, parsed.data, { returnDocument: "after" }).lean();
   if (!entry) {
     return NextResponse.json({ error: "Entry not found" }, { status: 404 });
   }
