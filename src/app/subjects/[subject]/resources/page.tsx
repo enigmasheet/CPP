@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -15,17 +15,7 @@ import CodeBlock from "@/components/content/CodeBlock";
 import { Search, FileText, Code, Image, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-
-interface Resource {
-  _id: string;
-  title: string;
-  topic: string;
-  type: "code" | "diagram" | "document";
-  content: string;
-  language?: string;
-  difficulty: "beginner" | "intermediate" | "advanced";
-  createdAt: string;
-}
+import { useResources } from "@/hooks/queries";
 
 const DIFFICULTY_COLORS = {
   beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
@@ -40,20 +30,10 @@ const TYPE_ICONS = {
 };
 
 export default function ResourcesPage() {
-  const [resources, setResources] = useState<Resource[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: resources = [], isLoading } = useResources();
   const [search, setSearch] = useState("");
   const [topicFilter, setTopicFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-
-  useEffect(() => {
-    fetch("/api/resources")
-      .then((r) => r.json())
-      .then((data) => {
-        setResources(Array.isArray(data) ? data : []);
-        setLoading(false);
-      });
-  }, []);
 
   const topics = [...new Set(resources.map((r) => r.topic))].sort();
 
@@ -118,7 +98,7 @@ export default function ResourcesPage() {
         </Select>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="text-center py-12">
           <Loader2 className="w-6 h-6 animate-spin mx-auto" />
         </div>

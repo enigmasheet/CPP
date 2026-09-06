@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -29,29 +29,19 @@ import {
   Clock,
   Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { SUBJECTS } from "@/config/subjects";
-
-interface AuditLogEntry {
-  _id: string;
-  date: string;
-  sessionCode?: string;
-  section?: string;
-  topicsCovered: string[];
-  mcqsUsed: number;
-  studentCount: number;
-  averageScore?: number;
-  highestScore?: number;
-  lowestScore?: number;
-  duration?: number;
-  notes?: string;
-  status: "planned" | "completed" | "skipped";
-}
+import { useAuditLogs, useCreateAuditLog, useUpdateAuditLog, useDeleteAuditLog } from "@/hooks/queries";
+import type { AuditLogData } from "@/lib/types";
 
 const TOPICS = SUBJECTS.cpp?.topics.map((t) => t.slug) || [];
 
 export default function AuditLogTab() {
-  const [logs, setLogs] = useState<AuditLogEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: logs = [], isLoading } = useAuditLogs();
+  const createLog = useCreateAuditLog();
+  const updateLog = useUpdateAuditLog();
+  const deleteLog = useDeleteAuditLog();
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -63,18 +53,7 @@ export default function AuditLogTab() {
   const [formAvg, setFormAvg] = useState("");
   const [formDuration, setFormDuration] = useState("");
   const [formNotes, setFormNotes] = useState("");
-  const [formStatus, setFormStatus] = useState<"planned" | "completed" | "skipped">("completed");
-
-  const fetchLogs = () => {
-    fetch("/api/audit")
-      .then((r) => r.json())
-      .then((data) => {
-        setLogs(Array.isArray(data) ? data : []);
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => { fetchLogs(); }, []);
+  const [formStatus, setFormStatus] = useState<AuditLogData["status"]>("completed");
 
   const resetForm = () => {
     setEditingId(null);
@@ -89,7 +68,7 @@ export default function AuditLogTab() {
     setFormStatus("completed");
   };
 
-  const openEdit = (log: AuditLogEntry) => {
+  const openEdit = (log: AuditLogData) => {
     setEditingId(log._id);
     setFormDate(log.date.split("T")[0]);
     setFormSection(log.section || "");
@@ -116,23 +95,28 @@ export default function AuditLogTab() {
       status: formStatus,
     };
 
-    const url = editingId ? `/api/audit/${editingId}` : "/api/audit";
-    const method = editingId ? "PATCH" : "POST";
-
-    await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    setDialogOpen(false);
-    resetForm();
-    fetchLogs();
+    try {
+      if (editingId) {
+        await updateLog.mutateAsync({ id: editingId, ...body });
+        toast.success("Entry updated");
+      } else {
+        await createLog.mutateAsync(body);
+        toast.success("Entry created");
+      }
+      setDialogOpen(false);
+      resetForm();
+    } catch {
+      toast.error("Failed to save entry");
+    }
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/audit/${id}`, { method: "DELETE" });
-    fetchLogs();
+    try {
+      await deleteLog.mutateAsync(id);
+      toast.success("Entry deleted");
+    } catch {
+      toast.error("Failed to delete entry");
+    }
   };
 
   const toggleTopic = (slug: string) => {
@@ -148,7 +132,7 @@ export default function AuditLogTab() {
     ? Math.round(avgAll.reduce((s, l) => s + (l.averageScore || 0), 0) / avgAll.length)
     : 0;
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="text-center py-12">
         <Loader2 className="w-6 h-6 animate-spin mx-auto" />
@@ -180,7 +164,7 @@ export default function AuditLogTab() {
               </div>
               <div>
                 <label className="text-sm font-medium">Status</label>
-                <Select value={formStatus} onValueChange={(v) => setFormStatus(v as typeof formStatus)}>
+                <Select value={formStatus} onValueChange={(v) => setFormStatus(v as AuditLogData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="completed">Completed</SelectItem>
@@ -234,7 +218,8 @@ export default function AuditLogTab() {
                   onChange={(e) => setFormNotes(e.target.value)}
                 />
               </div>
-              <Button onClick={handleSave} className="w-full">
+              <Button onClick={handleSave} disabled={createLog.isPending || updateLog.isPending} className="w-full">
+                {(createLog.isPending || updateLog.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 {editingId ? "Update" : "Save Entry"}
               </Button>
             </div>

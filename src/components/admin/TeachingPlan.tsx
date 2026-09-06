@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -30,20 +30,11 @@ import {
   Loader2,
   ArrowRight,
 } from "lucide-react";
+import { toast } from "sonner";
 import { SUBJECTS } from "@/config/subjects";
 import { PLAN_STATUS_TRANSITIONS } from "@/lib/constants";
-
-interface Plan {
-  _id: string;
-  title: string;
-  description?: string;
-  targetDate?: string;
-  topics: string[];
-  status: "todo" | "in_progress" | "done" | "skipped";
-  priority: "low" | "medium" | "high";
-  notes?: string;
-  createdAt: string;
-}
+import { useTeachingPlans, useCreatePlan, useUpdatePlan, useDeletePlan } from "@/hooks/queries";
+import type { TeachingPlanData } from "@/lib/types";
 
 const TOPICS = SUBJECTS.cpp?.topics.map((t) => ({ slug: t.slug, name: t.name })) || [];
 
@@ -61,8 +52,11 @@ const PRIORITY_COLORS = {
 } as const;
 
 export default function TeachingPlanTab() {
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: plans = [], isLoading } = useTeachingPlans();
+  const createPlan = useCreatePlan();
+  const updatePlan = useUpdatePlan();
+  const deletePlan = useDeletePlan();
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -70,20 +64,9 @@ export default function TeachingPlanTab() {
   const [formDesc, setFormDesc] = useState("");
   const [formDate, setFormDate] = useState("");
   const [formTopics, setFormTopics] = useState<string[]>([]);
-  const [formPriority, setFormPriority] = useState<"low" | "medium" | "high">("medium");
-  const [formStatus, setFormStatus] = useState<"todo" | "in_progress" | "done" | "skipped">("todo");
+  const [formPriority, setFormPriority] = useState<TeachingPlanData["priority"]>("medium");
+  const [formStatus, setFormStatus] = useState<TeachingPlanData["status"]>("todo");
   const [formNotes, setFormNotes] = useState("");
-
-  const fetchPlans = () => {
-    fetch("/api/plans")
-      .then((r) => r.json())
-      .then((data) => {
-        setPlans(Array.isArray(data) ? data : []);
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => { fetchPlans(); }, []);
 
   const resetForm = () => {
     setEditingId(null);
@@ -96,7 +79,7 @@ export default function TeachingPlanTab() {
     setFormNotes("");
   };
 
-  const openEdit = (plan: Plan) => {
+  const openEdit = (plan: TeachingPlanData) => {
     setEditingId(plan._id);
     setFormTitle(plan.title);
     setFormDesc(plan.description || "");
@@ -119,34 +102,38 @@ export default function TeachingPlanTab() {
       notes: formNotes || undefined,
     };
 
-    const url = editingId ? `/api/plans/${editingId}` : "/api/plans";
-    const method = editingId ? "PATCH" : "POST";
-
-    await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    setDialogOpen(false);
-    resetForm();
-    fetchPlans();
+    try {
+      if (editingId) {
+        await updatePlan.mutateAsync({ id: editingId, ...body });
+        toast.success("Plan updated");
+      } else {
+        await createPlan.mutateAsync(body);
+        toast.success("Plan created");
+      }
+      setDialogOpen(false);
+      resetForm();
+    } catch {
+      toast.error("Failed to save plan");
+    }
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/plans/${id}`, { method: "DELETE" });
-    fetchPlans();
+    try {
+      await deletePlan.mutateAsync(id);
+      toast.success("Plan deleted");
+    } catch {
+      toast.error("Failed to delete plan");
+    }
   };
 
-  const advanceStatus = async (plan: Plan) => {
+  const advanceStatus = async (plan: TeachingPlanData) => {
     const next = PLAN_STATUS_TRANSITIONS[plan.status];
     if (!next) return;
-    await fetch(`/api/plans/${plan._id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next }),
-    });
-    fetchPlans();
+    try {
+      await updatePlan.mutateAsync({ id: plan._id, status: next });
+    } catch {
+      toast.error("Failed to update status");
+    }
   };
 
   const toggleTopic = (slug: string) => {
@@ -162,7 +149,7 @@ export default function TeachingPlanTab() {
     skipped: plans.filter((p) => p.status === "skipped"),
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="text-center py-12">
         <Loader2 className="w-6 h-6 animate-spin mx-auto" />
@@ -199,7 +186,7 @@ export default function TeachingPlanTab() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Priority</label>
-                  <Select value={formPriority} onValueChange={(v) => setFormPriority(v as typeof formPriority)}>
+                  <Select value={formPriority} onValueChange={(v) => setFormPriority(v as TeachingPlanData["priority"])}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="low">Low</SelectItem>
@@ -211,7 +198,7 @@ export default function TeachingPlanTab() {
               </div>
               <div>
                 <label className="text-sm font-medium">Status</label>
-                <Select value={formStatus} onValueChange={(v) => setFormStatus(v as typeof formStatus)}>
+                <Select value={formStatus} onValueChange={(v) => setFormStatus(v as TeachingPlanData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todo">To Do</SelectItem>
@@ -248,7 +235,8 @@ export default function TeachingPlanTab() {
                   onChange={(e) => setFormNotes(e.target.value)}
                 />
               </div>
-              <Button onClick={handleSave} disabled={!formTitle} className="w-full">
+              <Button onClick={handleSave} disabled={!formTitle || createPlan.isPending || updatePlan.isPending} className="w-full">
+                {(createPlan.isPending || updatePlan.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 {editingId ? "Update" : "Create Plan"}
               </Button>
             </div>
@@ -308,6 +296,7 @@ export default function TeachingPlanTab() {
                                 size="sm"
                                 className="h-6 px-1.5"
                                 onClick={() => advanceStatus(plan)}
+                                disabled={updatePlan.isPending}
                               >
                                 <ArrowRight className="w-3 h-3" />
                               </Button>

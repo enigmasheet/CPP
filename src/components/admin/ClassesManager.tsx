@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,58 +24,40 @@ import {
   School,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  useClasses,
+  useClassEntries,
+  useCreateClass,
+  useUpdateClass,
+  useDeleteClass,
+  useCreateClassEntry,
+  useUpdateClassEntry,
+  useDeleteClassEntry,
+} from "@/hooks/queries";
+import type { ClassData, ClassEntryData } from "@/lib/types";
+import { getTopics } from "@/config/subjects";
+import { STUDENT_TOPICS_FILTER } from "@/lib/constants";
 
-interface ClassData {
-  _id: string;
-  name: string;
-  subject: string;
-  description?: string;
-  semester?: string;
-  isActive: boolean;
-  createdAt: string;
-}
-
-interface ClassEntryData {
-  _id: string;
-  classId: string;
-  date: string;
-  topics: string[];
-  sessionCode?: string;
-  duration?: number;
-  notes?: string;
-  createdAt: string;
-}
-
-const TOPICS = [
-  { slug: "basics", name: "Basics" },
-  { slug: "control-flow", name: "Control Flow" },
-  { slug: "functions", name: "Functions" },
-  { slug: "arrays-strings", name: "Arrays & Strings" },
-  { slug: "pointers-references", name: "Pointers & References" },
-  { slug: "structures", name: "Structures" },
-  { slug: "oop", name: "OOP" },
-  { slug: "file-handling", name: "File Handling" },
-  { slug: "stl", name: "STL" },
-  { slug: "memory-management", name: "Memory Management" },
-  { slug: "templates", name: "Templates" },
-  { slug: "modern-cpp", name: "Modern C++" },
-  { slug: "best-practices", name: "Best Practices" },
-  { slug: "practice", name: "Practice & Projects" },
-];
+const TOPICS = getTopics("cpp").filter((t) => t.slug !== STUDENT_TOPICS_FILTER);
 
 export default function ClassesManager() {
-  const [classes, setClasses] = useState<ClassData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
-  const [entries, setEntries] = useState<ClassEntryData[]>([]);
-  const [entriesLoading, setEntriesLoading] = useState(false);
+
+  const { data: classes = [], isLoading } = useClasses();
+  const { data: entries = [], isLoading: entriesLoading } = useClassEntries(selectedClassId);
+
+  const createClass = useCreateClass();
+  const updateClass = useUpdateClass();
+  const deleteClass = useDeleteClass();
+  const createEntry = useCreateClassEntry(selectedClassId ?? "");
+  const updateEntry = useUpdateClassEntry(selectedClassId ?? "");
+  const deleteEntry = useDeleteClassEntry(selectedClassId ?? "");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<ClassData | null>(null);
   const [formName, setFormName] = useState("");
   const [formDesc, setFormDesc] = useState("");
   const [formSemester, setFormSemester] = useState("");
-  const [saving, setSaving] = useState(false);
 
   const [entryDialogOpen, setEntryDialogOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<ClassEntryData | null>(null);
@@ -84,64 +66,8 @@ export default function ClassesManager() {
   const [entrySession, setEntrySession] = useState("");
   const [entryDuration, setEntryDuration] = useState("");
   const [entryNotes, setEntryNotes] = useState("");
-  const [savingEntry, setSavingEntry] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const res = await fetch("/api/classes");
-        const data = await res.json();
-        if (!cancelled) setClasses(Array.isArray(data) ? data : []);
-      } catch {
-        if (!cancelled) toast.error("Failed to load classes");
-      }
-      if (!cancelled) setLoading(false);
-    };
-    load();
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedClassId) return;
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const res = await fetch(`/api/classes/${selectedClassId}/entries`);
-        const data = await res.json();
-        if (!cancelled) setEntries(Array.isArray(data) ? data : []);
-      } catch {
-        if (!cancelled) toast.error("Failed to load entries");
-      }
-      if (!cancelled) setEntriesLoading(false);
-    };
-    load();
-    return () => { cancelled = true; };
-  }, [selectedClassId]);
 
   const selectedClass = classes.find((c) => c._id === selectedClassId);
-
-  const loadClasses = async () => {
-    try {
-      const res = await fetch("/api/classes");
-      const data = await res.json();
-      setClasses(Array.isArray(data) ? data : []);
-    } catch {
-      toast.error("Failed to load classes");
-    }
-  };
-
-  const loadEntries = async (classId: string) => {
-    setEntriesLoading(true);
-    try {
-      const res = await fetch(`/api/classes/${classId}/entries`);
-      const data = await res.json();
-      setEntries(Array.isArray(data) ? data : []);
-    } catch {
-      toast.error("Failed to load entries");
-    }
-    setEntriesLoading(false);
-  };
 
   const resetForm = () => {
     setEditingClass(null);
@@ -160,7 +86,6 @@ export default function ClassesManager() {
   };
 
   const handleSaveClass = async () => {
-    setSaving(true);
     const body = {
       name: formName,
       subject: "cpp",
@@ -169,44 +94,34 @@ export default function ClassesManager() {
     };
 
     try {
-      const url = editingClass ? `/api/classes/${editingClass._id}` : "/api/classes";
-      const method = editingClass ? "PATCH" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error || "Failed to save class");
-        setSaving(false);
-        return;
+      if (editingClass) {
+        await updateClass.mutateAsync({ id: editingClass._id, ...body });
+        toast.success("Class updated");
+      } else {
+        await createClass.mutateAsync(body);
+        toast.success("Class created");
       }
-      toast.success(editingClass ? "Class updated" : "Class created");
       setDialogOpen(false);
       resetForm();
-      loadClasses();
-    } catch {
-      toast.error("Network error");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save class");
     }
-    setSaving(false);
   };
 
   const handleDeleteClass = async (id: string) => {
-    const res = await fetch(`/api/classes/${id}`, { method: "DELETE" });
-    if (res.ok) {
+    try {
+      await deleteClass.mutateAsync(id);
       toast.success("Class deleted");
       if (selectedClassId === id) {
         setSelectedClassId(null);
-        setEntries([]);
       }
-      loadClasses();
+    } catch {
+      toast.error("Failed to delete class");
     }
   };
 
   const handleSaveEntry = async () => {
     if (!selectedClassId) return;
-    setSavingEntry(true);
     const body = {
       date: entryDate,
       topics: entryTopics,
@@ -216,37 +131,26 @@ export default function ClassesManager() {
     };
 
     try {
-      const url = editingEntry
-        ? `/api/classes/${selectedClassId}/entries/${editingEntry._id}`
-        : `/api/classes/${selectedClassId}/entries`;
-      const method = editingEntry ? "PATCH" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error || "Failed to save entry");
-        setSavingEntry(false);
-        return;
+      if (editingEntry) {
+        await updateEntry.mutateAsync({ entryId: editingEntry._id, ...body });
+        toast.success("Entry updated");
+      } else {
+        await createEntry.mutateAsync(body);
+        toast.success("Entry added");
       }
-      toast.success(editingEntry ? "Entry updated" : "Entry added");
       setEntryDialogOpen(false);
       resetEntryForm();
-      loadEntries(selectedClassId);
-    } catch {
-      toast.error("Network error");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save entry");
     }
-    setSavingEntry(false);
   };
 
   const handleDeleteEntry = async (entryId: string) => {
-    if (!selectedClassId) return;
-    const res = await fetch(`/api/classes/${selectedClassId}/entries/${entryId}`, { method: "DELETE" });
-    if (res.ok) {
+    try {
+      await deleteEntry.mutateAsync(entryId);
       toast.success("Entry deleted");
-      loadEntries(selectedClassId);
+    } catch {
+      toast.error("Failed to delete entry");
     }
   };
 
@@ -274,7 +178,7 @@ export default function ClassesManager() {
     );
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="text-center py-12">
         <Loader2 className="w-6 h-6 animate-spin mx-auto" />
@@ -287,7 +191,7 @@ export default function ClassesManager() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => { setSelectedClassId(null); setEntries([]); }}>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedClassId(null)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
@@ -350,8 +254,12 @@ export default function ClassesManager() {
                     onChange={(e) => setEntryNotes(e.target.value)}
                   />
                 </div>
-                <Button onClick={handleSaveEntry} disabled={!entryDate || entryTopics.length === 0 || savingEntry} className="w-full">
-                  {savingEntry ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                <Button
+                  onClick={handleSaveEntry}
+                  disabled={!entryDate || entryTopics.length === 0 || createEntry.isPending || updateEntry.isPending}
+                  className="w-full"
+                >
+                  {(createEntry.isPending || updateEntry.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   {editingEntry ? "Update" : "Add Entry"}
                 </Button>
               </div>
@@ -441,8 +349,8 @@ export default function ClassesManager() {
                 <label className="text-sm font-medium">Semester</label>
                 <Input placeholder="e.g. Fall 2026" value={formSemester} onChange={(e) => setFormSemester(e.target.value)} />
               </div>
-              <Button onClick={handleSaveClass} disabled={!formName || saving} className="w-full">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              <Button onClick={handleSaveClass} disabled={!formName || createClass.isPending || updateClass.isPending} className="w-full">
+                {(createClass.isPending || updateClass.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 {editingClass ? "Update" : "Create Class"}
               </Button>
             </div>
@@ -465,7 +373,7 @@ export default function ClassesManager() {
                 <div className="flex items-start justify-between gap-2">
                   <div
                     className="flex-1 min-w-0"
-                    onClick={() => { setSelectedClassId(cls._id); setEntriesLoading(true); setEntries([]); }}
+                    onClick={() => setSelectedClassId(cls._id)}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <School className="w-4 h-4 text-muted-foreground shrink-0" />
