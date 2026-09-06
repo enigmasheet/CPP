@@ -47,7 +47,7 @@ export default function OutputPredictor({ questions, onComplete }: OutputPredict
       setShowResult(false);
     } else {
       setFinished(true);
-      onComplete(score + (selected === current.correctAnswer ? 0 : 0));
+      onComplete(score);
     }
   };
 

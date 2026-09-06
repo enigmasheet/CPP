@@ -36,3 +36,7 @@ import { RESULTS_AUTO_REFRESH_INTERVAL_MS, LEADERBOARD_HIGH_THRESHOLD } from "@/
 const interval = setInterval(fn, RESULTS_AUTO_REFRESH_INTERVAL_MS);
 if (score >= LEADERBOARD_HIGH_THRESHOLD) { ... }
 ```
+
+# Package Manager
+
+Always use `pnpm` for package management. Never use `npm` or `yarn`.

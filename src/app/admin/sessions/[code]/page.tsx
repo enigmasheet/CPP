@@ -26,6 +26,8 @@ import {
   BookOpen,
   HelpCircle,
   Clock,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import QRCode from "@/components/shared/QRCode";
@@ -39,6 +41,7 @@ import {
   ANALYTICS_HIGH_THRESHOLD,
   ANALYTICS_MEDIUM_THRESHOLD,
   SESSION_CODE_LENGTH,
+  QUESTION_ANALYTICS_PREVIEW_LENGTH,
 } from "@/lib/constants";
 
 interface SessionData {
@@ -107,6 +110,37 @@ export default function SessionDetailPage({
   const results = (data?.results as Result[]) || [];
   const stats = (data?.stats as Stats) || null;
   const questionAnalytics = (data?.questionAnalytics as Record<string, QuestionAnalytic>) || {};
+  const questionIds = Object.keys(questionAnalytics);
+
+  const { data: mcqData } = useQuery({
+    queryKey: ["mcq-batch", questionIds],
+    queryFn: () =>
+      fetch("/api/mcq/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: questionIds }),
+      }).then((r) => r.json()),
+    enabled: questionIds.length > 0,
+  });
+
+  type SortField = "score" | "time" | "name";
+  type SortOrder = "asc" | "desc";
+  const [sortField, setSortField] = useState<SortField>("score");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+  const sortedResults = [...results].sort((a, b) => {
+    const multiplier = sortOrder === "desc" ? -1 : 1;
+    switch (sortField) {
+      case "score":
+        return multiplier * (a.percentage - b.percentage);
+      case "time":
+        return multiplier * ((a.timeTaken ?? Infinity) - (b.timeTaken ?? Infinity));
+      case "name":
+        return multiplier * getStudentName(a, 0).localeCompare(getStudentName(b, 0));
+      default:
+        return 0;
+    }
+  });
 
   const toggleMutation = useMutation({
     mutationFn: () =>
@@ -304,7 +338,7 @@ export default function SessionDetailPage({
             <div className="flex justify-end">
               <Button variant="outline" size="sm" onClick={() => {
                 const headers = ["Name", "Student Code", "Score", "Percentage", "Time (s)", "Completed"];
-                const rows = results.map((r) => [
+                const rows = sortedResults.map((r) => [
                   r.name || `Student ${r.studentCode}`,
                   r.studentCode,
                   `${r.totalScore}/${r.totalPossible}`,
@@ -334,10 +368,14 @@ export default function SessionDetailPage({
                   <div className="space-y-3">
                     {Object.entries(questionAnalytics).map(([id, qa]) => {
                       const correctPct = qa.totalAttempts > 0 ? Math.round((qa.correctCount / qa.totalAttempts) * MAX_SCORE_PERCENTAGE) : 0;
+                      const mcq = mcqData?.[id];
+                      const questionText = mcq?.question || id.slice(-SESSION_CODE_LENGTH);
                       return (
                         <div key={id} className="flex items-center gap-3">
-                          <span className="text-xs font-mono text-muted-foreground w-20 shrink-0 truncate" title={id}>
-                            {id.slice(-SESSION_CODE_LENGTH)}
+                          <span className="text-xs text-muted-foreground w-40 shrink-0 truncate" title={mcq?.question || id}>
+                            {questionText.length > QUESTION_ANALYTICS_PREVIEW_LENGTH
+                              ? `${questionText.slice(0, QUESTION_ANALYTICS_PREVIEW_LENGTH)}...`
+                              : questionText}
                           </span>
                           <div className="flex-1">
                             <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -374,14 +412,36 @@ export default function SessionDetailPage({
                       <TableRow>
                         <TableHead>#</TableHead>
                         <TableHead>Student</TableHead>
-                        <TableHead>Score</TableHead>
+                        <TableHead
+                          className="cursor-pointer hover:text-foreground select-none"
+                          onClick={() => {
+                            if (sortField === "score") setSortOrder((o) => (o === "desc" ? "asc" : "desc"));
+                            else { setSortField("score"); setSortOrder("desc"); }
+                          }}
+                        >
+                          <span className="flex items-center gap-1">
+                            Score
+                            {sortField === "score" && (sortOrder === "desc" ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />)}
+                          </span>
+                        </TableHead>
                         <TableHead>Percentage</TableHead>
-                        <TableHead className="hidden sm:table-cell">Time</TableHead>
+                        <TableHead
+                          className="hidden sm:table-cell cursor-pointer hover:text-foreground select-none"
+                          onClick={() => {
+                            if (sortField === "time") setSortOrder((o) => (o === "desc" ? "asc" : "desc"));
+                            else { setSortField("time"); setSortOrder("asc"); }
+                          }}
+                        >
+                          <span className="flex items-center gap-1">
+                            Time
+                            {sortField === "time" && (sortOrder === "desc" ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />)}
+                          </span>
+                        </TableHead>
                         <TableHead className="hidden sm:table-cell">Completed</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {results.map((r, idx) => (
+                      {sortedResults.map((r, idx) => (
                         <TableRow key={r.studentCode}>
                           <TableCell>{idx + 1}</TableCell>
                           <TableCell>

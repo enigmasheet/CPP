@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, lazy, Suspense } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AppShell from "@/components/layout/AppShell";
 import PageHeader from "@/components/layout/PageHeader";
@@ -29,13 +30,14 @@ const TABS = [
 
 export default function AdminPage() {
   const { data: authData, isLoading: authLoading } = useAdminAuth();
+  const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("sessions");
 
-  const authed = authData?.authenticated ?? isAuthenticated;
+  const authed = authData?.authenticated || isAuthenticated;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +52,7 @@ export default function AdminPage() {
 
     if (res.ok) {
       setIsAuthenticated(true);
+      queryClient.invalidateQueries({ queryKey: ["admin-auth"] });
     } else {
       setAuthError("Invalid password");
     }

@@ -79,6 +79,7 @@ export const ANALYTICS_HIGH_THRESHOLD = 70;
 export const ANALYTICS_MEDIUM_THRESHOLD = 40;
 export const DEFAULT_GAME_TOTAL_QUESTIONS = 5;
 export const MAX_SCORE_PERCENTAGE = 100;
+export const QUESTION_ANALYTICS_PREVIEW_LENGTH = 40;
 
 // ─── Time Bonus ───────────────────────────────────────────────
 export const TIME_BONUS_HALF_TIME_RATIO = 0.5;

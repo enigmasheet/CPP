@@ -675,6 +675,7 @@ export default function StudentSessionPage({
             <div className="mb-6">
               {currentItem.gameType === "speed-code" ? (
                 <SpeedCode
+                  key={currentItem.contentId}
                   questions={gameQuestions[currentItem.contentId] as never[]}
                   onComplete={(gameScore) => {
                     const questions = gameQuestions[currentItem.contentId] || [];
@@ -698,6 +699,7 @@ export default function StudentSessionPage({
                 />
               ) : (
                 <OutputPredictor
+                  key={currentItem.contentId}
                   questions={gameQuestions[currentItem.contentId] as never[]}
                   onComplete={(gameScore) => {
                     const questions = gameQuestions[currentItem.contentId] || [];
@@ -788,26 +790,28 @@ export default function StudentSessionPage({
           </Card>
         )}
 
-        {showResult ? (
-          <Button onClick={handleNext} className="w-full" size="lg">
-            {currentIndex === session.items.length - 1 ? (
-              "Finish Session"
-            ) : (
-              <>
-                Next Exercise
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </>
-            )}
-          </Button>
-        ) : (
-          <Button
-            onClick={handleCheck}
-            disabled={selected === null}
-            className="w-full"
-            size="lg"
-          >
-            Check Answer
-          </Button>
+        {currentItem.contentType !== "game" && (
+          showResult ? (
+            <Button onClick={handleNext} className="w-full" size="lg">
+              {currentIndex === session.items.length - 1 ? (
+                "Finish Session"
+              ) : (
+                <>
+                  Next Exercise
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={handleCheck}
+              disabled={selected === null}
+              className="w-full"
+              size="lg"
+            >
+              Check Answer
+            </Button>
+          )
         )}
       </div>
     </AppShell>
