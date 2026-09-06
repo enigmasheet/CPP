@@ -214,9 +214,17 @@ export default function StudentSessionPage({
           if (item.contentType === "mcq") {
             const mcq = mcqData[item.contentId];
             if (mcq) topicCounts[mcq.topic] = (topicCounts[mcq.topic] || 0) + 1;
+          } else if (item.contentType === "game") {
+            const questions = gameQuestions[item.contentId] || [];
+            for (const q of questions as Array<{ topic?: string }>) {
+              if (q.topic) topicCounts[q.topic] = (topicCounts[q.topic] || 0) + 1;
+            }
           }
         }
         const primaryTopic = Object.entries(topicCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
+        const hasGames = session?.items.some((i) => i.contentType === "game");
+        const hasMcqs = session?.items.some((i) => i.contentType === "mcq");
+        const resultType = hasGames && !hasMcqs ? "game" : hasMcqs && !hasGames ? "quiz" : "mixed";
         existing.push({
           code,
           title: session?.title ?? "",
@@ -226,6 +234,7 @@ export default function StudentSessionPage({
           percentage: data.percentage,
           topic: primaryTopic,
           timeTaken,
+          type: resultType,
         });
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         localStorage.setItem("quiz-results", JSON.stringify(existing.slice(-50)));
@@ -340,6 +349,27 @@ export default function StudentSessionPage({
   const handleCheck = () => {
     if (selected === null) return;
     setShowResult(true);
+  };
+
+  const handleGameComplete = (gameScore: number) => {
+    const currentItem = session?.items[currentIndex];
+    const questions = gameQuestions[currentItem?.contentId || ""] || [];
+    const answer: Answer = {
+      contentId: currentItem?.contentId,
+      contentType: currentItem?.contentType,
+      selected: null,
+      score: gameScore,
+      totalQuestions: questions.length,
+    };
+    const newAnswers = [...answers, answer];
+    setAnswers(newAnswers);
+    if (currentIndex < (session?.items.length || 0) - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setSelected(null);
+      setShowResult(false);
+    } else {
+      submitAnswers(newAnswers);
+    }
   };
 
   const handleNext = () => {

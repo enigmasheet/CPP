@@ -17,7 +17,7 @@ import {
   Menu,
 } from "lucide-react";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
-import { MAX_SCORE_PERCENTAGE, MINUTES_TO_SECONDS } from "@/lib/constants";
+import { MAX_SCORE_PERCENTAGE, MINUTES_TO_SECONDS, LEARN_NOTE_IDX_KEY_PREFIX } from "@/lib/constants";
 
 interface Topic {
   slug: string;
@@ -99,7 +99,16 @@ export default function LearnTopicView({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [currentNoteIdx, setCurrentNoteIdx] = useState(0);
+  const [currentNoteIdx, setCurrentNoteIdx] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const key = `${LEARN_NOTE_IDX_KEY_PREFIX}${slug}-${currentTopic.slug}`;
+    const saved = localStorage.getItem(key);
+    if (saved !== null) {
+      const idx = parseInt(saved, 10);
+      if (!isNaN(idx) && idx >= 0 && idx < topicNotes.length) return idx;
+    }
+    return 0;
+  });
   const noteContentRef = useRef<HTMLDivElement>(null);
   const [completed, setCompleted] = useState<Set<number>>(() => {
     if (typeof window === "undefined") return new Set();
@@ -143,9 +152,11 @@ export default function LearnTopicView({
     (idx: number) => {
       const clamped = Math.max(0, Math.min(totalNotes - 1, idx));
       setCurrentNoteIdx(clamped);
+      const key = `${LEARN_NOTE_IDX_KEY_PREFIX}${slug}-${currentTopic.slug}`;
+      localStorage.setItem(key, String(clamped));
       noteContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     },
-    [totalNotes]
+    [totalNotes, slug, currentTopic.slug]
   );
 
   useEffect(() => {

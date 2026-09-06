@@ -25,6 +25,7 @@ interface QuizResult {
   percentage: number;
   topic: string;
   timeTaken: number;
+  type?: "quiz" | "game" | "mixed";
 }
 
 interface TopicProgress {
@@ -242,7 +243,14 @@ export default function MyProgressPage() {
                   .map((r, i) => (
                     <div key={`${r.code}-${i}`} className="flex items-center gap-3 p-3 rounded-lg border border-border">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{r.title}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium truncate">{r.title}</p>
+                          {r.type && r.type !== "quiz" && (
+                            <Badge variant="secondary" className="text-[10px] shrink-0 capitalize">
+                              {r.type}
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-xs text-muted-foreground">
                             {new Date(r.date).toLocaleDateString()}
