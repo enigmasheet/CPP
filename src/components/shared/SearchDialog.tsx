@@ -106,7 +106,7 @@ export default function SearchDialog({
           />
         </div>
         {query.length >= 2 && (
-          <div className="max-h-[400px] overflow-y-auto">
+          <div className="max-h-100 overflow-y-auto">
             {loading ? (
               <p className="text-sm text-muted-foreground text-center py-4">Searching...</p>
             ) : totalResults === 0 ? (
