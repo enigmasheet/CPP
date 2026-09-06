@@ -9,7 +9,9 @@ export const GET = withDB(async (_request: Request, context) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 
-  const { id } = await context!.params;
+  const id = context?.params?.id;
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
   const cls = await Class.findById(id).lean();
   if (!cls) {
     return NextResponse.json({ error: "Class not found" }, { status: 404 });
@@ -23,7 +25,9 @@ export const POST = withDB(async (request: Request, context) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 
-  const { id } = await context!.params;
+  const id = context?.params?.id;
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
   const cls = await Class.findById(id).lean();
   if (!cls) {
     return NextResponse.json({ error: "Class not found" }, { status: 404 });
