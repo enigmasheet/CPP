@@ -9,7 +9,7 @@ export const GET = withDB(async (request: Request, context) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 
-  const id = context?.params?.id;
+  const { id } = await context?.params ?? {};
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
   const cls = await Class.findById(id).lean();
@@ -23,7 +23,7 @@ export const PATCH = withDB(async (request: Request, context) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 
-  const id = context?.params?.id;
+  const { id } = await context?.params ?? {};
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
   const body = await request.json();
@@ -46,7 +46,7 @@ export const DELETE = withDB(async (_request: Request, context) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 
-  const id = context?.params?.id;
+  const { id } = await context?.params ?? {};
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
   const cls = await Class.findByIdAndDelete(id).lean();

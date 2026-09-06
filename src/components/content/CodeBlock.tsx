@@ -72,7 +72,7 @@ export default function CodeBlock({
           <code>{code}</code>
         </pre>
         {hasOverflow && (
-          <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute top-0 right-0 bottom-0 w-8 bg-linear-to-l from-background to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
         )}
       </div>
     );
@@ -105,7 +105,7 @@ export default function CodeBlock({
         dangerouslySetInnerHTML={{ __html: html }}
       />
       {hasOverflow && (
-        <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute top-0 right-0 bottom-0 w-8 bg-linear-to-l from-background to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
       )}
     </div>
   );

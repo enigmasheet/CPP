@@ -8,7 +8,7 @@ export const PATCH = withDB(async (request: Request, context) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 
-  const entryId = context?.params?.entryId;
+  const { entryId } = await context?.params ?? {};
   if (!entryId) return NextResponse.json({ error: "Missing entryId" }, { status: 400 });
 
   const body = await request.json();
@@ -31,7 +31,7 @@ export const DELETE = withDB(async (_request: Request, context) => {
   const authError = await requireAdmin();
   if (authError) return authError;
 
-  const entryId = context?.params?.entryId;
+  const { entryId } = await context?.params ?? {};
   if (!entryId) return NextResponse.json({ error: "Missing entryId" }, { status: 400 });
 
   const entry = await ClassEntry.findByIdAndDelete(entryId).lean();

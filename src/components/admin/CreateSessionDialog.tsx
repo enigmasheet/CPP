@@ -363,7 +363,7 @@ export default function CreateSessionDialog() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm truncate">{mcq.question}</p>
                       </div>
-                      <div className="flex gap-1.5 shrink-0 hidden sm:flex">
+                      <div className="flex gap-1.5 shrink-0 sm:flex">
                         <Badge variant="outline" className="text-[10px]">{mcq.topic}</Badge>
                         <Badge variant="outline" className="text-[10px]">{mcq.difficulty}</Badge>
                       </div>

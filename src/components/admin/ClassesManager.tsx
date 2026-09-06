@@ -344,7 +344,7 @@ export default function ClassesManager() {
                 <div>
                   <label className="text-sm font-medium">Notes</label>
                   <textarea
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm min-h-[60px]"
+                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm min-h-15"
                     placeholder="What was covered, homework assigned..."
                     value={entryNotes}
                     onChange={(e) => setEntryNotes(e.target.value)}

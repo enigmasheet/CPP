@@ -233,7 +233,7 @@ export default function StudentSessionPage({
       toast.error("Failed to submit answers. Please try again.");
       setSubmitting(false);
     }
-  }, [code, studentCode, name, timeTaken]);
+  }, [code, studentCode, name, timeTaken, session, mcqData]);
 
   useEffect(() => {
     if (remainingTime === null || remainingTime > 0 || finished || submitting || autoSubmittedRef.current) return;

@@ -55,6 +55,8 @@ function loadAllProgress(): Record<string, { completed: number; total: number }>
 function SubjectContent() {
   const [progressMap] = useState<Record<string, { completed: number; total: number }>>(() => loadAllProgress());
 
+  if (!SUBJECT) return null;
+
   const totalCompleted = Object.values(progressMap).reduce((sum, p) => sum + p.completed, 0);
   const totalNotes = Object.values(progressMap).reduce((sum, p) => sum + p.total, 0);
 
@@ -62,8 +64,8 @@ function SubjectContent() {
     <AppShell>
       <div className="border-b border-border bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold tracking-tight">{SUBJECT!.name}</h1>
-          <p className="mt-2 text-muted-foreground">{SUBJECT!.description}</p>
+          <h1 className="text-3xl font-bold tracking-tight">{SUBJECT.name}</h1>
+          <p className="mt-2 text-muted-foreground">{SUBJECT.description}</p>
           <div className="flex gap-4 mt-4 items-center">
             <Link href={`/subjects/${SLUG}/learn`} className={buttonVariants({ size: "sm" })}>
               <BookOpen className="w-4 h-4 mr-2" />
