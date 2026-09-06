@@ -229,7 +229,7 @@ export default function TeachingPlanTab() {
               <div>
                 <label className="text-sm font-medium">Notes</label>
                 <textarea
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm min-h-[80px]"
+                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm min-h-20"
                   placeholder="Additional notes..."
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
