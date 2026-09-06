@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import MCQ from "@/models/MCQ";
 import Resource from "@/models/Resource";
 import { teacherNotes } from "@/data/teacher-notes";
+import { stripTeachingTips } from "@/lib/utils";
 import {
   MIN_SEARCH_QUERY_LENGTH,
   MAX_TOPIC_SEARCH_RESULTS,
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
         title: n.title,
         type: "topic" as const,
         url: `/subjects/cpp/learn/${n.topic}`,
-        snippet: n.content.slice(0, SEARCH_SNIPPET_LENGTH).replace(/[#*`]/g, "") + "...",
+        snippet: stripTeachingTips(n.content).slice(0, SEARCH_SNIPPET_LENGTH).replace(/[#*`]/g, "") + "...",
       }));
 
     const mcqs = await MCQ.find({ question: regex })

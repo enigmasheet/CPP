@@ -3,6 +3,7 @@ import LearnTopicView from "@/components/learn/LearnTopicView";
 import { getSubject, getTopics, getTopic, getAllSubjectSlugs } from "@/config/subjects";
 import { notFound } from "next/navigation";
 import { teacherNotes } from "@/data/teacher-notes";
+import { stripTeachingTips } from "@/lib/utils";
 
 export function generateStaticParams() {
   const params: Array<{ subject: string; topic: string }> = [];
@@ -32,7 +33,7 @@ export default async function LearnTopicPage({
     .map((n) => ({
       id: n.id,
       title: n.title,
-      content: n.content,
+      content: stripTeachingTips(n.content),
       difficulty: n.difficulty,
       estimatedMinutes: n.estimatedMinutes,
       topic: n.topic,

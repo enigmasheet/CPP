@@ -13,3 +13,11 @@ export function shuffleArray<T>(array: T[]): T[] {
   }
   return shuffled;
 }
+
+export function stripTeachingTips(content: string): string {
+  return content
+    .replace(/^## Teaching Tip\n\n>.*$/gm, "")
+    .replace(/^>\s*\*\*Teaching Tip:\*\*.*$/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
