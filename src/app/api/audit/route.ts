@@ -28,7 +28,7 @@ export const POST = withDB(async (request) => {
   }
 
   const log = await AuditLog.create({
-    date: parsed.data.date || new Date(),
+    date: parsed.data.date ? new Date(parsed.data.date) : new Date(),
     sessionCode: parsed.data.sessionCode || undefined,
     section: parsed.data.section || undefined,
     topicsCovered: parsed.data.topicsCovered || [],

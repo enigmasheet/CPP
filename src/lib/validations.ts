@@ -114,14 +114,14 @@ export const createAuditSchema = z.object({
   date: z.string().datetime().optional(),
   sessionCode: z.string().optional(),
   section: z.string().max(MAX_SECTION_LENGTH).optional(),
-  topicsCovered: z.array(z.string()).optional(),
+  topicsCovered: z.array(z.string()).max(20).optional(),
   mcqsUsed: z.number().int().nonnegative().optional(),
   studentCount: z.number().int().nonnegative().optional(),
   averageScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
   highestScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
   lowestScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
-  duration: z.number().positive().optional(),
-  notes: z.string().optional(),
+  duration: z.number().positive().max(480).optional(),
+  notes: z.string().max(1000).optional(),
   status: z.enum(AUDIT_STATUSES).optional(),
 });
 

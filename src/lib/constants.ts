@@ -111,6 +111,7 @@ export const GAME_TYPES = [
 // ─── Audit Statuses ───────────────────────────────────────────
 export const AUDIT_STATUSES = ["planned", "completed", "skipped"] as const;
 export type AuditStatus = (typeof AUDIT_STATUSES)[number];
+export const AUDIT_PAGE_SIZE = 10;
 
 // ─── Plan Statuses ────────────────────────────────────────────
 export const PLAN_STATUSES = ["todo", "in_progress", "done", "skipped"] as const;

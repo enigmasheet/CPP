@@ -38,6 +38,7 @@ const AuditLogSchema = new Schema<IAuditLogDoc>(
 AuditLogSchema.index({ date: -1 });
 AuditLogSchema.index({ section: 1 });
 AuditLogSchema.index({ status: 1 });
+AuditLogSchema.index({ sessionCode: 1 });
 
 export default mongoose.models.AuditLog ||
   mongoose.model<IAuditLogDoc>("AuditLog", AuditLogSchema);

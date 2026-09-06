@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -28,13 +29,20 @@ import {
   BarChart3,
   Clock,
   Loader2,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import { SUBJECTS } from "@/config/subjects";
+import { SUBJECTS, getAllSubjectSlugs, getTopics } from "@/config/subjects";
 import { useAuditLogs, useCreateAuditLog, useUpdateAuditLog, useDeleteAuditLog } from "@/hooks/queries";
+import { AUDIT_STATUSES, AUDIT_PAGE_SIZE } from "@/lib/constants";
 import type { AuditLogData } from "@/lib/types";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 
-const TOPICS = SUBJECTS.cpp?.topics.map((t) => t.slug) || [];
+const ALL_TOPICS = getAllSubjectSlugs().flatMap((slug) =>
+  getTopics(slug).map((t) => ({ slug: t.slug, name: t.name, subject: SUBJECTS[slug]?.name ?? slug }))
+);
 
 export default function AuditLogTab() {
   const { data: logs = [], isLoading } = useAuditLogs();
@@ -44,6 +52,10 @@ export default function AuditLogTab() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AuditLogData | null>(null);
+
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [formDate, setFormDate] = useState("");
   const [formSection, setFormSection] = useState("");
@@ -51,6 +63,8 @@ export default function AuditLogTab() {
   const [formMcqs, setFormMcqs] = useState(0);
   const [formStudents, setFormStudents] = useState(0);
   const [formAvg, setFormAvg] = useState("");
+  const [formHigh, setFormHigh] = useState("");
+  const [formLow, setFormLow] = useState("");
   const [formDuration, setFormDuration] = useState("");
   const [formNotes, setFormNotes] = useState("");
   const [formStatus, setFormStatus] = useState<AuditLogData["status"]>("completed");
@@ -63,6 +77,8 @@ export default function AuditLogTab() {
     setFormMcqs(0);
     setFormStudents(0);
     setFormAvg("");
+    setFormHigh("");
+    setFormLow("");
     setFormDuration("");
     setFormNotes("");
     setFormStatus("completed");
@@ -76,6 +92,8 @@ export default function AuditLogTab() {
     setFormMcqs(log.mcqsUsed);
     setFormStudents(log.studentCount);
     setFormAvg(log.averageScore?.toString() || "");
+    setFormHigh(log.highestScore?.toString() || "");
+    setFormLow(log.lowestScore?.toString() || "");
     setFormDuration(log.duration?.toString() || "");
     setFormNotes(log.notes || "");
     setFormStatus(log.status);
@@ -84,12 +102,14 @@ export default function AuditLogTab() {
 
   const handleSave = async () => {
     const body = {
-      date: formDate ? new Date(formDate) : new Date(),
+      date: formDate ? new Date(formDate).toISOString() : new Date().toISOString(),
       section: formSection || undefined,
       topicsCovered: formTopics,
       mcqsUsed: formMcqs,
       studentCount: formStudents,
       averageScore: formAvg ? Number(formAvg) : undefined,
+      highestScore: formHigh ? Number(formHigh) : undefined,
+      lowestScore: formLow ? Number(formLow) : undefined,
       duration: formDuration ? Number(formDuration) : undefined,
       notes: formNotes || undefined,
       status: formStatus,
@@ -110,10 +130,12 @@ export default function AuditLogTab() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteLog.mutateAsync(id);
+      await deleteLog.mutateAsync(deleteTarget._id);
       toast.success("Entry deleted");
+      setDeleteTarget(null);
     } catch {
       toast.error("Failed to delete entry");
     }
@@ -124,6 +146,14 @@ export default function AuditLogTab() {
       prev.includes(slug) ? prev.filter((t) => t !== slug) : [...prev, slug]
     );
   };
+
+  const filtered = useMemo(() => {
+    if (statusFilter === "all") return logs;
+    return logs.filter((l) => l.status === statusFilter);
+  }, [logs, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / AUDIT_PAGE_SIZE));
+  const paginated = filtered.slice((currentPage - 1) * AUDIT_PAGE_SIZE, currentPage * AUDIT_PAGE_SIZE);
 
   const totalStudents = logs.reduce((sum, l) => sum + l.studentCount, 0);
   const totalClasses = logs.filter((l) => l.status === "completed").length;
@@ -176,17 +206,17 @@ export default function AuditLogTab() {
               <div>
                 <label className="text-sm font-medium">Topics Covered</label>
                 <div className="flex flex-wrap gap-1.5 mt-1">
-                  {TOPICS.map((t) => (
+                  {ALL_TOPICS.map((t) => (
                     <button
-                      key={t}
-                      onClick={() => toggleTopic(t)}
+                      key={t.slug}
+                      onClick={() => toggleTopic(t.slug)}
                       className={`px-2 py-0.5 rounded text-xs border transition-colors ${
-                        formTopics.includes(t)
+                        formTopics.includes(t.slug)
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      {t}
+                      {t.name}
                     </button>
                   ))}
                 </div>
@@ -206,7 +236,15 @@ export default function AuditLogTab() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Duration (min)</label>
-                  <Input type="number" min={0} value={formDuration} onChange={(e) => setFormDuration(e.target.value)} />
+                  <Input type="number" min={0} max={480} value={formDuration} onChange={(e) => setFormDuration(e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Highest Score %</label>
+                  <Input type="number" min={0} max={100} value={formHigh} onChange={(e) => setFormHigh(e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Lowest Score %</label>
+                  <Input type="number" min={0} max={100} value={formLow} onChange={(e) => setFormLow(e.target.value)} />
                 </div>
               </div>
               <div>
@@ -214,9 +252,11 @@ export default function AuditLogTab() {
                 <textarea
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm min-h-[80px]"
                   placeholder="What was taught, any observations..."
+                  maxLength={1000}
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground mt-1">{formNotes.length}/1000</p>
               </div>
               <Button onClick={handleSave} disabled={createLog.isPending || updateLog.isPending} className="w-full">
                 {(createLog.isPending || updateLog.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -251,57 +291,124 @@ export default function AuditLogTab() {
         </Card>
       </div>
 
-      {logs.length === 0 ? (
-        <p className="text-center py-8 text-muted-foreground">No audit entries yet.</p>
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Filter:</span>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setCurrentPage(1); }}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            {AUDIT_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-muted-foreground ml-auto">
+          {filtered.length} {filtered.length === 1 ? "entry" : "entries"}
+        </span>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-center py-8 text-muted-foreground">
+          {logs.length === 0 ? "No audit entries yet." : "No entries match this filter."}
+        </p>
       ) : (
-        <div className="space-y-3">
-          {logs.map((log) => (
-            <Card key={log._id}>
-              <CardContent className="pt-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium">
-                        {new Date(log.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
-                      </span>
-                      {log.section && <Badge variant="outline">{log.section}</Badge>}
-                      <Badge variant={log.status === "completed" ? "default" : log.status === "planned" ? "secondary" : "destructive"}>
-                        {log.status}
-                      </Badge>
-                      {log.duration && (
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Clock className="w-3 h-3" /> {log.duration}m
+        <>
+          <div className="space-y-3">
+            {paginated.map((log) => (
+              <Card key={log._id}>
+                <CardContent className="pt-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium">
+                          {new Date(log.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
                         </span>
+                        {log.section && <Badge variant="outline">{log.section}</Badge>}
+                        <Badge variant={log.status === "completed" ? "default" : log.status === "planned" ? "secondary" : "destructive"}>
+                          {log.status}
+                        </Badge>
+                        {log.sessionCode && (
+                          <Link
+                            href={`/admin/sessions/${log.sessionCode}`}
+                            className="inline-flex items-center gap-1 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <Badge variant="outline" className="font-mono text-[10px]">{log.sessionCode}</Badge>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        )}
+                        {log.duration && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="w-3 h-3" /> {log.duration}m
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {log.topicsCovered.map((t) => (
+                          <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
+                        ))}
+                      </div>
+                      <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
+                        <span>{log.studentCount} students</span>
+                        <span>{log.mcqsUsed} MCQs</span>
+                        {log.averageScore != null && <span>Avg: {log.averageScore}%</span>}
+                        {log.highestScore != null && <span>High: {log.highestScore}%</span>}
+                        {log.lowestScore != null && <span>Low: {log.lowestScore}%</span>}
+                      </div>
+                      {log.notes && (
+                        <p className="mt-2 text-sm text-muted-foreground">{log.notes}</p>
                       )}
                     </div>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {log.topicsCovered.map((t) => (
-                        <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
-                      ))}
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(log)}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(log)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </div>
-                    <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
-                      <span>{log.studentCount} students</span>
-                      <span>{log.mcqsUsed} MCQs</span>
-                      {log.averageScore != null && <span>Avg: {log.averageScore}%</span>}
-                    </div>
-                    {log.notes && (
-                      <p className="mt-2 text-sm text-muted-foreground">{log.notes}</p>
-                    )}
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(log)}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(log._id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+        </>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}
+        title="Delete Audit Entry"
+        description={`Are you sure you want to delete the entry from ${deleteTarget ? new Date(deleteTarget.date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) : ""}? This cannot be undone.`}
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        loading={deleteLog.isPending}
+      />
     </div>
   );
 }

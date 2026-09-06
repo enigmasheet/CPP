@@ -5,6 +5,7 @@ import { BookOpen } from "lucide-react";
 import { getSubject, getTopics, getAllSubjectSlugs, getNoteCounts } from "@/config/subjects";
 import { STUDENT_TOPICS_FILTER } from "@/lib/constants";
 import SubjectTopicList from "@/components/subjects/SubjectTopicList";
+import AppShell from "@/components/layout/AppShell";
 import type { Metadata } from "next";
 
 export function generateStaticParams() {
@@ -30,24 +31,26 @@ export default async function SubjectPage({ params }: Props) {
   const totalNotes = topics.reduce((sum, t) => sum + (noteCounts[t.slug] ?? 0), 0);
 
   return (
-    <div className="border-b border-border bg-muted/30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold tracking-tight">{subject.name}</h1>
-        <p className="mt-2 text-muted-foreground">{subject.description}</p>
-        <div className="flex gap-4 mt-4 items-center">
-          <Link href={`/subjects/${slug}/learn`} className={buttonVariants({ size: "sm" })}>
-            <BookOpen className="w-4 h-4 mr-2" />
-            Start Learning
-          </Link>
-          <span className="text-sm text-muted-foreground">
-            {topics.length} topics, {totalNotes} notes
-          </span>
+    <AppShell>
+      <div className="border-b border-border bg-muted/30">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+          <h1 className="text-3xl font-bold tracking-tight">{subject.name}</h1>
+          <p className="mt-2 text-muted-foreground">{subject.description}</p>
+          <div className="flex gap-4 mt-4 items-center">
+            <Link href={`/subjects/${slug}/learn`} className={buttonVariants({ size: "sm" })}>
+              <BookOpen className="w-4 h-4 mr-2" />
+              Start Learning
+            </Link>
+            <span className="text-sm text-muted-foreground">
+              {topics.length} topics, {totalNotes} notes
+            </span>
+          </div>
+        </div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+          <h2 className="text-xl font-bold mb-6">Topics</h2>
+          <SubjectTopicList slug={slug} topics={topics} noteCounts={noteCounts} />
         </div>
       </div>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-xl font-bold mb-6">Topics</h2>
-        <SubjectTopicList slug={slug} topics={topics} noteCounts={noteCounts} />
-      </div>
-    </div>
+    </AppShell>
   );
 }
