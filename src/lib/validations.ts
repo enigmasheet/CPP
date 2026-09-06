@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DIFFICULTY_LEVELS, RESOURCE_DIFFICULTY_LEVELS, CONTENT_TYPES, SESSION_TYPES, AUDIT_STATUSES, PLAN_STATUSES, PLAN_PRIORITIES, MAX_MCQ_QUERY_LIMIT, MAX_SESSION_TITLE_LENGTH, MAX_SECTION_LENGTH, MAX_STUDENT_NAME_LENGTH, DEFAULT_QUIZ_LIMIT, MAX_QUIZ_LIMIT, MAX_SCORE_PERCENTAGE, MAX_CLASS_NAME_LENGTH, MAX_CLASS_DESCRIPTION_LENGTH, MAX_CLASS_SEMESTER_LENGTH, MAX_CLASS_ENTRY_NOTES_LENGTH } from "./constants";
+import { DIFFICULTY_LEVELS, RESOURCE_DIFFICULTY_LEVELS, CONTENT_TYPES, SESSION_TYPES, AUDIT_STATUSES, PLAN_STATUSES, PLAN_PRIORITIES, MAX_MCQ_QUERY_LIMIT, MAX_SESSION_TITLE_LENGTH, MAX_SECTION_LENGTH, MAX_STUDENT_NAME_LENGTH, DEFAULT_QUIZ_LIMIT, MAX_QUIZ_LIMIT, MAX_SCORE_PERCENTAGE, MAX_CLASS_NAME_LENGTH, MAX_CLASS_DESCRIPTION_LENGTH, MAX_CLASS_SEMESTER_LENGTH, MAX_CLASS_ENTRY_NOTES_LENGTH, MAX_AUDIT_TOPICS, MAX_AUDIT_DURATION_MINUTES, MAX_AUDIT_NOTES_LENGTH } from "./constants";
 
 // ─── MCQ Schemas ─────────────────────────────────────────────
 export const mcqOptionSchema = z.object({
@@ -114,14 +114,14 @@ export const createAuditSchema = z.object({
   date: z.string().datetime().optional(),
   sessionCode: z.string().optional(),
   section: z.string().max(MAX_SECTION_LENGTH).optional(),
-  topicsCovered: z.array(z.string()).max(20).optional(),
+  topicsCovered: z.array(z.string()).max(MAX_AUDIT_TOPICS).optional(),
   mcqsUsed: z.number().int().nonnegative().optional(),
   studentCount: z.number().int().nonnegative().optional(),
   averageScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
   highestScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
   lowestScore: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
-  duration: z.number().positive().max(480).optional(),
-  notes: z.string().max(1000).optional(),
+  duration: z.number().positive().max(MAX_AUDIT_DURATION_MINUTES).optional(),
+  notes: z.string().max(MAX_AUDIT_NOTES_LENGTH).optional(),
   status: z.enum(AUDIT_STATUSES).optional(),
 });
 

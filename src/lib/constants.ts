@@ -112,6 +112,9 @@ export const GAME_TYPES = [
 export const AUDIT_STATUSES = ["planned", "completed", "skipped"] as const;
 export type AuditStatus = (typeof AUDIT_STATUSES)[number];
 export const AUDIT_PAGE_SIZE = 10;
+export const MAX_AUDIT_TOPICS = 20;
+export const MAX_AUDIT_DURATION_MINUTES = 480;
+export const MAX_AUDIT_NOTES_LENGTH = 1000;
 
 // ─── Plan Statuses ────────────────────────────────────────────
 export const PLAN_STATUSES = ["todo", "in_progress", "done", "skipped"] as const;

@@ -36,7 +36,7 @@ import {
 import { toast } from "sonner";
 import { SUBJECTS, getAllSubjectSlugs, getTopics } from "@/config/subjects";
 import { useAuditLogs, useCreateAuditLog, useUpdateAuditLog, useDeleteAuditLog } from "@/hooks/queries";
-import { AUDIT_STATUSES, AUDIT_PAGE_SIZE } from "@/lib/constants";
+import { AUDIT_STATUSES, AUDIT_PAGE_SIZE, MAX_AUDIT_NOTES_LENGTH } from "@/lib/constants";
 import type { AuditLogData } from "@/lib/types";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 
@@ -252,11 +252,11 @@ export default function AuditLogTab() {
                 <textarea
                   className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm min-h-[80px]"
                   placeholder="What was taught, any observations..."
-                  maxLength={1000}
+                  maxLength={MAX_AUDIT_NOTES_LENGTH}
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground mt-1">{formNotes.length}/1000</p>
+                <p className="text-xs text-muted-foreground mt-1">{formNotes.length}/{MAX_AUDIT_NOTES_LENGTH}</p>
               </div>
               <Button onClick={handleSave} disabled={createLog.isPending || updateLog.isPending} className="w-full">
                 {(createLog.isPending || updateLog.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -293,7 +293,7 @@ export default function AuditLogTab() {
 
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">Filter:</span>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setCurrentPage(1); }}>
+        <Select value={statusFilter} onValueChange={(v) => { if (v) { setStatusFilter(v); setCurrentPage(1); } }}>
           <SelectTrigger className="w-36">
             <SelectValue />
           </SelectTrigger>
