@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import MCQ from "@/models/MCQ";
+import { updateMCQSchema } from "@/lib/validations";
 
 export const GET = withDB(async (_request, context) => {
   const { id } = await context?.params ?? {};
@@ -18,7 +19,11 @@ export const PATCH = withDB(async (request, context) => {
 
   const { id } = await context?.params ?? {};
   const body = await request.json();
-  const mcq = await MCQ.findByIdAndUpdate(id, body, { new: true }).lean();
+  const parsed = updateMCQSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
+  }
+  const mcq = await MCQ.findByIdAndUpdate(id, parsed.data, { new: true }).lean();
   if (!mcq) {
     return NextResponse.json({ error: "MCQ not found" }, { status: 404 });
   }

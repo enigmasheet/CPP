@@ -2,7 +2,20 @@ import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import Session, { type ISessionItem } from "@/models/Session";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { SESSION_JOIN_MAX_ATTEMPTS, SESSION_JOIN_RATE_WINDOW_MS, SESSION_CODE_LENGTH, STUDENT_CODE_CHAR_COUNT } from "@/lib/constants";
+import { SESSION_JOIN_MAX_ATTEMPTS, SESSION_JOIN_RATE_WINDOW_MS, SESSION_CODE_LENGTH } from "@/lib/constants";
+import { sessionJoinSchema } from "@/lib/validations";
+import crypto from "crypto";
+
+const STUDENT_CODE_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function generateStudentCode(): string {
+  const bytes = crypto.randomBytes(SESSION_CODE_LENGTH);
+  let code = "";
+  for (let i = 0; i < SESSION_CODE_LENGTH; i++) {
+    code += STUDENT_CODE_CHARSET[bytes[i] % STUDENT_CODE_CHARSET.length];
+  }
+  return code;
+}
 
 export const POST = withDB(async (request, context) => {
   const ip = getClientIp(request);
@@ -30,9 +43,10 @@ export const POST = withDB(async (request, context) => {
   }
 
   const body = await request.json();
-  const name = body?.name || undefined;
+  const parsed = sessionJoinSchema.safeParse(body);
+  const name = parsed.success ? parsed.data.name || undefined : undefined;
 
-  const studentCode = Math.random().toString(STUDENT_CODE_CHAR_COUNT).substring(2, SESSION_CODE_LENGTH + 2).toUpperCase();
+  const studentCode = generateStudentCode();
 
   const items = session.items.map((item: ISessionItem) => ({
     contentType: item.contentType,

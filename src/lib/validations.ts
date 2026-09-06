@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DIFFICULTY_LEVELS, RESOURCE_DIFFICULTY_LEVELS, CONTENT_TYPES, SESSION_TYPES, AUDIT_STATUSES, PLAN_STATUSES, PLAN_PRIORITIES, MAX_MCQ_QUERY_LIMIT, MAX_SESSION_TITLE_LENGTH, MAX_SECTION_LENGTH, MAX_STUDENT_NAME_LENGTH, DEFAULT_QUIZ_LIMIT, MAX_QUIZ_LIMIT, MAX_SCORE_PERCENTAGE } from "./constants";
+import { DIFFICULTY_LEVELS, RESOURCE_DIFFICULTY_LEVELS, CONTENT_TYPES, SESSION_TYPES, AUDIT_STATUSES, PLAN_STATUSES, PLAN_PRIORITIES, MAX_MCQ_QUERY_LIMIT, MAX_SESSION_TITLE_LENGTH, MAX_SECTION_LENGTH, MAX_STUDENT_NAME_LENGTH, DEFAULT_QUIZ_LIMIT, MAX_QUIZ_LIMIT, MAX_SCORE_PERCENTAGE, MAX_CLASS_NAME_LENGTH, MAX_CLASS_DESCRIPTION_LENGTH, MAX_CLASS_SEMESTER_LENGTH, MAX_CLASS_ENTRY_NOTES_LENGTH } from "./constants";
 
 // ─── MCQ Schemas ─────────────────────────────────────────────
 export const mcqOptionSchema = z.object({
@@ -15,6 +15,17 @@ export const createMCQSchema = z.object({
   options: z.array(mcqOptionSchema).min(2, "At least 2 options required"),
   explanation: z.string().min(1, "Explanation is required"),
   difficulty: z.enum(DIFFICULTY_LEVELS),
+  tags: z.array(z.string()).optional(),
+});
+
+export const updateMCQSchema = z.object({
+  subject: z.string().min(1).optional(),
+  topic: z.string().min(1).optional(),
+  question: z.string().min(1).optional(),
+  codeSnippet: z.string().optional(),
+  options: z.array(mcqOptionSchema).min(2).optional(),
+  explanation: z.string().min(1).optional(),
+  difficulty: z.enum(DIFFICULTY_LEVELS).optional(),
   tags: z.array(z.string()).optional(),
 });
 
@@ -87,7 +98,7 @@ export const sessionAnswerSchema = z.object({
   contentId: z.string().min(1),
   contentType: z.enum(CONTENT_TYPES),
   selected: z.number().int().min(0).optional(),
-  score: z.number().optional(),
+  score: z.number().min(0).max(MAX_SCORE_PERCENTAGE).optional(),
   totalQuestions: z.number().int().positive().optional(),
 });
 
@@ -114,6 +125,8 @@ export const createAuditSchema = z.object({
   status: z.enum(AUDIT_STATUSES).optional(),
 });
 
+export const updateAuditSchema = createAuditSchema.partial();
+
 // ─── Teaching Plan Schemas ──────────────────────────────────
 export const createPlanSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -124,6 +137,28 @@ export const createPlanSchema = z.object({
   priority: z.enum(PLAN_PRIORITIES).optional(),
   notes: z.string().optional(),
 });
+
+export const updatePlanSchema = createPlanSchema.partial();
+
+// ─── Class Schemas ───────────────────────────────────────────
+export const createClassSchema = z.object({
+  name: z.string().min(1, "Class name is required").max(MAX_CLASS_NAME_LENGTH),
+  subject: z.string().min(1, "Subject is required"),
+  description: z.string().max(MAX_CLASS_DESCRIPTION_LENGTH).optional(),
+  semester: z.string().max(MAX_CLASS_SEMESTER_LENGTH).optional(),
+});
+
+export const updateClassSchema = createClassSchema.partial();
+
+export const createClassEntrySchema = z.object({
+  date: z.string().min(1, "Date is required"),
+  topics: z.array(z.string()).min(1, "At least one topic is required"),
+  sessionCode: z.string().optional(),
+  duration: z.number().int().positive().optional(),
+  notes: z.string().max(MAX_CLASS_ENTRY_NOTES_LENGTH).optional(),
+});
+
+export const updateClassEntrySchema = createClassEntrySchema.partial();
 
 // ─── Admin Auth Schemas ──────────────────────────────────────
 export const adminLoginSchema = z.object({
@@ -141,3 +176,7 @@ export type SessionJoinInput = z.infer<typeof sessionJoinSchema>;
 export type SessionSubmitInput = z.infer<typeof sessionSubmitSchema>;
 export type CreateAuditInput = z.infer<typeof createAuditSchema>;
 export type CreatePlanInput = z.infer<typeof createPlanSchema>;
+export type CreateClassInput = z.infer<typeof createClassSchema>;
+export type UpdateClassInput = z.infer<typeof updateClassSchema>;
+export type CreateClassEntryInput = z.infer<typeof createClassEntrySchema>;
+export type UpdateClassEntryInput = z.infer<typeof updateClassEntrySchema>;

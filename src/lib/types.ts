@@ -1,5 +1,29 @@
 import type { DifficultyLevel, AuditStatus, PlanStatus, PlanPriority } from "./constants";
 
+// ─── Class Types ─────────────────────────────────────────────
+export interface ClassData {
+  _id: string;
+  name: string;
+  subject: string;
+  description?: string;
+  semester?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClassEntryData {
+  _id: string;
+  classId: string;
+  date: string;
+  topics: string[];
+  sessionCode?: string;
+  duration?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ─── MCQ Types ──────────────────────────────────────────────
 export interface MCQOption {
   text: string;

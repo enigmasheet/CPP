@@ -143,6 +143,16 @@ export const DEFAULT_MONGODB_URI = "mongodb://localhost:27017/cpp-cms";
 export const MONGODB_MAX_POOL_SIZE = 10;
 export const COOKIE_CLEAR_MAX_AGE = 0;
 export const SESSION_PROGRESS_KEY_PREFIX = "quiz_progress_";
+export const QUIZ_RESULTS_KEY = "quiz-results";
+export const LEARN_PROGRESS_KEY_PREFIX = "learn-progress-";
+export const STUDENT_TOPICS_FILTER = "teacher-plans";
+
+// ─── Class Validation ────────────────────────────────────────
+export const MAX_CLASS_NAME_LENGTH = 100;
+export const MAX_CLASS_DESCRIPTION_LENGTH = 500;
+export const MAX_CLASS_SEMESTER_LENGTH = 50;
+export const MAX_CLASS_NOTES_LENGTH = 500;
+export const MAX_CLASS_ENTRY_NOTES_LENGTH = 500;
 
 // ─── URLs ─────────────────────────────────────────────────────
 export const API_PATHS = {
@@ -153,6 +163,7 @@ export const API_PATHS = {
   MCQ: "/api/mcq",
   AUDIT: "/api/audit",
   PLANS: "/api/plans",
+  CLASSES: "/api/classes",
   QUIZ_START: "/api/quiz/start",
   GAMES: "/api/games",
   SEARCH: "/api/search",

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface SessionData {
   code: string;
@@ -38,20 +39,29 @@ export default function EditSessionDialog({
 
   const handleSave = async () => {
     setSaving(true);
-    const res = await fetch(`/api/sessions/${session.code}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: title.trim() || undefined,
-        section: section.trim() || undefined,
-        timeLimit: timeLimit ? parseInt(timeLimit) : undefined,
-      }),
-    });
-    setSaving(false);
-    if (res.ok) {
+    try {
+      const res = await fetch(`/api/sessions/${session.code}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim() || undefined,
+          section: section.trim() || undefined,
+          timeLimit: timeLimit ? parseInt(timeLimit) : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Failed to update session");
+        setSaving(false);
+        return;
+      }
       onOpenChange(false);
       onUpdated();
+      toast.success("Session updated");
+    } catch {
+      toast.error("Network error. Please try again.");
     }
+    setSaving(false);
   };
 
   return (

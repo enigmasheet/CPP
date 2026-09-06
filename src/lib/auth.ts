@@ -1,6 +1,12 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { ADMIN_TOKEN_COOKIE_NAME, ADMIN_SESSION_MAX_AGE_SECONDS } from "./constants";
+
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 export async function verifyAdmin(): Promise<boolean> {
   const cookieStore = await cookies();
@@ -8,9 +14,10 @@ export async function verifyAdmin(): Promise<boolean> {
   if (!adminToken) return false;
 
   const expectedPassword = process.env.ADMIN_PASSWORD;
+  if (!expectedPassword) return false;
   try {
     const decoded = Buffer.from(adminToken.value, "base64").toString("utf-8");
-    return decoded === expectedPassword;
+    return safeCompare(decoded, expectedPassword);
   } catch {
     return false;
   }

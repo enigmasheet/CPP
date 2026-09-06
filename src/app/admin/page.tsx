@@ -8,7 +8,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck, LogOut, HelpCircle } from "lucide-react";
+import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck, LogOut, HelpCircle, School } from "lucide-react";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import CreateSessionDialog from "@/components/admin/CreateSessionDialog";
 import SessionsList from "@/components/admin/SessionsList";
@@ -18,9 +18,11 @@ const CppKnowledge = lazy(() => import("@/components/admin/CppKnowledge"));
 const AuditLogTab = lazy(() => import("@/components/admin/AuditLog"));
 const TeachingPlanTab = lazy(() => import("@/components/admin/TeachingPlan"));
 const MCQManagementTab = lazy(() => import("@/components/admin/MCQManagement"));
+const ClassesManagerTab = lazy(() => import("@/components/admin/ClassesManager"));
 
 const TABS = [
   { id: "sessions", label: "Sessions", icon: FlaskConical },
+  { id: "classes", label: "Classes", icon: School },
   { id: "mcqs", label: "MCQs", icon: HelpCircle },
   { id: "audit", label: "Audit Log", icon: ClipboardList },
   { id: "plans", label: "Teaching Plan", icon: CalendarCheck },
@@ -44,17 +46,21 @@ export default function AdminPage() {
     setLoading(true);
     setAuthError("");
 
-    const res = await fetch("/api/admin/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
 
-    if (res.ok) {
-      setIsAuthenticated(true);
-      queryClient.invalidateQueries({ queryKey: ["admin-auth"] });
-    } else {
-      setAuthError("Invalid password");
+      if (res.ok) {
+        setIsAuthenticated(true);
+        queryClient.invalidateQueries({ queryKey: ["admin-auth"] });
+      } else {
+        setAuthError("Invalid password");
+      }
+    } catch {
+      setAuthError("Network error. Please try again.");
     }
     setLoading(false);
   };
@@ -86,12 +92,19 @@ export default function AdminPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-4">
-                <Input
-                  type="password"
-                  placeholder="Enter admin password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="space-y-2">
+                  <label htmlFor="admin-password" className="text-sm font-medium">
+                    Password
+                  </label>
+                  <Input
+                    id="admin-password"
+                    type="password"
+                    placeholder="Enter admin password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    aria-label="Admin password"
+                  />
+                </div>
                 {authError && (
                   <p className="text-sm text-destructive">{authError}</p>
                 )}
@@ -144,6 +157,11 @@ export default function AdminPage() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
         {activeTab === "sessions" && <SessionsList />}
+        {activeTab === "classes" && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ClassesManagerTab />
+          </Suspense>
+        )}
         {activeTab === "mcqs" && (
           <Suspense fallback={<LoadingSpinner />}>
             <MCQManagementTab />

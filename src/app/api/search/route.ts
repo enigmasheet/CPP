@@ -12,6 +12,10 @@ import {
   SEARCH_TITLE_SNIPPET_LENGTH,
 } from "@/lib/constants";
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -23,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const regex = new RegExp(q, "i");
+    const regex = new RegExp(escapeRegex(q), "i");
 
     const topics = teacherNotes
       .filter((n) => !n.teacherOnly && (regex.test(n.title) || regex.test(n.content)))

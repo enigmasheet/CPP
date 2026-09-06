@@ -26,6 +26,7 @@ import {
   Sun,
   Moon,
   Search,
+  BarChart3,
 } from "lucide-react";
 import SearchDialog from "@/components/shared/SearchDialog";
 
@@ -112,6 +113,17 @@ export default function Navbar() {
           )}
 
           <Link
+            href="/my-progress"
+            className={buttonVariants({
+              variant: pathname === "/my-progress" ? "secondary" : "ghost",
+              size: "sm",
+            })}
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            My Progress
+          </Link>
+
+          <Link
             href="/join"
             className={buttonVariants({
               variant: pathname === "/join" ? "secondary" : "ghost",
@@ -164,7 +176,7 @@ export default function Navbar() {
         </nav>
 
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger className="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <SheetTrigger className="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Open navigation menu">
             <Menu className="w-5 h-5" />
           </SheetTrigger>
           <SheetContent side="right" className="w-72">
@@ -182,6 +194,16 @@ export default function Navbar() {
                   Learn {subject.name}
                 </Link>
               ))}
+              <Link
+                href="/my-progress"
+                className={buttonVariants({
+                  variant: pathname === "/my-progress" ? "secondary" : "ghost",
+                })}
+                onClick={() => setOpen(false)}
+              >
+                <BarChart3 className="w-4 h-4 mr-3" />
+                My Progress
+              </Link>
               <Link
                 href="/join"
                 className={buttonVariants({

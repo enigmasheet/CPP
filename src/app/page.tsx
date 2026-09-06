@@ -6,13 +6,14 @@ import {
   BookOpen,
   LogIn,
   Code2,
+  BarChart3,
+  GraduationCap,
 } from "lucide-react";
 import { SUBJECTS, getTopics } from "@/config/subjects";
-import { TOPIC_PREVIEW_HOME_COUNT } from "@/lib/constants";
 
 const firstSlug = Object.keys(SUBJECTS)[0];
 const subject = SUBJECTS[firstSlug];
-const topics = getTopics(firstSlug);
+const topics = getTopics(firstSlug).filter((t) => t.slug !== "teacher-plans");
 
 export default function Home() {
   return (
@@ -39,33 +40,43 @@ export default function Home() {
                 <LogIn className="w-4 h-4 mr-2" />
                 Join Session
               </Link>
+              <Link href="/my-progress" className={buttonVariants({ size: "lg", variant: "outline" })}>
+                <BarChart3 className="w-4 h-4 mr-2" />
+                My Progress
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-20">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <FeatureCard
             icon={<BookOpen className="w-8 h-8" />}
             title="Study Materials"
             description={`Structured curriculum covering ${subject.name.replace(" Programming", "")} fundamentals to advanced concepts`}
             href={`/subjects/${firstSlug}/learn`}
           />
-          {topics.slice(0, TOPIC_PREVIEW_HOME_COUNT).map((topic) => (
-            <FeatureCard
-              key={topic.slug}
-              icon={<Code2 className="w-8 h-8" />}
-              title={topic.name}
-              description={topic.description}
-              href={`/subjects/${firstSlug}/learn/${topic.slug}`}
-            />
-          ))}
+          <FeatureCard
+            icon={<GraduationCap className="w-8 h-8" />}
+            title="Practice Quizzes"
+            description="Join teacher-led sessions or practice with standalone topic quizzes"
+            href="/join"
+          />
+          <FeatureCard
+            icon={<BarChart3 className="w-8 h-8" />}
+            title="Track Progress"
+            description="Monitor your learning journey, review completed topics, and check quiz scores"
+            href="/my-progress"
+          />
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-20">
-        <h2 className="text-3xl font-bold text-center mb-8">Topics Covered</h2>
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold">Topics Covered</h2>
+          <p className="text-muted-foreground mt-2">{topics.length} topics, 80+ sections of learning content</p>
+        </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {topics.map((topic) => (
             <Link

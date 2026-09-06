@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withDB } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import AuditLog from "@/models/AuditLog";
+import { updateAuditSchema } from "@/lib/validations";
 
 export const PATCH = withDB(async (request, context) => {
   const authError = await requireAdmin();
@@ -9,8 +10,12 @@ export const PATCH = withDB(async (request, context) => {
 
   const { id } = await context?.params ?? {};
   const body = await request.json();
+  const parsed = updateAuditSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
+  }
 
-  const log = await AuditLog.findByIdAndUpdate(id, body, { new: true });
+  const log = await AuditLog.findByIdAndUpdate(id, parsed.data, { new: true });
   if (!log) {
     return NextResponse.json({ error: "Log not found" }, { status: 404 });
   }

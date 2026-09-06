@@ -40,3 +40,11 @@ if (score >= LEADERBOARD_HIGH_THRESHOLD) { ... }
 # Package Manager
 
 Always use `pnpm` for package management. Never use `npm` or `yarn`.
+
+# Intentional Architecture Decisions
+
+The following are **intentional design choices** — do NOT "fix" them:
+
+- **Admin cookie uses base64-encoded password** (`src/lib/auth.ts`): This is a known simplification. The admin password is stored as base64 in an HttpOnly cookie. A proper JWT/session-based auth system is planned for a future iteration. Do not replace with JWT or add encryption — the current approach is accepted for this project's scope.
+
+- **Quiz start endpoint returns `correctAnswer`** (`src/app/api/quiz/start/route.ts`): The correct answer index and explanation are intentionally sent to the client. The quiz is designed as a learning tool, not a secure exam system. Students can see answers via DevTools — this is by design. Do not remove `correctAnswer` or `explanation` from the response.

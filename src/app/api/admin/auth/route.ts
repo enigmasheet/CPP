@@ -2,6 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { setAdminCookie } from "@/lib/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { ADMIN_LOGIN_MAX_ATTEMPTS, ADMIN_LOGIN_RATE_WINDOW_MS } from "@/lib/constants";
+import crypto from "crypto";
+
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +28,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Admin password not configured" }, { status: 500 });
     }
 
-    if (password !== correctPassword) {
+    if (!password || !safeCompare(password, correctPassword)) {
       return NextResponse.json({ error: "Invalid password" }, { status: 401 });
     }
 

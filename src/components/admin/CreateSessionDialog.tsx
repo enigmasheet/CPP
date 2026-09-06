@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -34,10 +34,18 @@ interface MCQ {
   difficulty: string;
 }
 
+interface ClassOption {
+  _id: string;
+  name: string;
+  semester?: string;
+}
+
 export default function CreateSessionDialog() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [section, setSection] = useState("");
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [classes, setClasses] = useState<ClassOption[]>([]);
   const [mcqs, setMcqs] = useState<MCQ[]>([]);
   const [selectedMcqs, setSelectedMcqs] = useState<string[]>([]);
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
@@ -55,12 +63,24 @@ export default function CreateSessionDialog() {
     setMcqs(Array.isArray(data) ? data : []);
   };
 
+  const loadClasses = async () => {
+    try {
+      const res = await fetch("/api/classes");
+      const data = await res.json();
+      setClasses(Array.isArray(data) ? data : []);
+    } catch {}
+  };
+
   const handleOpen = (isOpen: boolean) => {
     setOpen(isOpen);
-    if (isOpen && mcqs.length === 0) loadMcqs();
+    if (isOpen) {
+      if (mcqs.length === 0) loadMcqs();
+      loadClasses();
+    }
     if (!isOpen) {
       setTitle("");
       setSection("");
+      setSelectedClassId("");
       setSelectedMcqs([]);
       setSelectedGames([]);
       setContentType("quiz");
@@ -217,12 +237,28 @@ export default function CreateSessionDialog() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-sm font-medium">Class Section</label>
-                <Input
-                  placeholder="e.g. CS101 - Section A"
-                  value={section}
-                  onChange={(e) => setSection(e.target.value)}
-                />
+                <label className="text-sm font-medium">Class (optional)</label>
+                <select
+                  className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none"
+                  value={selectedClassId}
+                  onChange={(e) => {
+                    const cls = classes.find((c) => c._id === e.target.value);
+                    setSelectedClassId(e.target.value);
+                    if (cls) setSection(cls.name);
+                  }}
+                >
+                  <option value="">No class</option>
+                  {classes.map((cls) => (
+                    <option key={cls._id} value={cls._id}>
+                      {cls.name}{cls.semester ? ` (${cls.semester})` : ""}
+                    </option>
+                  ))}
+                </select>
+                {selectedClassId && (
+                  <p className="text-xs text-muted-foreground">
+                    Section will be set to &quot;{classes.find((c) => c._id === selectedClassId)?.name}&quot;
+                  </p>
+                )}
               </div>
             </div>
 

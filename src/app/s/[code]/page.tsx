@@ -140,7 +140,10 @@ export default function StudentSessionPage({
             if (savedProgress) {
               try {
                 const progress = JSON.parse(savedProgress);
-                if (typeof progress.currentIndex === "number") setCurrentIndex(progress.currentIndex);
+                const maxIndex = data.items?.length ? data.items.length - 1 : 0;
+                if (typeof progress.currentIndex === "number") {
+                  setCurrentIndex(Math.min(Math.max(0, progress.currentIndex), maxIndex));
+                }
                 if (Array.isArray(progress.answers)) setAnswers(progress.answers);
                 if (typeof progress.timeTaken === "number") setTimeTaken(progress.timeTaken);
                 if (typeof progress.remainingTime === "number") setRemainingTime(progress.remainingTime);
@@ -182,26 +185,53 @@ export default function StudentSessionPage({
 
   const submitAnswers = useCallback(async (finalAnswers: Answer[]) => {
     setSubmitting(true);
-    const res = await fetch(`/api/sessions/${code}/submit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        studentCode,
-        name: name.trim() || undefined,
-        answers: finalAnswers,
-        timeTaken,
-      }),
-    });
-    const data = await res.json();
-    if (data.error) {
-      toast.error(data.error);
+    try {
+      const res = await fetch(`/api/sessions/${code}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentCode,
+          name: name.trim() || undefined,
+          answers: finalAnswers,
+          timeTaken,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        toast.error(data.error);
+        setSubmitting(false);
+        return;
+      }
+      setFinalResult(data);
+      setFinished(true);
       setSubmitting(false);
-      return;
+      localStorage.removeItem(`${SESSION_PROGRESS_KEY_PREFIX}${code}`);
+      try {
+        const existing = JSON.parse(localStorage.getItem("quiz-results") || "[]");
+        const topicCounts: Record<string, number> = {};
+        for (const item of session?.items ?? []) {
+          if (item.contentType === "mcq") {
+            const mcq = mcqData[item.contentId];
+            if (mcq) topicCounts[mcq.topic] = (topicCounts[mcq.topic] || 0) + 1;
+          }
+        }
+        const primaryTopic = Object.entries(topicCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
+        existing.push({
+          code,
+          title: session?.title ?? "",
+          date: new Date().toISOString(),
+          score: data.totalScore,
+          totalQuestions: data.totalPossible,
+          percentage: data.percentage,
+          topic: primaryTopic,
+          timeTaken,
+        });
+        localStorage.setItem("quiz-results", JSON.stringify(existing.slice(-50)));
+      } catch {}
+    } catch {
+      toast.error("Failed to submit answers. Please try again.");
+      setSubmitting(false);
     }
-    setFinalResult(data);
-    setFinished(true);
-    setSubmitting(false);
-    localStorage.removeItem(`${SESSION_PROGRESS_KEY_PREFIX}${code}`);
   }, [code, studentCode, name, timeTaken]);
 
   useEffect(() => {
@@ -283,22 +313,26 @@ export default function StudentSessionPage({
 
   const handleJoin = async () => {
     setJoinError(null);
-    const res = await fetch(`/api/sessions/${code}/join`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim() || undefined }),
-    });
-    const data = await res.json();
-    if (data.error) {
-      setJoinError(data.error);
-      return;
+    try {
+      const res = await fetch(`/api/sessions/${code}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim() || undefined }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setJoinError(data.error);
+        return;
+      }
+      setStudentCode(data.studentCode);
+      localStorage.setItem(`session_${code}`, data.studentCode);
+      if (name.trim()) {
+        localStorage.setItem(`session_${code}_name`, name.trim());
+      }
+      setJoined(true);
+    } catch {
+      setJoinError("Network error. Please try again.");
     }
-    setStudentCode(data.studentCode);
-    localStorage.setItem(`session_${code}`, data.studentCode);
-    if (name.trim()) {
-      localStorage.setItem(`session_${code}_name`, name.trim());
-    }
-    setJoined(true);
   };
 
   const handleCheck = () => {
