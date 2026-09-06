@@ -56,7 +56,7 @@ function loadAllProgress(): Record<string, { completed: number; percent: number 
 }
 
 export default function LearnPage() {
-  const [progressMap, setProgressMap] = useState<Record<string, { completed: number; percent: number }>>(() => {
+  const [progressMap] = useState<Record<string, { completed: number; percent: number }>>(() => {
     if (typeof window === "undefined") return {};
     return loadAllProgress();
   });

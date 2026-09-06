@@ -88,41 +88,34 @@ export default function ClassesManager() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/classes")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!cancelled) {
-          setClasses(Array.isArray(data) ? data : []);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          toast.error("Failed to load classes");
-          setLoading(false);
-        }
-      });
+    const load = async () => {
+      try {
+        const res = await fetch("/api/classes");
+        const data = await res.json();
+        if (!cancelled) setClasses(Array.isArray(data) ? data : []);
+      } catch {
+        if (!cancelled) toast.error("Failed to load classes");
+      }
+      if (!cancelled) setLoading(false);
+    };
+    load();
     return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
     if (!selectedClassId) return;
     let cancelled = false;
-    setEntriesLoading(true);
-    fetch(`/api/classes/${selectedClassId}/entries`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!cancelled) {
-          setEntries(Array.isArray(data) ? data : []);
-          setEntriesLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          toast.error("Failed to load entries");
-          setEntriesLoading(false);
-        }
-      });
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/classes/${selectedClassId}/entries`);
+        const data = await res.json();
+        if (!cancelled) setEntries(Array.isArray(data) ? data : []);
+      } catch {
+        if (!cancelled) toast.error("Failed to load entries");
+      }
+      if (!cancelled) setEntriesLoading(false);
+    };
+    load();
     return () => { cancelled = true; };
   }, [selectedClassId]);
 
@@ -472,7 +465,7 @@ export default function ClassesManager() {
                 <div className="flex items-start justify-between gap-2">
                   <div
                     className="flex-1 min-w-0"
-                    onClick={() => setSelectedClassId(cls._id)}
+                    onClick={() => { setSelectedClassId(cls._id); setEntriesLoading(true); setEntries([]); }}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <School className="w-4 h-4 text-muted-foreground shrink-0" />

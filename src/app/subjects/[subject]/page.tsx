@@ -45,7 +45,6 @@ function getTopicProgress(topicSlug: string): { completed: number; total: number
 }
 
 function loadAllProgress(): Record<string, { completed: number; total: number }> {
-  if (!SUBJECT) return {};
   const map: Record<string, { completed: number; total: number }> = {};
   for (const topic of TOPICS) {
     map[topic.slug] = getTopicProgress(topic.slug);
@@ -53,9 +52,7 @@ function loadAllProgress(): Record<string, { completed: number; total: number }>
   return map;
 }
 
-export default function SubjectPage() {
-  if (!SUBJECT) return notFound();
-
+function SubjectContent() {
   const [progressMap] = useState<Record<string, { completed: number; total: number }>>(() => loadAllProgress());
 
   const totalCompleted = Object.values(progressMap).reduce((sum, p) => sum + p.completed, 0);
@@ -65,8 +62,8 @@ export default function SubjectPage() {
     <AppShell>
       <div className="border-b border-border bg-muted/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold tracking-tight">{SUBJECT.name}</h1>
-          <p className="mt-2 text-muted-foreground">{SUBJECT.description}</p>
+          <h1 className="text-3xl font-bold tracking-tight">{SUBJECT!.name}</h1>
+          <p className="mt-2 text-muted-foreground">{SUBJECT!.description}</p>
           <div className="flex gap-4 mt-4 items-center">
             <Link href={`/subjects/${SLUG}/learn`} className={buttonVariants({ size: "sm" })}>
               <BookOpen className="w-4 h-4 mr-2" />
@@ -132,4 +129,9 @@ export default function SubjectPage() {
       </div>
     </AppShell>
   );
+}
+
+export default function SubjectPage() {
+  if (!SUBJECT) return notFound();
+  return <SubjectContent />;
 }
