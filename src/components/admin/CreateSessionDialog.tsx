@@ -125,7 +125,7 @@ export default function CreateSessionDialog() {
 
   const filteredMcqs = mcqs.filter((m) => {
     const matchesTopic = topicFilter === "all" || m.topic === topicFilter;
-    const matchesSearch = searchQuery === "" || 
+    const matchesSearch = searchQuery === "" ||
       m.question.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTopic && matchesSearch;
   });
@@ -144,7 +144,7 @@ export default function CreateSessionDialog() {
         <Plus className="w-4 h-4 mr-2" />
         New Session
       </DialogTrigger>
-      <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-3xl lg:max-w-5xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {createdCode ? "Session Created" : "Create New Session"}
@@ -206,9 +206,9 @@ export default function CreateSessionDialog() {
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
+          <div className="flex-1 min-h-0 flex flex-col gap-4 overflow-hidden">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
                 <label className="text-sm font-medium">Session Title *</label>
                 <Input
                   placeholder="e.g. Week 3 - OOP Quiz"
@@ -216,7 +216,7 @@ export default function CreateSessionDialog() {
                   onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className="text-sm font-medium">Class Section</label>
                 <Input
                   placeholder="e.g. CS101 - Section A"
@@ -226,45 +226,45 @@ export default function CreateSessionDialog() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Time Limit (minutes)</label>
-              <Input
-                type="number"
-                placeholder="No time limit"
-                min="1"
-                value={timeLimit}
-                onChange={(e) => setTimeLimit(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">Leave empty for no time limit. Session auto-closes when time expires.</p>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-sm font-medium">Content Type</label>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                {[
-                  { id: "quiz" as const, label: "MCQ Quiz", icon: FlaskConical, description: "Test knowledge with questions" },
-                  { id: "game" as const, label: "Games", icon: Puzzle, description: "Interactive learning games" },
-                  { id: "mixed" as const, label: "Both", icon: Puzzle, description: "Quiz and games combined" },
-                ].map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => setContentType(opt.id)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-sm ${
-                      contentType === opt.id
-                        ? "border-primary bg-primary/5 text-primary shadow-sm"
-                        : "border-border hover:border-primary/30 text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <opt.icon className="w-6 h-6" />
-                    <span className="font-medium">{opt.label}</span>
-                    <span className="text-[10px] text-muted-foreground">{opt.description}</span>
-                  </button>
-                ))}
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Time Limit (minutes)</label>
+                <Input
+                  type="number"
+                  placeholder="No time limit"
+                  min="1"
+                  value={timeLimit}
+                  onChange={(e) => setTimeLimit(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Leave empty for no limit.</p>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Content Type</label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { id: "quiz" as const, label: "Quiz", icon: FlaskConical },
+                    { id: "game" as const, label: "Games", icon: Puzzle },
+                    { id: "mixed" as const, label: "Both", icon: Puzzle },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setContentType(opt.id)}
+                      className={`flex items-center justify-center gap-1.5 p-2 rounded-lg border-2 transition-all text-xs font-medium ${
+                        contentType === opt.id
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "border-border hover:border-primary/30 text-muted-foreground"
+                      }`}
+                    >
+                      <opt.icon className="w-3.5 h-3.5" />
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
             {(contentType === "quiz" || contentType === "mixed") && (
-              <div className="space-y-3">
+              <div className="flex-1 min-h-0 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium">Select MCQs</label>
                   <span className="text-xs text-muted-foreground">
@@ -308,12 +308,12 @@ export default function CreateSessionDialog() {
                   ))}
                 </div>
 
-                <div className="max-h-64 overflow-y-auto border border-border rounded-xl divide-y divide-border">
+                <div className="flex-1 min-h-0 overflow-y-auto border border-border rounded-xl divide-y divide-border">
                   {filteredMcqs.map((mcq) => (
                     <button
                       key={mcq._id}
                       onClick={() => toggleMcq(mcq._id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
                         selectedMcqs.includes(mcq._id)
                           ? "bg-primary/5"
                           : "hover:bg-muted/50"
@@ -343,20 +343,20 @@ export default function CreateSessionDialog() {
             )}
 
             {(contentType === "game" || contentType === "mixed") && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-medium">Select Games</label>
                   <span className="text-xs text-muted-foreground">
                     {selectedGames.length} selected
                   </span>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {GAME_TYPES.map((game) => (
                     <button
                       key={game.id}
                       onClick={() => game.implemented && toggleGame(game.id)}
                       disabled={!game.implemented}
-                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-colors text-left ${
+                      className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-colors text-left ${
                         !game.implemented
                           ? "border-border opacity-60 cursor-not-allowed"
                           : selectedGames.includes(game.id)
@@ -367,17 +367,16 @@ export default function CreateSessionDialog() {
                       <div className="shrink-0">
                         {game.implemented ? (
                           selectedGames.includes(game.id) ? (
-                            <CheckCircle className="w-5 h-5 text-primary" />
+                            <CheckCircle className="w-4 h-4 text-primary" />
                           ) : (
-                            <CircleDot className="w-5 h-5 text-muted-foreground" />
+                            <CircleDot className="w-4 h-4 text-muted-foreground" />
                           )
                         ) : (
-                          <Lock className="w-5 h-5 text-muted-foreground" />
+                          <Lock className="w-4 h-4 text-muted-foreground" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{game.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{game.description}</p>
+                        <p className="text-xs font-medium truncate">{game.name}</p>
                       </div>
                       {!game.implemented && (
                         <Badge variant="secondary" className="text-[10px] shrink-0">Soon</Badge>

@@ -28,10 +28,17 @@ import {
   Clock,
   ChevronUp,
   ChevronDown,
+  Maximize2,
 } from "lucide-react";
 import Link from "next/link";
 import QRCode from "@/components/shared/QRCode";
 import EditSessionDialog from "@/components/admin/EditSessionDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   COPY_FEEDBACK_TIMEOUT_MS,
   MAX_SCORE_PERCENTAGE,
@@ -98,6 +105,7 @@ export default function SessionDetailPage({
   const { code } = use(params);
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
@@ -220,12 +228,19 @@ export default function SessionDetailPage({
                   </div>
                 </div>
 
-                <div className="text-center">
+                <button
+                  onClick={() => setQrOpen(true)}
+                  className="group relative mx-auto block cursor-zoom-in"
+                  aria-label="Enlarge QR code"
+                >
                   <QRCode
                     url={`${typeof window !== "undefined" ? window.location.origin : ""}/s/${code}`}
                     size={180}
                   />
-                </div>
+                  <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 transition-colors group-hover:bg-black/10">
+                    <Maximize2 className="w-6 h-6 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                  </div>
+                </button>
 
                 <div className="text-center text-sm text-muted-foreground">
                   <p className="truncate font-medium text-foreground">{session.title}</p>
@@ -492,6 +507,27 @@ export default function SessionDetailPage({
           }}
         />
       )}
+
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Join Session</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-6 py-4">
+            <div className="text-5xl font-mono font-bold tracking-widest">
+              {code}
+            </div>
+            <QRCode
+              url={`${typeof window !== "undefined" ? window.location.origin : ""}/s/${code}`}
+              size={280}
+            />
+            <Button variant="outline" onClick={copyLink} className="w-full">
+              <Copy className="w-4 h-4 mr-2" />
+              {copied ? "Copied!" : "Copy Link"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
