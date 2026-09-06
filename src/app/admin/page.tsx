@@ -8,7 +8,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck, LogOut, HelpCircle, School } from "lucide-react";
+import { Shield, Loader2, BookOpen, FlaskConical, Lock, ClipboardList, CalendarCheck, LogOut, HelpCircle, School, LayoutDashboard } from "lucide-react";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import CreateSessionDialog from "@/components/admin/CreateSessionDialog";
 import SessionsList from "@/components/admin/SessionsList";
@@ -19,8 +19,10 @@ const AuditLogTab = lazy(() => import("@/components/admin/AuditLog"));
 const TeachingPlanTab = lazy(() => import("@/components/admin/TeachingPlan"));
 const MCQManagementTab = lazy(() => import("@/components/admin/MCQManagement"));
 const ClassesManagerTab = lazy(() => import("@/components/admin/ClassesManager"));
+const DashboardOverview = lazy(() => import("@/components/admin/DashboardOverview"));
 
 const TABS = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "sessions", label: "Sessions", icon: FlaskConical },
   { id: "classes", label: "Classes", icon: School },
   { id: "mcqs", label: "MCQs", icon: HelpCircle },
@@ -37,7 +39,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("sessions");
+  const [activeTab, setActiveTab] = useState("overview");
 
   const authed = authData?.authenticated || isAuthenticated;
 
@@ -156,6 +158,11 @@ export default function AdminPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
+        {activeTab === "overview" && (
+          <Suspense fallback={<LoadingSpinner />}>
+            <DashboardOverview />
+          </Suspense>
+        )}
         {activeTab === "sessions" && <SessionsList />}
         {activeTab === "classes" && (
           <Suspense fallback={<LoadingSpinner />}>

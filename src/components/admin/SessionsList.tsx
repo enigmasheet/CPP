@@ -13,8 +13,9 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Eye, EyeOff, Link2, Loader2, Trash2, Users, BarChart } from "lucide-react";
+import { Eye, EyeOff, Link2, Loader2, Trash2, Users, BarChart, Copy } from "lucide-react";
 import Link from "next/link";
+import { SESSION_COPY_TITLE_SUFFIX } from "@/lib/constants";
 
 interface Session {
   _id: string;
@@ -32,6 +33,7 @@ export default function SessionsList() {
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Session | null>(null);
+  const [duplicating, setDuplicating] = useState<string | null>(null);
 
   const { data: sessions = [], isLoading } = useQuery<Session[]>({
     queryKey: ["sessions"],
@@ -85,6 +87,23 @@ export default function SessionsList() {
     onSuccess: () => {
       setDeleteTarget(null);
       setDeleting(null);
+    },
+  });
+
+  const duplicateMutation = useMutation({
+    mutationFn: (session: Session) =>
+      fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `${session.title}${SESSION_COPY_TITLE_SUFFIX}`,
+          type: session.type,
+          items: session.items,
+        }),
+      }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      setDuplicating(null);
     },
   });
 
@@ -164,6 +183,23 @@ export default function SessionsList() {
                 >
                   <Link2 className="w-4 h-4" />
                 </Link>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => {
+                    setDuplicating(session.code);
+                    duplicateMutation.mutate(session);
+                  }}
+                  disabled={duplicating === session.code}
+                  title="Duplicate session"
+                  aria-label="Duplicate session"
+                >
+                  {duplicating === session.code ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </Button>
                 <Dialog
                   open={deleteTarget?.code === session.code}
                   onOpenChange={(open) => !open && setDeleteTarget(null)}

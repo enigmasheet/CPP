@@ -8,14 +8,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Search, BookOpen, HelpCircle, FileText, ArrowRight } from "lucide-react";
+import { Search, BookOpen, HelpCircle, FileText, ArrowRight, FlaskConical, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants";
 
 interface SearchResult {
   id: string;
   title: string;
-  type: "topic" | "question" | "resource";
+  type: "topic" | "question" | "resource" | "session" | "audit";
   url: string;
   snippet: string;
 }
@@ -24,18 +24,24 @@ interface SearchData {
   topics: SearchResult[];
   questions: SearchResult[];
   resources: SearchResult[];
+  sessions: SearchResult[];
+  auditLogs: SearchResult[];
 }
 
 const TYPE_ICONS = {
   topic: BookOpen,
   question: HelpCircle,
   resource: FileText,
+  session: FlaskConical,
+  audit: ClipboardList,
 } as const;
 
 const TYPE_LABELS = {
   topic: "Topic",
   question: "Question",
   resource: "Resource",
+  session: "Session",
+  audit: "Audit Log",
 } as const;
 
 export default function SearchDialog({
@@ -46,12 +52,12 @@ export default function SearchDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchData>({ topics: [], questions: [], resources: [] });
+  const [results, setResults] = useState<SearchData>({ topics: [], questions: [], resources: [], sessions: [], auditLogs: [] });
   const [loading, setLoading] = useState(false);
 
   const search = useCallback(async (q: string) => {
     if (q.length < 2) {
-      setResults({ topics: [], questions: [], resources: [] });
+      setResults({ topics: [], questions: [], resources: [], sessions: [], auditLogs: [] });
       return;
     }
     setLoading(true);
@@ -60,7 +66,7 @@ export default function SearchDialog({
       const data = await res.json();
       setResults(data);
     } catch {
-      setResults({ topics: [], questions: [], resources: [] });
+      setResults({ topics: [], questions: [], resources: [], sessions: [], auditLogs: [] });
     }
     setLoading(false);
   }, []);
@@ -74,12 +80,14 @@ export default function SearchDialog({
     if (!open) {
       requestAnimationFrame(() => {
         setQuery("");
-        setResults({ topics: [], questions: [], resources: [] });
+        setResults({ topics: [], questions: [], resources: [], sessions: [], auditLogs: [] });
       });
     }
   }, [open]);
 
-  const totalResults = results.topics.length + results.questions.length + results.resources.length;
+  const totalResults = results.topics.length + results.questions.length + results.resources.length + results.sessions.length + results.auditLogs.length;
+
+  const allTypes = ["topic", "question", "resource", "session", "audit"] as const;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,7 +98,7 @@ export default function SearchDialog({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search topics, questions, resources..."
+            placeholder="Search topics, questions, resources, sessions..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pl-9"
@@ -105,8 +113,9 @@ export default function SearchDialog({
               <p className="text-sm text-muted-foreground text-center py-4">No results found</p>
             ) : (
               <div className="space-y-4">
-                {(["topic", "question", "resource"] as const).map((type) => {
-                  const items = results[type === "topic" ? "topics" : type === "question" ? "questions" : "resources"];
+                {allTypes.map((type) => {
+                  const key = type === "topic" ? "topics" : type === "question" ? "questions" : type === "session" ? "sessions" : type === "audit" ? "auditLogs" : "resources";
+                  const items = results[key];
                   if (items.length === 0) return null;
                   const Icon = TYPE_ICONS[type];
                   return (

@@ -18,6 +18,8 @@ import {
   XCircle,
   Home,
   Gamepad2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -243,7 +245,7 @@ export default function StudentSessionPage({
       toast.error("Failed to submit answers. Please try again.");
       setSubmitting(false);
     }
-  }, [code, studentCode, name, timeTaken, session, mcqData]);
+  }, [code, studentCode, name, timeTaken, session, mcqData, gameQuestions]);
 
   useEffect(() => {
     if (remainingTime === null || remainingTime > 0 || finished || submitting || autoSubmittedRef.current) return;
@@ -346,9 +348,17 @@ export default function StudentSessionPage({
     }
   };
 
-  const handleCheck = () => {
+  const handleCheck = useCallback(() => {
     if (selected === null) return;
     setShowResult(true);
+  }, [selected]);
+
+  const upsertAnswer = (idx: number, answer: Answer) => {
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[idx] = answer;
+      return next;
+    });
   };
 
   const handleGameComplete = (gameScore: number) => {
@@ -361,35 +371,78 @@ export default function StudentSessionPage({
       score: gameScore,
       totalQuestions: questions.length,
     };
-    const newAnswers = [...answers, answer];
-    setAnswers(newAnswers);
+    upsertAnswer(currentIndex, answer);
     if (currentIndex < (session?.items.length || 0) - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelected(null);
       setShowResult(false);
     } else {
-      submitAnswers(newAnswers);
+      submitAnswers([...answers.slice(0, currentIndex), answer]);
     }
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     const currentItem = session?.items[currentIndex];
     const answer = {
       contentId: currentItem?.contentId,
       contentType: currentItem?.contentType,
       selected,
     };
-    const newAnswers = [...answers, answer];
-    setAnswers(newAnswers);
+    upsertAnswer(currentIndex, answer);
 
     if (currentIndex < (session?.items.length || 0) - 1) {
       setCurrentIndex(currentIndex + 1);
       setSelected(null);
       setShowResult(false);
     } else {
-      submitAnswers(newAnswers);
+      submitAnswers([...answers.slice(0, currentIndex), answer]);
     }
+  }, [session, currentIndex, selected, answers, submitAnswers]);
+
+  const handlePrevious = () => {
+    if (currentIndex === 0) return;
+    const prevIndex = currentIndex - 1;
+    setCurrentIndex(prevIndex);
+    const prevAnswer = answers[prevIndex];
+    setSelected(prevAnswer?.selected ?? null);
+    setShowResult(false);
   };
+
+  const jumpToQuestion = (idx: number) => {
+    if (idx === currentIndex || idx < 0 || !session || idx >= session.items.length) return;
+    setCurrentIndex(idx);
+    const prevAnswer = answers[idx];
+    setSelected(prevAnswer?.selected ?? null);
+    setShowResult(false);
+  };
+
+  useEffect(() => {
+    if (!joined || finished || submitting) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const currentItem = session?.items[currentIndex];
+      if (!currentItem || currentItem.contentType !== "mcq") return;
+      if (showResult) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleNext();
+        }
+        return;
+      }
+      if (e.key >= "a" && e.key <= "d") {
+        const idx = e.key.charCodeAt(0) - ASCII_UPPERCASE_A;
+        const mcq = mcqData[currentItem.contentId];
+        if (mcq && idx < mcq.options.length) {
+          setSelected(idx);
+        }
+      } else if (e.key === "Enter" && selected !== null) {
+        e.preventDefault();
+        handleCheck();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [joined, finished, submitting, currentIndex, session, mcqData, showResult, selected, handleNext, handleCheck]);
 
   if (!session) {
     if (sessionError) {
@@ -728,6 +781,55 @@ export default function StudentSessionPage({
           value={((currentIndex + 1) / session.items.length) * MAX_SCORE_PERCENTAGE}
           className="mb-6"
         />
+
+        {session.items.length > 1 && (
+          <div className="flex items-center justify-between mb-6 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrevious}
+              disabled={currentIndex === 0}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+              {session.items.map((_, idx) => {
+                const isCurrent = idx === currentIndex;
+                const isAnswered = answers[idx]?.selected !== undefined || answers[idx]?.score !== undefined;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => jumpToQuestion(idx)}
+                    className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                      isCurrent
+                        ? "bg-primary ring-2 ring-primary/30"
+                        : isAnswered
+                        ? "bg-primary/40 hover:bg-primary/60"
+                        : "bg-muted-foreground/20 hover:bg-muted-foreground/40"
+                    }`}
+                    aria-label={`Question ${idx + 1}`}
+                  />
+                );
+              })}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => jumpToQuestion(currentIndex + 1)}
+              disabled={currentIndex >= session.items.length - 1}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        )}
+
+        {currentItem.contentType === "mcq" && !showResult && (
+          <p className="text-xs text-muted-foreground text-center mb-4">
+            Press <kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[10px] font-mono">A</kbd>-<kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[10px] font-mono">D</kbd> to select, <kbd className="px-1 py-0.5 rounded border border-border bg-muted text-[10px] font-mono">Enter</kbd> to check
+          </p>
+        )}
 
         {currentItem.contentType === "mcq" && !mcqData[currentItem.contentId] ? (
           <Card className="mb-6">

@@ -50,6 +50,8 @@ export const MIN_SEARCH_QUERY_LENGTH = 2;
 export const MAX_TOPIC_SEARCH_RESULTS = 5;
 export const MAX_MCQ_SEARCH_RESULTS = 5;
 export const MAX_RESOURCE_SEARCH_RESULTS = 5;
+export const MAX_SESSION_SEARCH_RESULTS = 3;
+export const MAX_AUDIT_SEARCH_RESULTS = 3;
 export const SEARCH_SNIPPET_LENGTH = 100;
 export const SEARCH_TITLE_SNIPPET_LENGTH = 80;
 
@@ -157,6 +159,31 @@ export const LEARN_NOTE_IDX_KEY_PREFIX = "learn-note-idx-";
 // ─── Join Recent Sessions ──────────────────────────────────────
 export const JOIN_RECENT_SESSIONS_KEY = "join-recent-sessions";
 export const MAX_RECENT_SESSIONS = 5;
+
+// ─── Session Navigation ────────────────────────────────────────
+export const NAVIGATION_DOTS_VISIBLE_THRESHOLD = 15;
+
+// ─── Score Trend ───────────────────────────────────────────────
+export const MIN_SCORES_FOR_TREND_CHART = 2;
+export const SCORE_TREND_CHART_HEIGHT = 250;
+
+// ─── Dashboard Overview ────────────────────────────────────────
+export const OVERVIEW_RECENT_SESSIONS_LIMIT = 5;
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+export const OVERVIEW_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+export const OVERVIEW_STATS_SKELETON_COUNT = 4;
+
+// ─── End of Day ──────────────────────────────────────────────
+export const END_OF_DAY_HOURS = 23;
+export const END_OF_DAY_MINUTES = 59;
+export const END_OF_DAY_SECONDS = 59;
+export const END_OF_DAY_MS = 999;
+
+// ─── Score Trend ───────────────────────────────────────────────
+export const SCORE_TREND_TITLE_MAX_LENGTH = 20;
+
+// ─── Session Copy ──────────────────────────────────────────────
+export const SESSION_COPY_TITLE_SUFFIX = " (Copy)";
 
 // ─── Class Validation ────────────────────────────────────────
 export const MAX_CLASS_NAME_LENGTH = 100;

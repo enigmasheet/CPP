@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import MCQ from "@/models/MCQ";
 import Resource from "@/models/Resource";
+import Session from "@/models/Session";
+import AuditLog from "@/models/AuditLog";
 import { teacherNotes } from "@/data/teacher-notes";
 import { stripTeachingTips } from "@/lib/utils";
 import {
@@ -9,6 +11,8 @@ import {
   MAX_TOPIC_SEARCH_RESULTS,
   MAX_MCQ_SEARCH_RESULTS,
   MAX_RESOURCE_SEARCH_RESULTS,
+  MAX_SESSION_SEARCH_RESULTS,
+  MAX_AUDIT_SEARCH_RESULTS,
   SEARCH_SNIPPET_LENGTH,
   SEARCH_TITLE_SNIPPET_LENGTH,
 } from "@/lib/constants";
@@ -23,7 +27,7 @@ export async function GET(request: NextRequest) {
     const q = searchParams.get("q")?.trim();
 
     if (!q || q.length < MIN_SEARCH_QUERY_LENGTH) {
-      return NextResponse.json({ topics: [], questions: [], resources: [] });
+      return NextResponse.json({ topics: [], questions: [], resources: [], sessions: [], auditLogs: [] });
     }
 
     await connectDB();
@@ -41,7 +45,9 @@ export async function GET(request: NextRequest) {
         snippet: stripTeachingTips(n.content).slice(0, SEARCH_SNIPPET_LENGTH).replace(/[#*`]/g, "") + "...",
       }));
 
-    const mcqs = await MCQ.find({ question: regex })
+    const mcqs = await MCQ.find({
+      $or: [{ question: regex }, { "options.text": regex }, { explanation: regex }, { topic: regex }],
+    })
       .limit(MAX_MCQ_SEARCH_RESULTS)
       .populate("subject", "slug")
       .lean();
@@ -56,7 +62,9 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    const resources = await Resource.find({ title: regex })
+    const resources = await Resource.find({
+      $or: [{ title: regex }, { content: regex }, { topic: regex }],
+    })
       .limit(MAX_RESOURCE_SEARCH_RESULTS)
       .populate("subject", "slug")
       .lean();
@@ -71,7 +79,35 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json({ topics, questions, resources: resourceResults });
+    const sessions = await Session.find({
+      $or: [{ title: regex }, { code: regex }, { section: regex }],
+    })
+      .sort({ createdAt: -1 })
+      .limit(MAX_SESSION_SEARCH_RESULTS)
+      .lean();
+    const sessionResults = sessions.map((s) => ({
+      id: `session-${s._id}`,
+      title: s.title,
+      type: "session" as const,
+      url: `/admin/sessions/${s.code}`,
+      snippet: `${s.code} · ${s.items.length} items · ${s.isActive ? "Active" : "Closed"}`,
+    }));
+
+    const auditLogs = await AuditLog.find({
+      $or: [{ section: regex }, { notes: regex }, { topicsCovered: regex }],
+    })
+      .sort({ date: -1 })
+      .limit(MAX_AUDIT_SEARCH_RESULTS)
+      .lean();
+    const auditResults = auditLogs.map((l) => ({
+      id: `audit-${l._id}`,
+      title: `${new Date(l.date).toLocaleDateString()} - ${l.section || "No section"}`,
+      type: "audit" as const,
+      url: "/admin",
+      snippet: l.notes?.slice(0, SEARCH_SNIPPET_LENGTH) || l.topicsCovered.join(", ").slice(0, SEARCH_SNIPPET_LENGTH),
+    }));
+
+    return NextResponse.json({ topics, questions, resources: resourceResults, sessions: sessionResults, auditLogs: auditResults });
   } catch {
     return NextResponse.json({ error: "Search failed" }, { status: 500 });
   }

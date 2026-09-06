@@ -33,10 +33,11 @@ import {
   useCreateClassEntry,
   useUpdateClassEntry,
   useDeleteClassEntry,
+  useSessions,
 } from "@/hooks/queries";
 import type { ClassData, ClassEntryData } from "@/lib/types";
 import { getTopics } from "@/config/subjects";
-import { STUDENT_TOPICS_FILTER } from "@/lib/constants";
+import { STUDENT_TOPICS_FILTER, PROGRESS_PERCENTAGE_MULTIPLIER } from "@/lib/constants";
 
 const TOPICS = getTopics("cpp").filter((t) => t.slug !== STUDENT_TOPICS_FILTER);
 
@@ -45,6 +46,7 @@ export default function ClassesManager() {
 
   const { data: classes = [], isLoading } = useClasses();
   const { data: entries = [], isLoading: entriesLoading } = useClassEntries(selectedClassId);
+  const { data: sessions = [] } = useSessions();
 
   const createClass = useCreateClass();
   const updateClass = useUpdateClass();
@@ -178,6 +180,20 @@ export default function ClassesManager() {
     );
   };
 
+  const computeTopicCoverage = (classId: string) => {
+    const coveredTopics = new Set<string>();
+    for (const entry of entries) {
+      if (entry.classId === classId) {
+        for (const t of entry.topics) {
+          coveredTopics.add(t);
+        }
+      }
+    }
+    const total = TOPICS.length;
+    const covered = coveredTopics.size;
+    return { covered, total, percent: total > 0 ? Math.round((covered / total) * PROGRESS_PERCENTAGE_MULTIPLIER) : 0 };
+  };
+
   if (isLoading) {
     return (
       <div className="text-center py-12">
@@ -238,7 +254,19 @@ export default function ClassesManager() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium">Session Code (optional)</label>
-                    <Input placeholder="ABC123" value={entrySession} onChange={(e) => setEntrySession(e.target.value.toUpperCase())} />
+                    <Input
+                      placeholder="ABC123"
+                      value={entrySession}
+                      onChange={(e) => setEntrySession(e.target.value.toUpperCase())}
+                      list="session-codes"
+                    />
+                    <datalist id="session-codes">
+                      {sessions.map((s) => (
+                        <option key={s.code} value={s.code}>
+                          {s.title}
+                        </option>
+                      ))}
+                    </datalist>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Duration (min)</label>
@@ -388,6 +416,24 @@ export default function ClassesManager() {
                         Created {new Date(cls.createdAt).toLocaleDateString()}
                       </span>
                     </div>
+                    {(() => {
+                      const coverage = computeTopicCoverage(cls._id);
+                      if (coverage.covered === 0) return null;
+                      return (
+                        <div className="mt-2 ml-6">
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-[10px] text-muted-foreground">Topic Coverage</span>
+                            <span className="text-[10px] text-muted-foreground">{coverage.covered}/{coverage.total}</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary rounded-full transition-all duration-300"
+                              style={{ width: `${coverage.percent}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div className="flex flex-col gap-1 shrink-0">
                     <Button variant="ghost" size="sm" className="h-6 px-1.5" onClick={() => openEditClass(cls)}>

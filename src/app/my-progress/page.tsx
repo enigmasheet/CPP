@@ -14,7 +14,11 @@ import {
   LEADERBOARD_MEDIUM_THRESHOLD,
   STUDENT_TOPICS_FILTER,
   LEARN_PROGRESS_KEY_PREFIX,
+  MIN_SCORES_FOR_TREND_CHART,
 } from "@/lib/constants";
+import dynamic from "next/dynamic";
+
+const ScoreTrendChart = dynamic(() => import("@/components/student/ScoreTrendChart"), { ssr: false });
 
 interface QuizResult {
   code: string;
@@ -174,6 +178,10 @@ export default function MyProgressPage() {
             </CardContent>
           </Card>
         </div>
+
+        {quizResults.length >= MIN_SCORES_FOR_TREND_CHART && (
+          <ScoreTrendChart results={quizResults} />
+        )}
 
         <Card>
           <CardHeader>

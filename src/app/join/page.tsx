@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
@@ -37,11 +37,7 @@ export default function JoinPage() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [recentSessions, setRecentSessions] = useState<RecentSession[]>([]);
-
-  useEffect(() => {
-    setRecentSessions(getRecentSessions());
-  }, []);
+  const [recentSessions, setRecentSessions] = useState<RecentSession[]>(() => getRecentSessions());
 
   const handleJoin = async (sessionCode: string) => {
     const trimmed = sessionCode.trim().toUpperCase();

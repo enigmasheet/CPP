@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,11 +32,12 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SUBJECTS, getAllSubjectSlugs, getTopics } from "@/config/subjects";
 import { useAuditLogs, useCreateAuditLog, useUpdateAuditLog, useDeleteAuditLog } from "@/hooks/queries";
-import { AUDIT_STATUSES, AUDIT_PAGE_SIZE, MAX_AUDIT_NOTES_LENGTH } from "@/lib/constants";
+import { AUDIT_STATUSES, AUDIT_PAGE_SIZE, MAX_AUDIT_NOTES_LENGTH, END_OF_DAY_HOURS, END_OF_DAY_MINUTES, END_OF_DAY_SECONDS, END_OF_DAY_MS } from "@/lib/constants";
 import type { AuditLogData } from "@/lib/types";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 
@@ -55,6 +56,8 @@ export default function AuditLogTab() {
   const [deleteTarget, setDeleteTarget] = useState<AuditLogData | null>(null);
 
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [formDate, setFormDate] = useState("");
@@ -147,10 +150,48 @@ export default function AuditLogTab() {
     );
   };
 
-  const filtered = useMemo(() => {
-    if (statusFilter === "all") return logs;
-    return logs.filter((l) => l.status === statusFilter);
-  }, [logs, statusFilter]);
+  const exportCsv = () => {
+    const headers = ["Date", "Section", "Status", "Session Code", "Topics", "MCQs", "Students", "Avg Score", "High Score", "Low Score", "Duration", "Notes"];
+    const rows = filtered.map((l) => [
+      new Date(l.date).toLocaleDateString(),
+      l.section ?? "",
+      l.status,
+      l.sessionCode ?? "",
+      l.topicsCovered.join("; "),
+      String(l.mcqsUsed),
+      String(l.studentCount),
+      l.averageScore?.toString() ?? "",
+      l.highestScore?.toString() ?? "",
+      l.lowestScore?.toString() ?? "",
+      l.duration?.toString() ?? "",
+      (l.notes ?? "").replace(/"/g, '""'),
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `audit-log-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const filtered = (() => {
+    let result = logs;
+    if (statusFilter !== "all") {
+      result = result.filter((l) => l.status === statusFilter);
+    }
+    if (dateFrom) {
+      const from = new Date(dateFrom);
+      result = result.filter((l) => new Date(l.date) >= from);
+    }
+    if (dateTo) {
+      const to = new Date(dateTo);
+      to.setHours(END_OF_DAY_HOURS, END_OF_DAY_MINUTES, END_OF_DAY_SECONDS, END_OF_DAY_MS);
+      result = result.filter((l) => new Date(l.date) <= to);
+    }
+    return result;
+  })();
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / AUDIT_PAGE_SIZE));
   const paginated = filtered.slice((currentPage - 1) * AUDIT_PAGE_SIZE, currentPage * AUDIT_PAGE_SIZE);
@@ -291,7 +332,7 @@ export default function AuditLogTab() {
         </Card>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
         <span className="text-sm text-muted-foreground">Filter:</span>
         <Select value={statusFilter} onValueChange={(v) => { if (v) { setStatusFilter(v); setCurrentPage(1); } }}>
           <SelectTrigger className="w-36">
@@ -304,7 +345,25 @@ export default function AuditLogTab() {
             ))}
           </SelectContent>
         </Select>
-        <span className="text-xs text-muted-foreground ml-auto">
+        <Input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
+          className="w-36"
+          placeholder="From"
+        />
+        <Input
+          type="date"
+          value={dateTo}
+          onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
+          className="w-36"
+          placeholder="To"
+        />
+        <Button variant="outline" size="sm" onClick={exportCsv} className="ml-auto">
+          <Download className="w-4 h-4 mr-1" />
+          Export CSV
+        </Button>
+        <span className="text-xs text-muted-foreground">
           {filtered.length} {filtered.length === 1 ? "entry" : "entries"}
         </span>
       </div>
