@@ -14,7 +14,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
 import { PASS_THRESHOLD_RATIO, MAX_SCORE_PERCENTAGE, MIN_SCORES_FOR_TREND_CHART, SCORE_TREND_CHART_HEIGHT, SCORE_TREND_TITLE_MAX_LENGTH } from "@/lib/constants";
-import type { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent";
+import type { Payload } from "recharts/types/component/DefaultTooltipContent";
 
 interface QuizResult {
   code: string;
@@ -72,12 +72,12 @@ export default function ScoreTrendChart({ results }: ScoreTrendChartProps) {
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "8px",
               }}
-              formatter={(value: ValueType, _name: NameType, props: { payload?: { label?: string; date?: string } }) => [
+              formatter={(value, _name, item) => [
                 `${value}%`,
-                props.payload?.label ?? "",
+                (item.payload as { label?: string })?.label ?? "",
               ]}
-              labelFormatter={(_label: React.ReactNode, payload: Array<{ payload?: { date?: string } }>) => {
-                return payload?.[0]?.payload?.date ?? "";
+              labelFormatter={(_label: React.ReactNode, payload: ReadonlyArray<Payload>) => {
+                return (payload?.[0] as Payload & { payload?: { date?: string } })?.payload?.date ?? "";
               }}
             />
             <ReferenceLine
