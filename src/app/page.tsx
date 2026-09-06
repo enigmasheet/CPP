@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BookOpen,
   LogIn,
-  Code2,
   BarChart3,
   GraduationCap,
 } from "lucide-react";

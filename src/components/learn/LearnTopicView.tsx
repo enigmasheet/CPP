@@ -132,7 +132,6 @@ export default function LearnTopicView({
   const totalNotes = topicNotes.length;
 
   const currentTopicIdx = topics.findIndex((t) => t.slug === currentTopic.slug);
-  const prevTopic = currentTopicIdx > 0 ? topics[currentTopicIdx - 1] : null;
   const nextTopic =
     currentTopicIdx < topics.length - 1 ? topics[currentTopicIdx + 1] : null;
 
