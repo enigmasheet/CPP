@@ -35,6 +35,21 @@ export const SUBJECTS: Record<string, SubjectConfig> = {
       { slug: "teacher-plans", name: "Teaching Plans", description: "Teaching Patterns, Checklists (Teacher Only)", count: 5 },
     ],
   },
+  oop: {
+    name: "Object Oriented Programming",
+    slug: "oop",
+    description: "Core OOP concepts — classes, inheritance, polymorphism, and design patterns",
+    topics: [
+      { slug: "classes-objects", name: "Classes & Objects", description: "Defining classes, constructors, destructors, member functions", count: 0 },
+      { slug: "encapsulation", name: "Encapsulation", description: "Access modifiers, data hiding, getters/setters", count: 0 },
+      { slug: "inheritance", name: "Inheritance", description: "Single, multiple, multilevel inheritance, virtual functions", count: 0 },
+      { slug: "polymorphism", name: "Polymorphism", description: "Compile-time vs runtime, function overloading, virtual tables", count: 0 },
+      { slug: "abstraction", name: "Abstraction", description: "Abstract classes, interfaces, pure virtual functions", count: 0 },
+      { slug: "solid-principles", name: "SOLID Principles", description: "Single Responsibility, Open/Closed, Liskov, Interface Segregation, DI", count: 0 },
+      { slug: "design-patterns", name: "Design Patterns", description: "Singleton, Factory, Observer, Strategy patterns", count: 0 },
+      { slug: "composition", name: "Composition vs Inheritance", description: "Favoring composition, has-a vs is-a relationships", count: 0 },
+    ],
+  },
 };
 
 export function getSubject(slug: string): SubjectConfig | undefined {

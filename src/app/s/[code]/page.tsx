@@ -226,6 +226,7 @@ export default function StudentSessionPage({
           topic: primaryTopic,
           timeTaken,
         });
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         localStorage.setItem("quiz-results", JSON.stringify(existing.slice(-50)));
       } catch {}
     } catch {

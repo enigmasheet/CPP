@@ -8,6 +8,32 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+# Project Description
+
+**TeachMate** is a teacher assistant tool — not a student LMS. The primary user is the teacher (you). It replaces PowerPoint presentations with interactive notes, quizzes, and games during class. Students may or may not use the web app outside of class; their main interaction is joining quiz sessions when the teacher launches them.
+
+**Teacher workflow:**
+1. Prepare notes and teaching plans using the Teacher Notes and Teaching Plan tabs
+2. Create quiz/game sessions from MCQs and game components, linked to a class section
+3. Display a QR code in class — students scan and join from their phones
+4. Students participate in real-time quizzes and games, making class interactive
+5. Review session results, audit logs, and class progress after class
+
+**Student workflow:**
+- Students join sessions via a 6-character code, participate in quizzes, and see their score. No persistent student accounts or cross-device progress tracking. localStorage is used for transient state only (resume mid-quiz, show local topic completion).
+
+# Intentional Architecture Decisions
+
+The following are **intentional design choices** — do NOT "fix" them:
+
+- **Admin cookie uses base64-encoded password** (`src/lib/auth.ts`): This is a known simplification. The admin password is stored as base64 in an HttpOnly cookie. A proper JWT/session-based auth system is planned for a future iteration. Do not replace with JWT or add encryption — the current approach is accepted for this project's scope.
+
+- **Quiz start endpoint returns `correctAnswer`** (`src/app/api/quiz/start/route.ts`): The correct answer index and explanation are intentionally sent to the client. The quiz is designed as a learning tool, not a secure exam system. Students can see answers via DevTools — this is by design. Do not remove `correctAnswer` or `explanation` from the response.
+
+- **No persistent student accounts**: Students are identified by ephemeral random codes per session. There is no Student model, no login, and no cross-device sync. This is intentional — the tool is teacher-centric, not a student platform.
+
+- **localStorage for student state**: Topic completion and quiz results are stored in localStorage only. This is acceptable because the tool is teacher-centric and students are not expected to track progress across devices.
+
 # No Magic Numbers or Strings
 
 **NEVER** use hardcoded numeric literals or string literals in application logic. Always extract them to named constants in `src/lib/constants.ts` first.
@@ -41,10 +67,26 @@ if (score >= LEADERBOARD_HIGH_THRESHOLD) { ... }
 
 Always use `pnpm` for package management. Never use `npm` or `yarn`.
 
-# Intentional Architecture Decisions
+# Upcoming Updates (Multi-Subject UI/UX Plan)
 
-The following are **intentional design choices** — do NOT "fix" them:
+The following are planned improvements as more subjects are added:
 
-- **Admin cookie uses base64-encoded password** (`src/lib/auth.ts`): This is a known simplification. The admin password is stored as base64 in an HttpOnly cookie. A proper JWT/session-based auth system is planned for a future iteration. Do not replace with JWT or add encryption — the current approach is accepted for this project's scope.
+### Subject Selection & Navigation
+- **Home page**: Show all subjects as cards with progress indicators, not just the first one
+- **Subject landing page**: Add a "Subjects" breadcrumb/dropdown so students can switch between subjects without going back to home
+- **Navbar**: Already handles multi-subject mode (dropdown when >1 subject) — no changes needed
 
-- **Quiz start endpoint returns `correctAnswer`** (`src/app/api/quiz/start/route.ts`): The correct answer index and explanation are intentionally sent to the client. The quiz is designed as a learning tool, not a secure exam system. Students can see answers via DevTools — this is by design. Do not remove `correctAnswer` or `explanation` from the response.
+### Content Seeding
+- **Seed script** (`pnpm seed:oop`): Adds placeholder OOP subject with 12 MCQs and 6 resources
+- Future subjects should follow the same pattern: add to `src/config/subjects.ts` config + run a seed script
+
+### Learn Pages
+- **Subject-specific progress**: Currently progress is keyed by subject slug in localStorage — already works across subjects
+- **Cross-subject progress view**: "My Progress" page will show per-subject tabs or sections when multiple subjects have data
+
+### Sessions & Quizzes
+- **Subject filter on sessions**: Sessions list will show which subject they belong to
+- **MCQ import**: When creating sessions, MCQs should be filterable by subject
+
+### Classes
+- **Multi-subject classes**: A class can be linked to a subject, so "CS101 - OOP" tracks OOP topics and "CS101 - C++" tracks C++ topics

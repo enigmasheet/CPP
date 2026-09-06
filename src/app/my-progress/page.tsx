@@ -158,7 +158,7 @@ export default function MyProgressPage() {
               {topicProgress.map((t) => (
                 <Link key={t.slug} href={`/subjects/${SLUG}/learn/${t.slug}`}>
                   <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors">
-                    {t.percent === 100 ? (
+                    {t.percent === MAX_SCORE_PERCENTAGE ? (
                       <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                     ) : t.completed > 0 ? (
                       <div className="w-4 h-4 rounded-full border-2 border-primary shrink-0" />
