@@ -5,29 +5,16 @@ import AppShell from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CheckCircle, BarChart3, Clock, Trophy } from "lucide-react";
-import { getTopics } from "@/config/subjects";
+import { getAllSubjectSlugs, getTopics, getSubject, getNoteCounts } from "@/config/subjects";
 import Link from "next/link";
-import { MAX_SCORE_PERCENTAGE, MINUTES_TO_SECONDS, LEADERBOARD_HIGH_THRESHOLD, LEADERBOARD_MEDIUM_THRESHOLD, STUDENT_TOPICS_FILTER, LEARN_PROGRESS_KEY_PREFIX } from "@/lib/constants";
-
-const SLUG = "cpp";
-const STUDENT_TOPICS = getTopics(SLUG).filter((t) => t.slug !== STUDENT_TOPICS_FILTER);
-
-const TOPIC_NOTE_COUNTS: Record<string, number> = {
-  basics: 14,
-  "control-flow": 15,
-  functions: 4,
-  "arrays-strings": 5,
-  "pointers-references": 3,
-  structures: 1,
-  oop: 8,
-  "file-handling": 1,
-  stl: 2,
-  "memory-management": 5,
-  templates: 5,
-  "modern-cpp": 5,
-  "best-practices": 4,
-  practice: 3,
-};
+import {
+  MAX_SCORE_PERCENTAGE,
+  MINUTES_TO_SECONDS,
+  LEADERBOARD_HIGH_THRESHOLD,
+  LEADERBOARD_MEDIUM_THRESHOLD,
+  STUDENT_TOPICS_FILTER,
+  LEARN_PROGRESS_KEY_PREFIX,
+} from "@/lib/constants";
 
 interface QuizResult {
   code: string;
@@ -41,6 +28,8 @@ interface QuizResult {
 }
 
 interface TopicProgress {
+  subjectSlug: string;
+  subjectName: string;
   slug: string;
   name: string;
   completed: number;
@@ -48,16 +37,52 @@ interface TopicProgress {
   percent: number;
 }
 
-function getTopicProgress(topicSlug: string): { completed: number; total: number } {
-  if (typeof window === "undefined") return { completed: 0, total: 0 };
+function buildAllTopics(): Array<{
+  subjectSlug: string;
+  subjectName: string;
+  slug: string;
+  name: string;
+  totalNotes: number;
+}> {
+  const all: Array<{
+    subjectSlug: string;
+    subjectName: string;
+    slug: string;
+    name: string;
+    totalNotes: number;
+  }> = [];
+
+  for (const subjectSlug of getAllSubjectSlugs()) {
+    const subject = getSubject(subjectSlug);
+    if (!subject) continue;
+    const noteCounts = getNoteCounts(subjectSlug);
+    const topics = getTopics(subjectSlug).filter((t) => t.slug !== STUDENT_TOPICS_FILTER);
+    for (const topic of topics) {
+      all.push({
+        subjectSlug,
+        subjectName: subject.name,
+        slug: topic.slug,
+        name: topic.name,
+        totalNotes: noteCounts[topic.slug] ?? 0,
+      });
+    }
+  }
+  return all;
+}
+
+function getTopicProgress(
+  subjectSlug: string,
+  topicSlug: string,
+  totalNotes: number
+): { completed: number; total: number } {
+  if (typeof window === "undefined") return { completed: 0, total: totalNotes };
   try {
-    const saved = localStorage.getItem(`${LEARN_PROGRESS_KEY_PREFIX}${SLUG}-${topicSlug}`);
-    const total = TOPIC_NOTE_COUNTS[topicSlug] ?? 0;
-    if (!saved) return { completed: 0, total };
+    const saved = localStorage.getItem(`${LEARN_PROGRESS_KEY_PREFIX}${subjectSlug}-${topicSlug}`);
+    if (!saved) return { completed: 0, total: totalNotes };
     const ids: number[] = JSON.parse(saved);
-    return { completed: ids.length, total };
+    return { completed: ids.length, total: totalNotes };
   } catch {
-    return { completed: 0, total: 0 };
+    return { completed: 0, total: totalNotes };
   }
 }
 
@@ -71,9 +96,11 @@ function getQuizResults(): QuizResult[] {
 }
 
 function loadTopicProgress(): TopicProgress[] {
-  return STUDENT_TOPICS.map((t) => {
-    const p = getTopicProgress(t.slug);
+  return buildAllTopics().map((t) => {
+    const p = getTopicProgress(t.subjectSlug, t.slug, t.totalNotes);
     return {
+      subjectSlug: t.subjectSlug,
+      subjectName: t.subjectName,
       slug: t.slug,
       name: t.name,
       completed: p.completed,
@@ -92,9 +119,12 @@ export default function MyProgressPage() {
   const overallPercent = totalNotes > 0 ? Math.round((totalNotesCompleted / totalNotes) * MAX_SCORE_PERCENTAGE) : 0;
   const topicsStarted = topicProgress.filter((p) => p.completed > 0).length;
   const topicsCompleted = topicProgress.filter((p) => p.percent === MAX_SCORE_PERCENTAGE).length;
-  const avgQuizScore = quizResults.length > 0
-    ? Math.round(quizResults.reduce((s, r) => s + r.percentage, 0) / quizResults.length)
-    : 0;
+  const avgQuizScore =
+    quizResults.length > 0
+      ? Math.round(quizResults.reduce((s, r) => s + r.percentage, 0) / quizResults.length)
+      : 0;
+
+  const subjectSlugs = getAllSubjectSlugs();
 
   return (
     <AppShell>
@@ -104,7 +134,9 @@ export default function MyProgressPage() {
             <BarChart3 className="w-8 h-8" />
             My Progress
           </h1>
-          <p className="mt-2 text-muted-foreground">Track your learning journey and quiz performance</p>
+          <p className="mt-2 text-muted-foreground">
+            Track your learning journey across {subjectSlugs.length} subjects
+          </p>
         </div>
       </div>
 
@@ -120,7 +152,9 @@ export default function MyProgressPage() {
           <Card>
             <CardContent className="pt-4 text-center">
               <CheckCircle className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
-              <p className="text-2xl font-bold">{topicsCompleted}/{STUDENT_TOPICS.length}</p>
+              <p className="text-2xl font-bold">
+                {topicsCompleted}/{topicProgress.length}
+              </p>
               <p className="text-xs text-muted-foreground">Topics Completed</p>
             </CardContent>
           </Card>
@@ -156,7 +190,7 @@ export default function MyProgressPage() {
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {topicProgress.map((t) => (
-                <Link key={t.slug} href={`/subjects/${SLUG}/learn/${t.slug}`}>
+                <Link key={`${t.subjectSlug}-${t.slug}`} href={`/subjects/${t.subjectSlug}/learn/${t.slug}`}>
                   <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors">
                     {t.percent === MAX_SCORE_PERCENTAGE ? (
                       <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
@@ -167,8 +201,13 @@ export default function MyProgressPage() {
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium truncate">{t.name}</span>
-                        <span className="text-xs text-muted-foreground ml-2">{t.percent}%</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm font-medium truncate">{t.name}</span>
+                          <Badge variant="outline" className="text-[10px] shrink-0">
+                            {getSubject(t.subjectSlug)?.name.replace(" Programming", "").replace("Object Oriented ", "OOP ") ?? t.subjectSlug}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground ml-2 shrink-0">{t.percent}%</span>
                       </div>
                       <div className="w-full h-1 bg-muted rounded-full overflow-hidden mt-1">
                         <div
@@ -197,37 +236,45 @@ export default function MyProgressPage() {
               </div>
             ) : (
               <div className="space-y-2">
-                {quizResults.slice().reverse().map((r, i) => (
-                  <div key={`${r.code}-${i}`} className="flex items-center gap-3 p-3 rounded-lg border border-border">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{r.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(r.date).toLocaleDateString()}
-                        </span>
-                        {r.topic && <Badge variant="secondary" className="text-[10px]">{r.topic}</Badge>}
+                {quizResults
+                  .slice()
+                  .reverse()
+                  .map((r, i) => (
+                    <div key={`${r.code}-${i}`} className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{r.title}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(r.date).toLocaleDateString()}
+                          </span>
+                          {r.topic && (
+                            <Badge variant="secondary" className="text-[10px]">
+                              {r.topic}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold">{r.percentage}%</p>
+                        <p className="text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3 inline mr-0.5" />
+                          {Math.floor(r.timeTaken / MINUTES_TO_SECONDS)}:
+                          {(r.timeTaken % MINUTES_TO_SECONDS).toString().padStart(2, "0")}
+                        </p>
+                      </div>
+                      <Badge
+                        className={
+                          r.percentage >= LEADERBOARD_HIGH_THRESHOLD
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                            : r.percentage >= LEADERBOARD_MEDIUM_THRESHOLD
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                            : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                        }
+                      >
+                        {r.score}/{r.totalQuestions}
+                      </Badge>
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-bold">{r.percentage}%</p>
-                      <p className="text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3 inline mr-0.5" />
-                        {Math.floor(r.timeTaken / MINUTES_TO_SECONDS)}:{(r.timeTaken % MINUTES_TO_SECONDS).toString().padStart(2, "0")}
-                      </p>
-                    </div>
-                    <Badge
-                      className={
-                        r.percentage >= LEADERBOARD_HIGH_THRESHOLD
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                          : r.percentage >= LEADERBOARD_MEDIUM_THRESHOLD
-                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-                      }
-                    >
-                      {r.score}/{r.totalQuestions}
-                    </Badge>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </CardContent>

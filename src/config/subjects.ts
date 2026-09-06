@@ -10,6 +10,7 @@ export interface SubjectConfig {
   slug: string;
   description: string;
   topics: Topic[];
+  noteCounts: Record<string, number>;
 }
 
 export const SUBJECTS: Record<string, SubjectConfig> = {
@@ -17,6 +18,23 @@ export const SUBJECTS: Record<string, SubjectConfig> = {
     name: "C++ Programming",
     slug: "cpp",
     description: "Master C++ from basics to advanced concepts",
+    noteCounts: {
+      basics: 14,
+      "control-flow": 15,
+      functions: 4,
+      "arrays-strings": 5,
+      "pointers-references": 3,
+      structures: 1,
+      oop: 8,
+      "file-handling": 1,
+      stl: 2,
+      "memory-management": 5,
+      templates: 5,
+      "modern-cpp": 5,
+      "best-practices": 4,
+      practice: 3,
+      "teacher-plans": 5,
+    },
     topics: [
       { slug: "basics", name: "Basics", description: "Introduction, Variables, Data Types, I/O, Operators", count: 20 },
       { slug: "control-flow", name: "Control Flow", description: "Conditionals, Loops, switch, break/continue", count: 18 },
@@ -39,6 +57,16 @@ export const SUBJECTS: Record<string, SubjectConfig> = {
     name: "Object Oriented Programming",
     slug: "oop",
     description: "Core OOP concepts — classes, inheritance, polymorphism, and design patterns",
+    noteCounts: {
+      "classes-objects": 0,
+      encapsulation: 0,
+      inheritance: 0,
+      polymorphism: 0,
+      abstraction: 0,
+      "solid-principles": 0,
+      "design-patterns": 0,
+      composition: 0,
+    },
     topics: [
       { slug: "classes-objects", name: "Classes & Objects", description: "Defining classes, constructors, destructors, member functions", count: 0 },
       { slug: "encapsulation", name: "Encapsulation", description: "Access modifiers, data hiding, getters/setters", count: 0 },
@@ -70,4 +98,8 @@ export function getAllSubjectSlugs(): string[] {
 
 export function getTotalQuestions(subjectSlug: string): number {
   return getTopics(subjectSlug).reduce((sum, t) => sum + t.count, 0);
+}
+
+export function getNoteCounts(subjectSlug: string): Record<string, number> {
+  return SUBJECTS[subjectSlug]?.noteCounts ?? {};
 }
