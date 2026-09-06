@@ -1,21 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { teacherNotes, type NoteSection } from "@/data/teacher-notes";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
 import { DIFFICULTY_COLORS, MINUTES_TO_SECONDS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, ChevronLeft, ChevronRight, List, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { BookOpen, ChevronLeft, ChevronRight, List, Clock, Search } from "lucide-react";
 
 export default function TeacherNotes() {
   const [activeSection, setActiveSection] = useState<number>(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const current = teacherNotes[activeSection];
-  const total = teacherNotes.length;
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) return teacherNotes;
+    const q = searchQuery.toLowerCase();
+    return teacherNotes.filter(
+      (s) =>
+        s.title.toLowerCase().includes(q) ||
+        s.content.toLowerCase().includes(q) ||
+        s.topic.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
 
-  const totalMinutes = teacherNotes.reduce((sum, s) => sum + s.estimatedMinutes, 0);
+  const current = filteredSections[activeSection] ?? filteredSections[0];
+  const total = filteredSections.length;
+
+  const totalMinutes = filteredSections.reduce((sum, s) => sum + s.estimatedMinutes, 0);
 
   const goNext = () => {
     if (activeSection < total - 1) setActiveSection(activeSection + 1);
@@ -23,6 +36,11 @@ export default function TeacherNotes() {
 
   const goPrev = () => {
     if (activeSection > 0) setActiveSection(activeSection - 1);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setActiveSection(0);
   };
 
   return (
@@ -45,24 +63,40 @@ export default function TeacherNotes() {
             <Clock className="w-3 h-3" />
             <span>~{Math.round(totalMinutes / MINUTES_TO_SECONDS)}h {totalMinutes % MINUTES_TO_SECONDS}m total</span>
           </div>
+          <div className="relative mb-3">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Search notes..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-8 h-8 text-sm"
+            />
+          </div>
           <div className="space-y-0.5">
-            {teacherNotes.map((section: NoteSection, idx: number) => (
-              <button
-                key={section.id}
-                onClick={() => setActiveSection(idx)}
-                className={`w-full text-left px-2 py-1.5 rounded text-sm transition-colors ${
-                  idx === activeSection
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-xs opacity-60">{section.id}.</span>
-                  <span className="flex-1 truncate">{section.title}</span>
-                  <span className="text-[10px] opacity-60">{section.estimatedMinutes}m</span>
-                </div>
-              </button>
-            ))}
+            {filteredSections.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">No matching sections</p>
+            ) : (
+              filteredSections.map((section: NoteSection, idx: number) => {
+                const originalIdx = teacherNotes.findIndex((n) => n.id === section.id);
+                return (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(idx)}
+                    className={`w-full text-left px-2 py-1.5 rounded text-sm transition-colors ${
+                      idx === activeSection
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs opacity-60">{originalIdx + 1}.</span>
+                      <span className="flex-1 truncate">{section.title}</span>
+                      <span className="text-[10px] opacity-60">{section.estimatedMinutes}m</span>
+                    </div>
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
@@ -83,16 +117,20 @@ export default function TeacherNotes() {
             <Badge variant="outline">
               {activeSection + 1} / {total}
             </Badge>
-            <span className="text-sm font-medium">{current.title}</span>
+            <span className="text-sm font-medium">{current?.title}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className={DIFFICULTY_COLORS[current.difficulty]}>
-              {current.difficulty}
-            </Badge>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="w-3 h-3" />
-              {current.estimatedMinutes}m
-            </div>
+            {current && (
+              <>
+                <Badge variant="outline" className={DIFFICULTY_COLORS[current.difficulty]}>
+                  {current.difficulty}
+                </Badge>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="w-3 h-3" />
+                  {current.estimatedMinutes}m
+                </div>
+              </>
+            )}
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -107,7 +145,7 @@ export default function TeacherNotes() {
                 variant="ghost"
                 size="sm"
                 onClick={goNext}
-                disabled={activeSection === total - 1}
+                disabled={activeSection >= total - 1}
                 aria-label="Next section"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -119,20 +157,29 @@ export default function TeacherNotes() {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-3 mb-4">
-              <h1 className="text-2xl font-bold">
-                {current.id}. {current.title}
-              </h1>
-            </div>
-            <div className="flex items-center gap-3 mb-6">
-              <Badge variant="outline" className={DIFFICULTY_COLORS[current.difficulty]}>
-                {current.difficulty}
-              </Badge>
-              <span className="text-sm text-muted-foreground">
-                ~{current.estimatedMinutes} minutes
-              </span>
-            </div>
-            <MarkdownRenderer content={current.content} />
+            {current ? (
+              <>
+                <div className="flex items-center gap-3 mb-4">
+                  <h1 className="text-2xl font-bold">
+                    {current.id}. {current.title}
+                  </h1>
+                </div>
+                <div className="flex items-center gap-3 mb-6">
+                  <Badge variant="outline" className={DIFFICULTY_COLORS[current.difficulty]}>
+                    {current.difficulty}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    ~{current.estimatedMinutes} minutes
+                  </span>
+                </div>
+                <MarkdownRenderer content={current.content} />
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <BookOpen className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-muted-foreground">No matching sections found.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -148,13 +195,13 @@ export default function TeacherNotes() {
             Previous
           </Button>
           <span className="text-xs text-muted-foreground">
-            {current.title}
+            {current?.title ?? "—"}
           </span>
           <Button
             variant="outline"
             size="sm"
             onClick={goNext}
-            disabled={activeSection === total - 1}
+            disabled={activeSection >= total - 1}
           >
             Next
             <ChevronRight className="w-4 h-4 ml-1" />

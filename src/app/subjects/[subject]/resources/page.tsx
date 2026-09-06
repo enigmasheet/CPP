@@ -17,6 +17,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { useResources } from "@/hooks/queries";
 import { useParams } from "next/navigation";
+import { RESOURCE_DIFFICULTY_LEVELS } from "@/lib/constants";
 
 const DIFFICULTY_COLORS = {
   beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
@@ -36,15 +37,20 @@ export default function ResourcesPage() {
   const [search, setSearch] = useState("");
   const [topicFilter, setTopicFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
 
   const topics = [...new Set(resources.map((r) => r.topic))].sort();
 
   const filtered = resources.filter((r) => {
     const matchesSearch =
-      !search || r.title.toLowerCase().includes(search.toLowerCase());
+      !search ||
+      r.title.toLowerCase().includes(search.toLowerCase()) ||
+      r.content.toLowerCase().includes(search.toLowerCase()) ||
+      r.topic.toLowerCase().includes(search.toLowerCase());
     const matchesTopic = topicFilter === "all" || r.topic === topicFilter;
     const matchesType = typeFilter === "all" || r.type === typeFilter;
-    return matchesSearch && matchesTopic && matchesType;
+    const matchesDifficulty = difficultyFilter === "all" || r.difficulty === difficultyFilter;
+    return matchesSearch && matchesTopic && matchesType && matchesDifficulty;
   });
 
   return (
@@ -96,6 +102,19 @@ export default function ResourcesPage() {
             <SelectItem value="code">Code</SelectItem>
             <SelectItem value="diagram">Diagram</SelectItem>
             <SelectItem value="document">Document</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={difficultyFilter} onValueChange={(v) => setDifficultyFilter(v || "all")}>
+          <SelectTrigger className="w-full sm:w-36">
+            <SelectValue placeholder="Difficulty" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Levels</SelectItem>
+            {RESOURCE_DIFFICULTY_LEVELS.map((level) => (
+              <SelectItem key={level} value={level}>
+                {level.charAt(0).toUpperCase() + level.slice(1)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
