@@ -141,6 +141,7 @@ export const DEFAULT_SESSION_CREATOR = "teacher";
 export const DEFAULT_MONGODB_URI = "mongodb://localhost:27017/cpp-cms";
 export const MONGODB_MAX_POOL_SIZE = 10;
 export const COOKIE_CLEAR_MAX_AGE = 0;
+export const SESSION_PROGRESS_KEY_PREFIX = "quiz_progress_";
 
 // ─── URLs ─────────────────────────────────────────────────────
 export const API_PATHS = {

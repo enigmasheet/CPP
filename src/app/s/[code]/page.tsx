@@ -31,6 +31,7 @@ import {
   LEADERBOARD_MEDIUM_THRESHOLD,
   DEFAULT_GAME_TOTAL_QUESTIONS,
   MAX_SCORE_PERCENTAGE,
+  SESSION_PROGRESS_KEY_PREFIX,
 } from "@/lib/constants";
 
 interface MCQOption {
@@ -135,6 +136,18 @@ export default function StudentSessionPage({
             const savedName = localStorage.getItem(`session_${code}_name`);
             if (savedName) setName(savedName);
             setJoined(true);
+            const savedProgress = localStorage.getItem(`${SESSION_PROGRESS_KEY_PREFIX}${code}`);
+            if (savedProgress) {
+              try {
+                const progress = JSON.parse(savedProgress);
+                if (typeof progress.currentIndex === "number") setCurrentIndex(progress.currentIndex);
+                if (Array.isArray(progress.answers)) setAnswers(progress.answers);
+                if (typeof progress.timeTaken === "number") setTimeTaken(progress.timeTaken);
+                if (typeof progress.remainingTime === "number") setRemainingTime(progress.remainingTime);
+              } catch {
+                localStorage.removeItem(`${SESSION_PROGRESS_KEY_PREFIX}${code}`);
+              }
+            }
           }
         }
       })
@@ -161,6 +174,12 @@ export default function StudentSessionPage({
     return () => clearInterval(countdown);
   }, [remainingTime, finished]);
 
+  useEffect(() => {
+    if (!joined || finished) return;
+    const progress = JSON.stringify({ currentIndex, answers, timeTaken, remainingTime });
+    localStorage.setItem(`${SESSION_PROGRESS_KEY_PREFIX}${code}`, progress);
+  }, [currentIndex, answers, timeTaken, remainingTime, joined, finished, code]);
+
   const submitAnswers = useCallback(async (finalAnswers: Answer[]) => {
     setSubmitting(true);
     const res = await fetch(`/api/sessions/${code}/submit`, {
@@ -182,6 +201,7 @@ export default function StudentSessionPage({
     setFinalResult(data);
     setFinished(true);
     setSubmitting(false);
+    localStorage.removeItem(`${SESSION_PROGRESS_KEY_PREFIX}${code}`);
   }, [code, studentCode, name, timeTaken]);
 
   useEffect(() => {
@@ -730,11 +750,10 @@ export default function StudentSessionPage({
                     disabled={showResult}
                     className={`w-full text-left p-3 rounded-lg border-2 transition-colors text-sm ${
                       showResult
-                        ? idx === selected
-                          ? selected ===
-                            currentMcq.options.findIndex((o) => o.text === opt.text)
-                            ? "border-green-500 bg-green-50 dark:bg-green-950"
-                            : "border-red-500 bg-red-50 dark:bg-red-950"
+                        ? opt.isCorrect
+                          ? "border-green-500 bg-green-50 dark:bg-green-950"
+                          : idx === selected
+                          ? "border-red-500 bg-red-50 dark:bg-red-950"
                           : "border-border"
                         : selected === idx
                         ? "border-primary bg-primary/5"
@@ -748,14 +767,7 @@ export default function StudentSessionPage({
                   </button>
                 ))}
               </div>
-              {showResult && currentMcq.explanation && (
-                <div className="mt-4 p-3 rounded-lg bg-muted/50 border border-border">
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-medium">Explanation:</span>{" "}
-                    {currentMcq.explanation}
-                  </p>
-                </div>
-              )}
+
             </CardContent>
           </Card>
         ) : (
