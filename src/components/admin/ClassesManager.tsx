@@ -128,6 +128,28 @@ export default function ClassesManager() {
 
   const selectedClass = classes.find((c) => c._id === selectedClassId);
 
+  const loadClasses = async () => {
+    try {
+      const res = await fetch("/api/classes");
+      const data = await res.json();
+      setClasses(Array.isArray(data) ? data : []);
+    } catch {
+      toast.error("Failed to load classes");
+    }
+  };
+
+  const loadEntries = async (classId: string) => {
+    setEntriesLoading(true);
+    try {
+      const res = await fetch(`/api/classes/${classId}/entries`);
+      const data = await res.json();
+      setEntries(Array.isArray(data) ? data : []);
+    } catch {
+      toast.error("Failed to load entries");
+    }
+    setEntriesLoading(false);
+  };
+
   const resetForm = () => {
     setEditingClass(null);
     setFormName("");
@@ -170,7 +192,7 @@ export default function ClassesManager() {
       toast.success(editingClass ? "Class updated" : "Class created");
       setDialogOpen(false);
       resetForm();
-      fetchClasses();
+      loadClasses();
     } catch {
       toast.error("Network error");
     }
@@ -185,7 +207,7 @@ export default function ClassesManager() {
         setSelectedClassId(null);
         setEntries([]);
       }
-      fetchClasses();
+      loadClasses();
     }
   };
 
@@ -219,7 +241,7 @@ export default function ClassesManager() {
       toast.success(editingEntry ? "Entry updated" : "Entry added");
       setEntryDialogOpen(false);
       resetEntryForm();
-      fetchEntries(selectedClassId);
+      loadEntries(selectedClassId);
     } catch {
       toast.error("Network error");
     }
@@ -231,7 +253,7 @@ export default function ClassesManager() {
     const res = await fetch(`/api/classes/${selectedClassId}/entries/${entryId}`, { method: "DELETE" });
     if (res.ok) {
       toast.success("Entry deleted");
-      fetchEntries(selectedClassId);
+      loadEntries(selectedClassId);
     }
   };
 

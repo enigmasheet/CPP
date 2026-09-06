@@ -207,7 +207,7 @@ export default function StudentSessionPage({
       setSubmitting(false);
       localStorage.removeItem(`${SESSION_PROGRESS_KEY_PREFIX}${code}`);
       try {
-        const existing = JSON.parse(localStorage.getItem("quiz-results") || "[]");
+        const existing: Array<Record<string, unknown>> = JSON.parse(localStorage.getItem("quiz-results") || "[]");
         const topicCounts: Record<string, number> = {};
         for (const item of session?.items ?? []) {
           if (item.contentType === "mcq") {
