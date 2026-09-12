@@ -1,0 +1,52 @@
+[
+  {
+    "title": "Learn C++",
+    "url": "https://www.learncpp.com/",
+    "type": "course"
+  },
+  {
+    "title": "C++ Reference",
+    "url": "https://en.cppreference.com/w/cpp",
+    "type": "documentation"
+  },
+  {
+    "title": "C++ Quiz - Learn C++",
+    "url": "https://www.w3schools.com/cpp/cpp_quiz.asp",
+    "type": "practice"
+  },
+  {
+    "title": "C++ Programming Tutorial for Beginners (Bro Code)",
+    "url": "https://www.youtube.com/watch?v=87SH2Cn0s9A",
+    "type": "video"
+  },
+  {
+    "title": "MyCppGuide C++ Programming Tutorial",
+    "url": "https://www.myprogrammingguides.com/c-plus-plus/",
+    "type": "article"
+  },
+  {
+    "title": "C++ Seashore Tutorial",
+    "url": "https://www.csegeeks.com/cplus/cplusintro/",
+    "type": "article"
+  },
+  {
+    "title": "GeeksforGeeks C++ Programming",
+    "url": "https://www.geeksforgeeks.org/c-plus-plus/",
+    "type": "article"
+  },
+  {
+    "title": "W3Schools C++ Programming",
+    "url": "https://www.w3schools.com/cpp/",
+    "type": "article"
+  },
+  {
+    "title": "Java Tpoint C++ Programming",
+    "url": "https://www.javatpoint.com/cpp-tutorial",
+    "type": "article"
+  },
+  {
+    "title": "Tutorialspoint C++ Programming",
+    "url": "https://www.tutorialspoint.com/cplusplus/index.htm",
+    "type": "article"
+  }
+]

@@ -4,7 +4,7 @@ import MCQ from "@/models/MCQ";
 import Resource from "@/models/Resource";
 import Session from "@/models/Session";
 import AuditLog from "@/models/AuditLog";
-import { teacherNotes } from "@/data/teacher-notes";
+import { getAllNotes } from "@/content/registry";
 import { stripTeachingTips } from "@/lib/utils";
 import {
   MIN_SEARCH_QUERY_LENGTH,
@@ -34,14 +34,15 @@ export async function GET(request: NextRequest) {
 
     const regex = new RegExp(escapeRegex(q), "i");
 
-    const topics = teacherNotes
+    const allNotes = getAllNotes();
+    const topics = allNotes
       .filter((n) => !n.teacherOnly && (regex.test(n.title) || regex.test(n.content)))
       .slice(0, MAX_TOPIC_SEARCH_RESULTS)
       .map((n) => ({
         id: `topic-${n.id}`,
         title: n.title,
         type: "topic" as const,
-        url: `/subjects/cpp/learn/${n.topic}`,
+        url: `/subjects/${n.subject}/learn/${n.topic}`,
         snippet: stripTeachingTips(n.content).slice(0, SEARCH_SNIPPET_LENGTH).replace(/[#*`]/g, "") + "...",
       }));
 

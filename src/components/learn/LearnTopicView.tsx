@@ -26,7 +26,7 @@ interface Topic {
 }
 
 interface Note {
-  id: number;
+  id: string;
   title: string;
   content: string;
   difficulty: string;
@@ -53,7 +53,7 @@ function NoteList({
 }: {
   topicNotes: Note[];
   currentNoteIdx: number;
-  completed: Set<number>;
+  completed: Set<string>;
   setCurrentNoteIdx: (idx: number) => void;
   onMobileClose?: () => void;
 }) {
@@ -110,7 +110,7 @@ export default function LearnTopicView({
     return 0;
   });
   const noteContentRef = useRef<HTMLDivElement>(null);
-  const [completed, setCompleted] = useState<Set<number>>(() => {
+  const [completed, setCompleted] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
     const saved = localStorage.getItem(getStorageKey(slug, currentTopic.slug));
     if (saved) {
@@ -121,7 +121,7 @@ export default function LearnTopicView({
     return new Set();
   });
 
-  const toggleComplete = (noteId: number) => {
+  const toggleComplete = (noteId: string) => {
     setCompleted((prev) => {
       const next = new Set(prev);
       if (next.has(noteId)) {

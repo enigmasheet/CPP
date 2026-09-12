@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { teacherNotes, type NoteSection } from "@/data/teacher-notes";
+import { getAllNotes, type NoteSection } from "@/content/registry";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
 import { DIFFICULTY_COLORS, MINUTES_TO_SECONDS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,10 @@ export default function TeacherNotes() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) return teacherNotes;
+    const allNotes = getAllNotes();
+    if (!searchQuery.trim()) return allNotes;
     const q = searchQuery.toLowerCase();
-    return teacherNotes.filter(
+    return allNotes.filter(
       (s) =>
         s.title.toLowerCase().includes(q) ||
         s.content.toLowerCase().includes(q) ||
@@ -77,7 +78,8 @@ export default function TeacherNotes() {
               <p className="text-xs text-muted-foreground text-center py-4">No matching sections</p>
             ) : (
               filteredSections.map((section: NoteSection, idx: number) => {
-                const originalIdx = teacherNotes.findIndex((n) => n.id === section.id);
+                const allNotes = getAllNotes();
+                const originalIdx = allNotes.findIndex((n) => n.id === section.id);
                 return (
                   <button
                     key={section.id}
@@ -161,7 +163,7 @@ export default function TeacherNotes() {
               <>
                 <div className="flex items-center gap-3 mb-4">
                   <h1 className="text-2xl font-bold">
-                    {current.id}. {current.title}
+                    {activeSection + 1}. {current.title}
                   </h1>
                 </div>
                 <div className="flex items-center gap-3 mb-6">

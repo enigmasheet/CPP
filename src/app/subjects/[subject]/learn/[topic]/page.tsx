@@ -2,7 +2,7 @@ import AppShell from "@/components/layout/AppShell";
 import LearnTopicView from "@/components/learn/LearnTopicView";
 import { getSubject, getTopics, getTopic, getAllSubjectSlugs } from "@/config/subjects";
 import { notFound } from "next/navigation";
-import { teacherNotes } from "@/data/teacher-notes";
+import { getNotes } from "@/content/registry";
 import { stripTeachingTips } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -28,8 +28,8 @@ export default async function LearnTopicPage({
   if (!topic) return notFound();
   const topics = getTopics(slug);
 
-  const topicNotes = teacherNotes
-    .filter((n) => n.topic === topicSlug && !n.teacherOnly)
+  const topicNotes = getNotes(slug, topicSlug)
+    .filter((n) => !n.teacherOnly)
     .map((n) => ({
       id: n.id,
       title: n.title,

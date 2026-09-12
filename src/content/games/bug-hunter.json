@@ -1,0 +1,47 @@
+[
+  {
+    "id": "bh-1",
+    "question": "Find the bug in this code:",
+    "codeSnippet": "#include <iostream>\nusing namespace std;\nint main() {\n    int arr[5] = {1, 2, 3, 4, 5};\n    for (int i = 0; i <= 5; i++) {\n        cout << arr[i] << \" \";\n    }\n    return 0;\n}",
+    "options": ["Missing #include", "Array index out of bounds (i <= 5 should be i < 5)", "Wrong array size", "Missing return statement"],
+    "correctAnswer": 1,
+    "explanation": "Arrays are 0-indexed. arr[5] is out of bounds. The loop should run while i < 5.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bh-2",
+    "question": "What's wrong with this code?",
+    "codeSnippet": "#include <iostream>\nusing namespace std;\nint main() {\n    int* ptr;\n    *ptr = 10;\n    cout << *ptr;\n    return 0;\n}",
+    "options": ["Missing include", "Dangling pointer - ptr not initialized", "Wrong syntax", "Cannot dereference int*"],
+    "correctAnswer": 1,
+    "explanation": "ptr is not initialized, so it points to a random memory location. Dereferencing it causes undefined behavior.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bh-3",
+    "question": "Find the logical error:",
+    "codeSnippet": "int factorial(int n) {\n    if (n == 0) return 1;\n    return n * factorial(n - 1);\n}\n// factorial(5) should return 120",
+    "options": ["Missing base case", "Infinite recursion", "Integer overflow", "No error - code is correct"],
+    "correctAnswer": 3,
+    "explanation": "The code is actually correct! factorial(0) = 1, factorial(5) = 5*4*3*2*1 = 120.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bh-4",
+    "question": "What bug exists in this string code?",
+    "codeSnippet": "string str = \"Hello\";\nchar c = str[5];\ncout << c;",
+    "options": ["String not initialized", "Index out of bounds - str[5] is null terminator", "Cannot access string with []", "Missing semicolon"],
+    "correctAnswer": 1,
+    "explanation": "str has 5 characters (indices 0-4). str[5] accesses the null terminator '\\0', which prints nothing visible.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "bh-5",
+    "question": "Find the memory leak:",
+    "codeSnippet": "void function() {\n    int* ptr = new int[100];\n    // use ptr...\n    // function ends\n}",
+    "options": ["No memory leak", "Missing delete[] ptr before function ends", "Cannot delete in function", "new[] is invalid"],
+    "correctAnswer": 1,
+    "explanation": "Memory allocated with new[] must be freed with delete[]. Without it, the memory is leaked when the function returns.",
+    "difficulty": "medium"
+  }
+]
