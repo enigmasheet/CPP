@@ -5,6 +5,8 @@ import * as path from "path";
 import Subject from "../src/models/Subject";
 import MCQ from "../src/models/MCQ";
 import Resource from "../src/models/Resource";
+import { cppSubject } from "../src/content/cpp/subject";
+import { oopSubject } from "../src/content/oop/subject";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/cpp-cms";
 
@@ -290,28 +292,45 @@ async function seed() {
     await mongoose.connect(MONGODB_URI);
     console.log("Connected to MongoDB");
 
-    const subjectsData = JSON.parse(fs.readFileSync(path.join(__dirname, "subjects.json"), "utf-8"));
-    const mcqsData = JSON.parse(fs.readFileSync(path.join(__dirname, "mcqs.json"), "utf-8"));
-
     await Subject.deleteMany({});
     await MCQ.deleteMany({});
     await Resource.deleteMany({});
-
     console.log("Cleared existing data");
 
-    const subject = await Subject.create(subjectsData[0]);
-    console.log("Created subject:", subject.name);
+    const subjects = [cppSubject, oopSubject];
+    for (const subjectData of subjects) {
+      const subject = await Subject.create({
+        name: subjectData.name,
+        slug: subjectData.slug,
+        description: subjectData.description,
+        topics: subjectData.topics.map((t: { name: string; slug: string }) => ({ name: t.name, slug: t.slug })),
+      });
+      console.log("Created subject:", subject.name);
+    }
+
+    const cppSubjectDoc = await Subject.findOne({ slug: "cpp" });
+    if (!cppSubjectDoc) {
+      throw new Error("CPP subject not found after seed");
+    }
+
+    // Import MCQs from the content JSON
+    const mcqsData = JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, "../src/content/cpp/mcqs.json"),
+        "utf-8"
+      )
+    );
 
     const mcqsWithSubject = mcqsData.map((mcq: Record<string, unknown>) => ({
       ...mcq,
-      subject: subject._id,
+      subject: cppSubjectDoc._id,
     }));
     await MCQ.insertMany(mcqsWithSubject);
     console.log("Created", mcqsWithSubject.length, "MCQs");
 
     const resourcesWithSubject = resources.map((r: Record<string, unknown>) => ({
       ...r,
-      subject: subject._id,
+      subject: cppSubjectDoc._id,
     }));
     await Resource.insertMany(resourcesWithSubject);
     console.log("Created", resourcesWithSubject.length, "resources");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { cppKnowledge, type KnowledgeSection } from "@/data/cpp-knowledge";
+import { getKnowledge, type KnowledgeSection } from "@/content/registry";
 import MarkdownRenderer from "@/components/content/MarkdownRenderer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,10 +35,11 @@ export default function CppKnowledge() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  const cppKnowledgeData = getKnowledge("cpp");
   const filtered =
     activeCategory === "all"
-      ? cppKnowledge
-      : cppKnowledge.filter((s) => s.category === activeCategory);
+      ? cppKnowledgeData
+      : cppKnowledgeData.filter((s) => s.category === activeCategory);
 
   const current = filtered[activeIndex];
   const total = filtered.length;
