@@ -14,6 +14,7 @@ export interface ISessionDoc extends Document {
   items: ISessionItem[];
   isActive: boolean;
   createdBy: string;
+  subject?: string;
   section?: string;
   maxAttempts?: number;
   timeLimit?: number;
@@ -45,6 +46,7 @@ const SessionSchema = new Schema<ISessionDoc>(
     items: { type: [SessionItemSchema], required: true, min: 1 },
     isActive: { type: Boolean, default: true },
     createdBy: { type: String, default: DEFAULT_SESSION_CREATOR },
+    subject: { type: String },
     section: { type: String },
     maxAttempts: { type: Number },
     timeLimit: { type: Number },

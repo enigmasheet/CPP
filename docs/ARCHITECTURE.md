@@ -66,7 +66,7 @@
 - **Admin** (10): AuditLog, ClassesManager, CppKnowledge, CreateSessionDialog, CSVUploader, EditSessionDialog, MCQManagement, SessionsList, TeachingPlan, TeacherNotes
 - **Learn** (1): LearnTopicView
 - **Subject** (2): LearnTopicGrid, SubjectTopicList
-- **Game** (2): OutputPredictor, SpeedCode
+- **Game** (3): OutputPredictor, SpeedCode, BugHunter
 - **Shared** (4): ConfirmDialog, LoadingSpinner, QRCode, SearchDialog
 - **Content** (2): CodeBlock, MarkdownRenderer
 - **Providers** (1): QueryProvider
@@ -127,6 +127,29 @@
 | `SessionResult` | Student results per session |
 | `Subject` | Subject definitions (slug, name) |
 | `TeachingPlan` | Teaching plans with priorities |
+
+### Content Registry (`src/content/`)
+Static, subject-scoped content is the single source of truth for notes, knowledge, and games. Content modules are data-only; `registry.ts` validates them with Zod at load time and exposes typed accessors.
+
+```
+src/content/
+├── types.ts          # SubjectConfig, NoteSection, KnowledgeSection, GameQuestion, GameTypeMeta
+├── schemas.ts        # Zod schemas (validated on load)
+├── registry.ts       # Single import point: getNotes, getKnowledge, getGameQuestions, getAvailableGameTypes
+├── games.ts          # Subject-keyed game content + validation
+├── cpp/              # subject content
+│   ├── subject.ts    # topics + noteCounts
+│   ├── notes.ts
+│   ├── knowledge.ts
+│   ├── mcqs.json
+│   ├── resources.json
+│   └── games/        # output-predictor.json, bug-hunter.json, speed-code.json
+└── oop/              # placeholder subject
+```
+
+- **Adding a subject**: add `src/content/{subject}/` content + one entry in `registry.ts` and `games.ts`.
+- **Adding a game type**: add a `GAME_TYPES` entry in `constants.ts`, per-subject JSON under `src/content/{subject}/games/`, and a game component.
+- **Subject resolution**: sessions carry a `subject` field; `/api/games/[gameType]?subject=` serves the correct content. Game access never hardcodes a subject.
 
 ## Rendering Strategy
 

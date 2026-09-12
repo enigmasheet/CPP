@@ -30,15 +30,12 @@
 - Cross-device progress tracking
 - Currently localStorage only — requires student accounts
 
-### Games: Bug Hunter
-- Data exists in `seed/games/bug-hunter.json` but no component implementation
-
 ## Technical Debt
 
 - No test files exist (`*.test.*` or `*.spec.*`)
 - No CI/CD configuration
 - No `.env.example` file
-- OOP subject has 0 notes (placeholder) — `src/config/subjects.ts:60-79`
+- OOP subject has 0 notes (placeholder) — `src/content/oop/`
 - Empty component directories: `gamification`, `mcq`, `playground`, `resources`
 
 ## Future Improvements
@@ -51,7 +48,7 @@
 - Subject landing page breadcrumb navigation
 
 ### From archivedPlans.md
-- 6 educational games (only 2 implemented: OutputPredictor, SpeedCode)
+- 6 educational games (3 implemented: OutputPredictor, BugHunter, SpeedCode)
 - Global leaderboard
 - Daily challenges
 - Achievement badges

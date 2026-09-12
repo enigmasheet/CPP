@@ -191,6 +191,7 @@ Auto-generated from `src/models/` — 10 models total.
 | `items` | `[SessionItem]` | Yes | — | `min: 1` |
 | `isActive` | `Boolean` | No | `true` | — |
 | `createdBy` | `String` | No | `"teacher"` (from `DEFAULT_SESSION_CREATOR`) | — |
+| `subject` | `String` | No | — | Subject slug; defaults to `"cpp"` at access time (from `DEFAULT_SUBJECT_SLUG`) |
 | `section` | `String` | No | — | — |
 | `maxAttempts` | `Number` | No | — | — |
 | `timeLimit` | `Number` | No | — | — |

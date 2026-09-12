@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { GAME_DATA } from "@/data/games";
+import { getGameQuestions } from "@/content/registry";
+import { GAME_TYPES, DEFAULT_SUBJECT_SLUG } from "@/lib/constants";
 
 export async function GET(
   request: NextRequest,
@@ -7,10 +8,17 @@ export async function GET(
 ) {
   try {
     const { gameType } = await params;
-    const questions = GAME_DATA[gameType];
+    const { searchParams } = new URL(request.url);
+    const subject = searchParams.get("subject") || DEFAULT_SUBJECT_SLUG;
 
-    if (!questions) {
-      return NextResponse.json({ error: "Game not found" }, { status: 404 });
+    if (!GAME_TYPES.some((t) => t.id === gameType)) {
+      return NextResponse.json({ error: "Invalid game type" }, { status: 404 });
+    }
+
+    const questions = getGameQuestions(subject, gameType);
+
+    if (questions.length === 0) {
+      return NextResponse.json({ error: "Game not found for this subject" }, { status: 404 });
     }
 
     return NextResponse.json(questions);

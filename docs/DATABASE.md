@@ -90,6 +90,7 @@ Fields:
   - gameType: String (optional)
 - isActive: Boolean (default: true)
 - createdBy: String (default: "teacher")
+- subject: String (optional, default: "cpp" via DEFAULT_SUBJECT_SLUG)
 - section: String (optional)
 - maxAttempts: Number (optional)
 - timeLimit: Number (optional)

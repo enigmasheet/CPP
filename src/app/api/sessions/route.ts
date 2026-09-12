@@ -39,7 +39,7 @@ export const POST = withDB(async (request) => {
   if (authError) return authError;
 
   const body = await request.json();
-  const { title, type, items, section, maxAttempts, timeLimit } = body;
+  const { title, type, items, section, subject, maxAttempts, timeLimit } = body;
 
   if (!title || !type || !items || items.length === 0) {
     return NextResponse.json(
@@ -61,6 +61,7 @@ export const POST = withDB(async (request) => {
     type,
     items,
     section,
+    subject,
     maxAttempts,
     timeLimit,
   });

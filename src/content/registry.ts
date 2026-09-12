@@ -132,3 +132,6 @@ export function getTotalQuestions(subjectSlug: string): number {
   const counts = getNoteCounts(subjectSlug);
   return Object.values(counts).reduce((sum, c) => sum + c, 0);
 }
+
+// ─── Games ──────────────────────────────────────────────────────
+export { getGameQuestions, getAvailableGameTypes, hasGameContent } from "./games";

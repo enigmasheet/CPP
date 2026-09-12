@@ -105,7 +105,7 @@ export const DIFFICULTY_COLORS: Record<string, string> = {
 
 // ─── Game Types ───────────────────────────────────────────────
 export const GAME_TYPES = [
-  { id: "output-predictor", name: "Output Predictor", description: "Predict C++ program output", implemented: true },
+  { id: "output-predictor", name: "Output Predictor", description: "Predict program output", implemented: true },
   { id: "bug-hunter", name: "Bug Hunter", description: "Find bugs in code snippets", implemented: true },
   { id: "speed-code", name: "Speed Code", description: "Race against time to code", implemented: true },
 ] as const;
@@ -142,6 +142,7 @@ export const SHIKI_THEME_LIGHT = "github-light";
 
 // ─── Fallbacks ────────────────────────────────────────────────
 export const DEFAULT_SUBJECT = "unknown";
+export const DEFAULT_SUBJECT_SLUG = "cpp";
 export const DEFAULT_TOPIC = "general";
 export const DEFAULT_MCQ_DIFFICULTY: DifficultyLevel = "medium";
 export const DEFAULT_SESSION_CREATOR = "teacher";

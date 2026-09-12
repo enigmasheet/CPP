@@ -277,6 +277,7 @@ Create a new session with a unique 6-character code. Also auto-creates an audit 
       }
     ],
     "section": "string (optional)",
+    "subject": "string (optional, subject slug, defaults to 'cpp')",
     "maxAttempts": "number (optional)",
     "timeLimit": "number (optional, in seconds)"
   }
@@ -791,14 +792,18 @@ Full-text search across topics (teacher notes), MCQs, and resources.
 
 #### GET `/api/games/[gameType]`
 
-Fetch questions for a specific game type from the static game data.
+Fetch questions for a specific game type and subject from the content registry.
 
 - **Auth:** None
 - **Params:**
   | Param | Type | Description |
   |-------|------|-------------|
-  | `gameType` | string | Game type key (must match a key in `GAME_DATA`) |
-- **Response (200):** Array of game questions for the given type.
+  | `gameType` | string | Game type key (must match a known game type) |
+- **Query Params:**
+  | Param | Type | Default | Description |
+  |-------|------|---------|-------------|
+  | `subject` | string | `"cpp"` | Subject slug to fetch game content for |
+- **Response (200):** Array of game questions for the given type and subject.
 - **Errors:**
-  - `404` — Game not found (no matching key in `GAME_DATA`)
+  - `404` — Invalid game type or no content for the given subject
   - `500` — Failed to load game

@@ -59,6 +59,7 @@ export const POST = withDB(async (request, context) => {
     name,
     sessionTitle: session.title,
     sessionType: session.type,
+    subject: session.subject,
     items,
   });
 });

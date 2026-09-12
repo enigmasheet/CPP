@@ -33,6 +33,7 @@ import {
   LEADERBOARD_HIGH_THRESHOLD,
   LEADERBOARD_MEDIUM_THRESHOLD,
   DEFAULT_GAME_TOTAL_QUESTIONS,
+  DEFAULT_SUBJECT_SLUG,
   MAX_SCORE_PERCENTAGE,
   SESSION_PROGRESS_KEY_PREFIX,
 } from "@/lib/constants";
@@ -63,6 +64,7 @@ interface SessionInfo {
   type: string;
   items: SessionItem[];
   isActive: boolean;
+  subject?: string;
   timeLimit?: number;
 }
 
@@ -292,7 +294,7 @@ export default function StudentSessionPage({
     for (const item of gameItems) {
       if (gameIdsLoaded.current.has(item.contentId)) continue;
       gameIdsLoaded.current.add(item.contentId);
-      fetch(`/api/games/${item.gameType}`)
+      fetch(`/api/games/${item.gameType}?subject=${session.subject || DEFAULT_SUBJECT_SLUG}`)
         .then((r) => r.json())
         .then((data) => {
           if (Array.isArray(data)) {

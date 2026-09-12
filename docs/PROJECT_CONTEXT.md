@@ -49,7 +49,8 @@ TeachMate is a teacher assistant tool that replaces PowerPoint presentations wit
 - Two subjects configured: **cpp** (C++ Programming) with 15 topics, and **oop** (Object Oriented Programming) with 8 placeholder topics
 - OOP subject is seeded via `pnpm seed:oop` with 12 MCQs and 6 resources
 - MCQs and Resources require a subject ObjectId reference
-- Learn/notes are static content defined in `teacherNotes.ts`; MCQs are database-backed
+- Learn/notes are static content defined in the content registry (`src/content/`); MCQs are database-backed
+- Game content is subject-scoped (`src/content/{subject}/games/*.json`) and served via the content registry; sessions carry a `subject` field
 - All magic numbers and strings must be extracted to named constants in `src/lib/constants.ts`
 - Package manager: `pnpm` only (no npm or yarn)
 

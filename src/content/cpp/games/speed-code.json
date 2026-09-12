@@ -5,6 +5,7 @@
     "codeSnippet": "#include <iostream>\nusing namespace std;\nint main() {\n    ___ << \"Hello World\";\n    return 0;\n}",
     "options": ["cout", "cin", "printf", "print"],
     "correctAnswer": 0,
+    "explanation": "cout is the standard output stream; the << operator inserts \"Hello World\" into it.",
     "timeLimit": 30,
     "difficulty": "easy"
   },
@@ -14,6 +15,7 @@
     "codeSnippet": "for (int i = 0; i < 10; ___) {\n    cout << i;\n}",
     "options": ["i--", "i++", "i+=2", "i*=2"],
     "correctAnswer": 1,
+    "explanation": "i++ increments i by 1 each iteration so the loop advances from 0 to 9.",
     "timeLimit": 25,
     "difficulty": "easy"
   },
@@ -23,6 +25,7 @@
     "codeSnippet": "___ add(int a, int b) {\n    return a + b;\n}",
     "options": ["void", "int", "string", "bool"],
     "correctAnswer": 1,
+    "explanation": "The function returns a + b, which is an int, so the return type must be int.",
     "timeLimit": 20,
     "difficulty": "easy"
   },
@@ -32,6 +35,7 @@
     "codeSnippet": "int x = 10;\nif (x ___ 5) {\n    cout << \"Greater\";\n}",
     "options": ["<", "==", ">", "!="],
     "correctAnswer": 2,
+    "explanation": "x is 10, and 10 > 5 is true, so '>' makes the condition true and prints \"Greater\".",
     "timeLimit": 20,
     "difficulty": "easy"
   },
@@ -41,6 +45,7 @@
     "codeSnippet": "___ arr[5] = {1, 2, 3, 4, 5};",
     "options": ["string", "char", "int", "float"],
     "correctAnswer": 2,
+    "explanation": "The initializer {1, 2, 3, 4, 5} holds whole numbers, so the array element type must be int.",
     "timeLimit": 15,
     "difficulty": "easy"
   }

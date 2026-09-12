@@ -25,7 +25,7 @@ import {
   Check,
 } from "lucide-react";
 import Link from "next/link";
-import { GAME_TYPES, SESSION_CREATE_MCQ_FETCH_LIMIT, COPY_FEEDBACK_TIMEOUT_MS } from "@/lib/constants";
+import { GAME_TYPES, SESSION_CREATE_MCQ_FETCH_LIMIT, COPY_FEEDBACK_TIMEOUT_MS, DEFAULT_SUBJECT_SLUG } from "@/lib/constants";
 
 interface MCQ {
   _id: string;
@@ -40,12 +40,20 @@ interface ClassOption {
   semester?: string;
 }
 
+interface SubjectOption {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
 export default function CreateSessionDialog() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [section, setSection] = useState("");
   const [selectedClassId, setSelectedClassId] = useState("");
   const [classes, setClasses] = useState<ClassOption[]>([]);
+  const [subjects, setSubjects] = useState<SubjectOption[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState(DEFAULT_SUBJECT_SLUG);
   const [mcqs, setMcqs] = useState<MCQ[]>([]);
   const [selectedMcqs, setSelectedMcqs] = useState<string[]>([]);
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
@@ -57,10 +65,20 @@ export default function CreateSessionDialog() {
   const [copied, setCopied] = useState(false);
   const [timeLimit, setTimeLimit] = useState("");
 
-  const loadMcqs = async () => {
-    const res = await fetch(`/api/mcq?limit=${SESSION_CREATE_MCQ_FETCH_LIMIT}`);
+  const loadMcqs = async (subject?: string) => {
+    const params = new URLSearchParams({ limit: String(SESSION_CREATE_MCQ_FETCH_LIMIT) });
+    if (subject) params.set("subject", subject);
+    const res = await fetch(`/api/mcq?${params.toString()}`);
     const data = await res.json();
     setMcqs(Array.isArray(data) ? data : []);
+  };
+
+  const loadSubjects = async () => {
+    try {
+      const res = await fetch("/api/subjects");
+      const data = await res.json();
+      setSubjects(Array.isArray(data) ? data : []);
+    } catch {}
   };
 
   const loadClasses = async () => {
@@ -74,7 +92,8 @@ export default function CreateSessionDialog() {
   const handleOpen = (isOpen: boolean) => {
     setOpen(isOpen);
     if (isOpen) {
-      if (mcqs.length === 0) loadMcqs();
+      loadSubjects();
+      if (mcqs.length === 0) loadMcqs(selectedSubject);
       loadClasses();
     }
     if (!isOpen) {
@@ -123,6 +142,7 @@ export default function CreateSessionDialog() {
         title,
         type: contentType,
         items,
+        subject: selectedSubject,
         section: section || undefined,
         timeLimit: timeLimit ? parseInt(timeLimit) : undefined,
       }),
@@ -260,6 +280,26 @@ export default function CreateSessionDialog() {
                   </p>
                 )}
               </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Subject</label>
+              <select
+                className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 outline-none"
+                value={selectedSubject}
+                onChange={(e) => {
+                  setSelectedSubject(e.target.value);
+                  setSelectedMcqs([]);
+                  setSelectedGames([]);
+                  loadMcqs(e.target.value);
+                }}
+              >
+                {subjects.map((s) => (
+                  <option key={s._id} value={s.slug}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3">

@@ -60,7 +60,7 @@ Users: Teacher
 Workflow: Select topic → Browse sections → Navigate prev/next
 Implementation: `src/components/admin/TeacherNotes.tsx`
 Relevant routes: Inline in admin dashboard
-Data source: `src/data/teacher-notes.ts` (static)
+Data source: `src/content/cpp/notes.ts` via `getAllNotes()` from `src/content/registry.ts` (static)
 
 ## Hidden Knowledge
 
@@ -69,7 +69,7 @@ Users: Teacher
 Workflow: Filter by category → Browse entries
 Implementation: `src/components/admin/CppKnowledge.tsx`
 Relevant routes: Inline in admin dashboard
-Data source: `src/data/cpp-knowledge.ts` (static)
+Data source: `src/content/cpp/knowledge.ts` via `getKnowledge()` from `src/content/registry.ts` (static)
 
 ## Learn Pages
 
@@ -92,13 +92,13 @@ Business rules: Correct answers intentionally returned (learning tool), time bon
 
 ## Games
 
-Purpose: Interactive learning games (Output Predictor, Speed Code)
+Purpose: Interactive learning games (Output Predictor, Bug Hunter, Speed Code)
 Users: Student (via session)
 Workflow: Join session → Play game → See score
-Implementation: `src/components/games/OutputPredictor.tsx`, `SpeedCode.tsx`
+Implementation: `src/components/games/OutputPredictor.tsx`, `SpeedCode.tsx`, `BugHunter.tsx`
 Relevant routes: `/s/[code]`
-Data source: `src/data/games.ts`
-Business rules: Three game types: output-predictor, bug-hunter, speed-code
+Data source: `src/content/games.ts` (subject-scoped via `src/content/{subject}/games/*.json`)
+Business rules: Three game types — output-predictor, bug-hunter, speed-code. Each subject has its own game content. Sessions carry a `subject` field that determines which content is served.
 
 ## Student Progress
 

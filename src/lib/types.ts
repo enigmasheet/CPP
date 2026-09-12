@@ -58,6 +58,7 @@ export interface SessionData {
   items: SessionItem[];
   isActive: boolean;
   createdBy: string;
+  subject?: string;
   section?: string;
   maxAttempts?: number;
   timeLimit?: number;

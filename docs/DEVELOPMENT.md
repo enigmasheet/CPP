@@ -51,7 +51,7 @@ src/
 ├── components/       # React components
 │   ├── admin/        # 10 admin dashboard components
 │   ├── content/      # Markdown and code rendering
-│   ├── games/        # OutputPredictor, SpeedCode
+│   ├── games/        # OutputPredictor, BugHunter, SpeedCode
 │   ├── layout/       # AppShell, Navbar, Footer, PageHeader
 │   ├── learn/        # LearnTopicView
 │   ├── providers/    # QueryProvider
@@ -59,7 +59,7 @@ src/
 │   ├── subjects/     # SubjectTopicList, LearnTopicGrid
 │   └── ui/           # 14 shadcn/ui primitives
 ├── config/           # subjects.ts configuration
-├── data/             # Static data (teacher-notes, cpp-knowledge, games)
+├── content/          # Content registry (subjects, notes, knowledge, games, MCQs)
 ├── hooks/            # useAdminAuth + 4 React Query hooks
 ├── lib/              # Utilities (auth, db, constants, validations, etc.)
 ├── models/           # 10 Mongoose models
