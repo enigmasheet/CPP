@@ -42,3 +42,10 @@ export interface GameQuestion {
   difficulty: string;
   timeLimit?: number;
 }
+
+export interface GameTypeMeta {
+  id: string;
+  name: string;
+  description: string;
+  implemented: boolean;
+}
